@@ -131,6 +131,9 @@ export function ConversationalForm({ formFlowData }: Props) {
     <Card className="h-full w-full flex flex-col shadow-2xl">
       <CardHeader className="border-b">
         <p className="font-semibold">{title}</p>
+        <p className="text-sm text-muted-foreground">
+          By FormFlow AI from Google
+        </p>
         <Progress value={progress} className="mt-2" />
       </CardHeader>
       <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
