@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { FormFlowData } from '@/lib/types';
 import { Input } from './ui/input';
 import { Button } from './ui/button';
@@ -16,7 +16,13 @@ interface Props {
 export function SlugEditor({ form }: Props) {
   const [slug, setSlug] = useState(form.slug || '');
   const [isLoading, setIsLoading] = useState(false);
+  const [origin, setOrigin] = useState('');
   const { toast } = useToast();
+
+  useEffect(() => {
+    // This ensures the code runs only on the client, after hydration
+    setOrigin(window.location.origin);
+  }, []);
 
   const handleSave = async () => {
     if (!form.id) return;
@@ -50,7 +56,7 @@ export function SlugEditor({ form }: Props) {
       <div>
         <p className="font-medium">{form.title}</p>
         <p className="text-sm text-muted-foreground">
-          {typeof window !== 'undefined' ? `${window.location.origin}/view/` : '/view/'}
+          {origin ? `${origin}/view/` : '/view/'}
           <strong>{slug || '...'}</strong>
         </p>
       </div>
