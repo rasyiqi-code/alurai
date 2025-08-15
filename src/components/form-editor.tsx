@@ -345,7 +345,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                             })
                           }
                         >
-                          <SelectTrigger className="w-9 h-9 p-0 justify-center">
+                          <SelectTrigger className="w-9 h-9 p-0 justify-center border-0 shadow-none focus-visible:ring-0">
                             <SelectValue asChild>
                               <Icon className="h-4 w-4" />
                             </SelectValue>
