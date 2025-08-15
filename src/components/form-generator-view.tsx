@@ -68,7 +68,7 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full pt-10 md:pt-20">
-      <Card className="w-full max-w-2xl shadow-lg bg-primary text-primary-foreground">
+      <Card className="w-full max-w-2xl shadow-lg bg-primary text-primary-foreground rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-center">Buat Formulir Percakapan</CardTitle>
           <CardDescription className="text-center pt-2 text-primary-foreground/80">
