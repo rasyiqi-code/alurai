@@ -3,7 +3,7 @@ import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import type { FormFlowData } from '@/lib/types';
-import { BarChart, MessageSquare, Eye } from 'lucide-react';
+import { BarChart, Eye } from 'lucide-react';
 import Link from 'next/link';
 
 export default async function AnalyticsDashboardPage() {
@@ -31,15 +31,10 @@ export default async function AnalyticsDashboardPage() {
                 <CardHeader>
                   <CardTitle className="font-headline text-xl">{form.title}</CardTitle>
                   <CardDescription>
-                    A summary of your form's performance.
+                    Select a form to view its submissions.
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <div className="flex items-center gap-4 text-lg">
-                    <MessageSquare className="h-6 w-6 text-primary" />
-                    <span className="font-bold">{form.submissionCount || 0}</span>
-                    <span className="text-muted-foreground">Total Responses</span>
-                  </div>
                   <Button asChild className="w-full">
                     <Link href={`/analytics/${form.id}`}>
                       <Eye className="mr-2" /> View Details

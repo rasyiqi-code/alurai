@@ -113,8 +113,9 @@ export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: 
 const toISOString = (date: any): string | undefined => {
   if (!date) return undefined;
   if (date instanceof Timestamp) return date.toDate().toISOString();
-  if (date.toDate instanceof Function) return date.toDate().toISOString();
+  if (date instanceof Date) return date.toISOString();
   if (typeof date === 'string') return date;
+  if (date.toDate instanceof Function) return date.toDate().toISOString();
   return new Date(date).toISOString();
 }
 
@@ -124,11 +125,8 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
     const q = query(formsCollection, orderBy('createdAt', 'desc'));
     const formSnapshot = await getDocs(q);
     
-    const formListPromises = formSnapshot.docs.map(async (doc) => {
+    const formList = formSnapshot.docs.map(doc => {
       const data = doc.data();
-      const submissionsCollection = collection(db, 'forms', doc.id, 'submissions');
-      const submissionsSnapshot = await getDocs(submissionsCollection);
-
       return {
         id: doc.id,
         ...data,
@@ -136,11 +134,9 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
         updatedAt: toISOString(data.updatedAt),
         publishStartTime: toISOString(data.publishStartTime),
         publishEndTime: toISOString(data.publishEndTime),
-        submissionCount: submissionsSnapshot.size,
       } as FormFlowData;
     });
 
-    const formList = await Promise.all(formListPromises);
     return formList;
   } catch (error) {
     console.error('Error fetching forms:', error);
