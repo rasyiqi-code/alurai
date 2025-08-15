@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, Paperclip, CheckCircle, Bot } from 'lucide-react';
+import { Send, CheckCircle, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
 
@@ -132,7 +132,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       <CardHeader className="border-b">
         <p className="font-semibold">{title}</p>
         <p className="text-sm text-muted-foreground">
-          By AlurAI from Google
+          Oleh AlurAI dari Google
         </p>
         <Progress value={progress} className="mt-2" />
       </CardHeader>
@@ -149,7 +149,7 @@ export function ConversationalForm({ formFlowData }: Props) {
          {isCompleted && (
             <div className="flex items-center gap-2 text-green-600 font-semibold justify-center">
               <CheckCircle size={20} />
-              <p>Form completed!</p>
+              <p>Formulir selesai!</p>
             </div>
           )}
       </CardContent>
@@ -163,7 +163,7 @@ export function ConversationalForm({ formFlowData }: Props) {
               <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
               <Button type="submit" size="sm">
                 <Send className="h-4 w-4 mr-2" />
-                {currentStep === formFlow.length - 1 ? 'Submit' : 'Next'}
+                {currentStep === formFlow.length - 1 ? 'Kirim' : 'Berikutnya'}
               </Button>
             </div>
           </form>

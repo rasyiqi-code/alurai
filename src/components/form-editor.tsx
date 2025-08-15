@@ -12,7 +12,7 @@ import type { FormFlowData, FormField } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -74,7 +74,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const addField = () => {
     const newField: FormField = {
       id: crypto.randomUUID(),
-      question: 'New Question',
+      question: 'Pertanyaan Baru',
       inputType: 'text',
       validationRules: [],
       key: 'newQuestion',
@@ -94,7 +94,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           ...prev,
           flow: prev.flow.map((field) =>
           field.id === fieldId
-            ? { ...field, options: [...(field.options || []), 'New Option'] }
+            ? { ...field, options: [...(field.options || []), 'Opsi Baru'] }
             : field
         )}
       }
@@ -169,32 +169,32 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
 
   return (
     <Card className="h-full overflow-hidden flex flex-col">
-      <div className="p-4 border-b flex justify-between items-center gap-4">
+      <CardHeader className="p-4 border-b flex-row justify-between items-center gap-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="outline" onClick={handleOptimize}>
-              <Sparkles className="mr-2 h-4 w-4" /> Optimize Flow
+              <Sparkles className="mr-2 h-4 w-4" /> Optimalkan Alur
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Optimization Suggestions</AlertDialogTitle>
+              <AlertDialogTitle>Saran Pengoptimalan</AlertDialogTitle>
               <AlertDialogDescription>
-                Here are some AI-powered suggestions to improve your form's conversion rate and user experience.
+                Berikut adalah beberapa saran berbasis AI untuk meningkatkan tingkat konversi dan pengalaman pengguna formulir Anda.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="max-h-80 overflow-y-auto p-1">
               {optimizing ? (
                 <div className="flex items-center justify-center h-20">
                   <Spinner />
-                  <span className="ml-2">Generating suggestions...</span>
+                  <span className="ml-2">Membuat saran...</span>
                 </div>
               ) : (
                 <p className="whitespace-pre-wrap">{suggestions}</p>
               )}
             </div>
             <AlertDialogFooter>
-              <AlertDialogAction>Got it, thanks!</AlertDialogAction>
+              <AlertDialogAction>Mengerti, terima kasih!</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -204,10 +204,10 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
             {copied ? <ClipboardCheck className="h-4 w-4" /> : <Clipboard className="h-4 w-4" />}
           </Button>
         </div>
-      </div>
+      </CardHeader>
       <CardContent className="p-4 space-y-4 overflow-y-auto flex-1">
         <div className="p-4 border rounded-lg bg-card shadow-sm">
-          <Label htmlFor="form-title">Form Title</Label>
+          <Label htmlFor="form-title">Judul Formulir</Label>
           <Input
             id="form-title"
             value={title}
@@ -222,7 +222,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
               <div className="flex-1 space-y-4">
                 <div className="flex justify-between items-start">
                   <div className='w-full'>
-                    <Label htmlFor={`question-${field.id}`}>Question</Label>
+                    <Label htmlFor={`question-${field.id}`}>Pertanyaan</Label>
                     <Input
                       id={`question-${field.id}`}
                       value={field.question}
@@ -240,22 +240,22 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          This action cannot be undone. This will permanently delete this form field.
+                          Tindakan ini tidak dapat dibatalkan. Ini akan menghapus bidang formulir ini secara permanen.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogCancel>Batal</AlertDialogCancel>
                         <AlertDialogAction onClick={() => removeField(field.id)}>
-                          Delete
+                          Hapus
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
                 <div>
-                  <Label htmlFor={`inputType-${field.id}`}>Input Type</Label>
+                  <Label htmlFor={`inputType-${field.id}`}>Tipe Input</Label>
                   <Select
                     value={field.inputType}
                     onValueChange={(value) =>
@@ -265,23 +265,23 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                     }
                   >
                     <SelectTrigger id={`inputType-${field.id}`}>
-                      <SelectValue placeholder="Select input type" />
+                      <SelectValue placeholder="Pilih tipe input" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text">Text</SelectItem>
+                      <SelectItem value="text">Teks</SelectItem>
                       <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="number">Number</SelectItem>
-                      <SelectItem value="date">Date</SelectItem>
+                      <SelectItem value="number">Angka</SelectItem>
+                      <SelectItem value="date">Tanggal</SelectItem>
                       <SelectItem value="textarea">Textarea</SelectItem>
-                      <SelectItem value="select">Select</SelectItem>
-                      <SelectItem value="file">File Upload</SelectItem>
+                      <SelectItem value="select">Pilihan</SelectItem>
+                      <SelectItem value="file">Unggah File</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {field.inputType === 'select' && (
                   <div className="space-y-2 pl-4 border-l-2 ml-2">
-                    <Label>Options</Label>
+                    <Label>Opsi</Label>
                     {field.options?.map((option, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <Input
@@ -298,7 +298,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                       </div>
                     ))}
                     <Button variant="outline" size="sm" onClick={() => addOption(field.id)}>
-                      <Plus className="mr-2 h-4 w-4" /> Add Option
+                      <Plus className="mr-2 h-4 w-4" /> Tambah Opsi
                     </Button>
                   </div>
                 )}
@@ -307,7 +307,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           </div>
         ))}
         <Button onClick={addField} variant="secondary" className="w-full">
-          <Plus className="mr-2 h-4 w-4" /> Add Question
+          <Plus className="mr-2 h-4 w-4" /> Tambah Pertanyaan
         </Button>
       </CardContent>
     </Card>

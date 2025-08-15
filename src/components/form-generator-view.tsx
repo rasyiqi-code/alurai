@@ -70,9 +70,9 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
     <div className="flex flex-col items-center justify-center w-full h-full pt-10 md:pt-20">
       <Card className="w-full max-w-2xl shadow-lg">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">Create a Conversational Form</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center">Buat Formulir Percakapan</CardTitle>
           <CardDescription className="text-center pt-2">
-            Describe the form you want to build, and let AI handle the rest.
+            Jelaskan formulir yang ingin Anda buat, dan biarkan AI yang mengerjakan sisanya.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -83,10 +83,10 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
                 name="description"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="sr-only">Form Description</FormLabel>
+                    <FormLabel className="sr-only">Deskripsi Formulir</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="e.g., 'A contact form with name, email, and message fields.'"
+                        placeholder="misalnya, 'Formulir kontak dengan kolom nama, email, dan pesan.'"
                         className="min-h-[150px] text-base"
                         {...field}
                       />
@@ -95,18 +95,18 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
                   </FormItem>
                 )}
               />
-              <div className="flex justify-between items-center">
-                <Button type="button" variant="link" onClick={setExample} className="p-0 h-auto">
-                  Use an example
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4">
+                <Button type="button" variant="link" onClick={setExample} className="p-0 h-auto self-start">
+                  Gunakan contoh
                 </Button>
-                <Button type="submit" disabled={isLoading} size="lg">
+                <Button type="submit" disabled={isLoading} size="lg" className="w-full sm:w-auto">
                   {isLoading ? (
                     <>
-                      <Spinner className="mr-2 h-4 w-4" /> Generating...
+                      <Spinner className="mr-2 h-4 w-4" /> Membuat...
                     </>
                   ) : (
                     <>
-                      <Wand2 className="mr-2 h-4 w-4" /> Generate Form
+                      <Wand2 className="mr-2 h-4 w-4" /> Buat Formulir
                     </>
                   )}
                 </Button>
