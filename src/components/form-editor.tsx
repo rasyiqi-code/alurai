@@ -8,6 +8,14 @@ import {
   ClipboardCheck,
   MoreVertical,
   Copy,
+  Type,
+  Mail,
+  Baseline,
+  Calendar,
+  FileText,
+  ChevronDown,
+  Upload,
+  Hash,
 } from 'lucide-react';
 import type { FormFlowData, FormField } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
@@ -59,6 +67,16 @@ const inputTypePlaceholders: Record<FormField['inputType'], string> = {
   file: 'Unggah file',
 };
 
+const inputTypeIcons: Record<FormField['inputType'], React.ElementType> = {
+  text: Type,
+  email: Mail,
+  number: Hash,
+  date: Calendar,
+  textarea: FileText,
+  select: ChevronDown,
+  file: Upload,
+};
+
 export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const { title, flow: formFlow } = formFlowData;
   const [optimizing, setOptimizing] = React.useState(false);
@@ -70,10 +88,10 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const { toast } = useToast();
 
   React.useEffect(() => {
-    if (formFlow.length > 0 && !formFlow.find(f => f.id === activeFieldId)) {
-      setActiveFieldId(formFlow[0].id);
+    if (formFlow.length > 0 && !formFlow.some(f => f.id === activeFieldId)) {
+        setActiveFieldId(formFlow[0].id);
     } else if (formFlow.length === 0) {
-      setActiveFieldId(null);
+        setActiveFieldId(null);
     }
   }, [formFlow, activeFieldId]);
 
@@ -112,10 +130,13 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   };
 
   const removeField = (id: string) => {
-    setFormFlowData((prev) => {
-      if (!prev) return null;
-      const newFlow = prev.flow.filter((field) => field.id !== id);
-      return { ...prev, flow: newFlow };
+    const fieldToRemove = formFlow.find(f => f.id === id);
+    if (!fieldToRemove) return;
+
+    setFormFlowData(prev => {
+        if (!prev) return null;
+        const newFlow = prev.flow.filter(field => field.id !== id);
+        return { ...prev, flow: newFlow };
     });
   };
 
@@ -259,7 +280,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
         </AlertDialog>
         <div className="flex items-center gap-2">
           <Input value={getShareableLink()} readOnly className="h-9 text-xs" />
-          <Button size="sm" onClick={copyLink}>
+          <Button size="icon" className="h-9 w-9" onClick={copyLink}>
             {copied ? (
               <ClipboardCheck className="h-4 w-4" />
             ) : (
@@ -268,7 +289,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-2 md:p-3 space-y-3 overflow-y-auto flex-1">
+      <CardContent className="p-2 md:p-3 space-y-2 overflow-y-auto flex-1">
         <div
           className={cn(
             'p-3 md:p-4 border rounded-lg bg-background shadow-sm transition-all relative',
@@ -288,144 +309,150 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           />
         </div>
 
-        {formFlow.map((field) => (
-          <div
-            key={field.id}
-            className={cn(
-              'rounded-lg bg-background border transition-all relative',
-              activeFieldId === field.id && 'border-primary shadow-md'
-            )}
-            onClick={() => setActiveFieldId(field.id)}
-          >
-            {activeFieldId === field.id && (
-              <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
-            )}
-            <div className="p-3 md:p-4">
-              {activeFieldId === field.id ? (
-                <div className="flex-1 space-y-4">
-                  <div className="flex justify-between items-start gap-2">
-                    <Input
-                      id={`question-${field.id}`}
-                      value={field.question}
-                      onChange={(e) =>
-                        updateField(field.id, { question: e.target.value })
-                      }
-                      className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
-                      placeholder="Pertanyaan"
-                    />
-                    <div className="flex items-center gap-1">
-                      <Select
-                        value={field.inputType}
-                        onValueChange={(value) =>
-                          updateField(field.id, {
-                            inputType: value as FormField['inputType'],
-                          })
+        {formFlow.map((field) => {
+          const Icon = inputTypeIcons[field.inputType];
+          return (
+            <div
+              key={field.id}
+              className={cn(
+                'rounded-lg bg-background border transition-all relative',
+                activeFieldId === field.id && 'border-primary shadow-md'
+              )}
+              onClick={() => setActiveFieldId(field.id)}
+            >
+              {activeFieldId === field.id && (
+                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
+              )}
+              <div className="p-3 md:p-4">
+                {activeFieldId === field.id ? (
+                  <div className="flex-1 space-y-4">
+                    <div className="flex justify-between items-start gap-1">
+                      <Input
+                        id={`question-${field.id}`}
+                        value={field.question}
+                        onChange={(e) =>
+                          updateField(field.id, { question: e.target.value })
                         }
-                      >
-                        <SelectTrigger className="w-[140px] h-9">
-                          <SelectValue placeholder="Select input type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="text">Text</SelectItem>
-                          <SelectItem value="email">Email</SelectItem>
-                          <SelectItem value="number">Number</SelectItem>
-                          <SelectItem value="date">Date</SelectItem>
-                          <SelectItem value="textarea">Textarea</SelectItem>
-                          <SelectItem value="select">Select</SelectItem>
-                          <SelectItem value="file">File Upload</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <AlertDialog>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
+                        className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
+                        placeholder="Pertanyaan"
+                      />
+                      <div className="flex items-center gap-1">
+                        <Select
+                          value={field.inputType}
+                          onValueChange={(value) =>
+                            updateField(field.id, {
+                              inputType: value as FormField['inputType'],
+                            })
+                          }
+                        >
+                          <SelectTrigger className="w-9 h-9 p-0 justify-center">
+                            <SelectValue asChild>
+                              <Icon className="h-4 w-4" />
+                            </SelectValue>
+                          </SelectTrigger>
+                          <SelectContent>
+                            {Object.entries(inputTypeIcons).map(([key, IconComponent]) => (
+                                <SelectItem key={key} value={key}>
+                                  <div className="flex items-center gap-2">
+                                    <IconComponent className="h-4 w-4" />
+                                    <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                                  </div>
+                                </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <AlertDialog>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-9 w-9 shrink-0"
+                              >
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                onClick={() => duplicateField(field.id)}
+                              >
+                                <Copy className="mr-2 h-4 w-4" />
+                                <span>Gandakan</span>
+                              </DropdownMenuItem>
+                              <AlertDialogTrigger asChild>
+                                <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                  <Trash2 className="mr-2 h-4 w-4" />
+                                  <span>Hapus</span>
+                                </DropdownMenuItem>
+                              </AlertDialogTrigger>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle className="font-headline">
+                                Apakah anda yakin?
+                              </AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Tindakan ini tidak bisa dibatalkan. Ini akan
+                                menghapus bidang formulir ini secara permanen.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => removeField(field.id)}
+                              >
+                                Hapus
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
+                    </div>
+                    {field.inputType === 'select' && (
+                      <div className="space-y-2 pl-2">
+                        {field.options?.map((option, i) => (
+                          <div key={i} className="flex items-center gap-2">
+                            <Input
+                              value={option}
+                              onChange={(e) =>
+                                updateOption(field.id, i, e.target.value)
+                              }
+                              placeholder={`Opsi ${i + 1}`}
+                            />
                             <Button
                               variant="ghost"
                               size="icon"
                               className="h-9 w-9 shrink-0"
+                              onClick={() => removeOption(field.id, i)}
                             >
-                              <MoreVertical className="h-4 w-4" />
+                              <Trash2 className="h-4 w-4" />
                             </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem
-                              onClick={() => duplicateField(field.id)}
-                            >
-                              <Copy className="mr-2 h-4 w-4" />
-                              <span>Gandakan</span>
-                            </DropdownMenuItem>
-                            <AlertDialogTrigger asChild>
-                              <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                <span>Hapus</span>
-                              </DropdownMenuItem>
-                            </AlertDialogTrigger>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle className="font-headline">
-                              Apakah anda yakin?
-                            </AlertDialogTitle>
-                            <AlertDialogDescription>
-                              Tindakan ini tidak bisa dibatalkan. Ini akan
-                              menghapus bidang formulir ini secara permanen.
-                            </AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Batal</AlertDialogCancel>
-                            <AlertDialogAction
-                              onClick={() => removeField(field.id)}
-                            >
-                              Hapus
-                            </AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
+                          </div>
+                        ))}
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => addOption(field.id)}
+                        >
+                          <Plus className="mr-2 h-4 w-4" /> Tambah Opsi
+                        </Button>
+                      </div>
+                    )}
                   </div>
-                  {field.inputType === 'select' && (
-                    <div className="space-y-2 pl-2">
-                      {field.options?.map((option, i) => (
-                        <div key={i} className="flex items-center gap-2">
-                          <Input
-                            value={option}
-                            onChange={(e) =>
-                              updateOption(field.id, i, e.target.value)
-                            }
-                            placeholder={`Opsi ${i + 1}`}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-9 w-9 shrink-0"
-                            onClick={() => removeOption(field.id, i)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      ))}
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => addOption(field.id)}
-                      >
-                        <Plus className="mr-2 h-4 w-4" /> Tambah Opsi
-                      </Button>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <p className="font-medium">{field.question}</p>
-                  <p className="text-sm text-muted-foreground mt-2 border-b border-dashed">
-                    {inputTypePlaceholders[field.inputType]}
-                  </p>
-                </div>
-              )}
+                ) : (
+                  <div>
+                    <p className="font-medium">{field.question}</p>
+                    <p className="text-sm text-muted-foreground mt-2 border-b border-dashed">
+                      {inputTypePlaceholders[field.inputType]}
+                    </p>
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
         <Button onClick={addField} variant="secondary" className="w-full">
           <Plus className="mr-2 h-4 w-4" /> Tambah Pertanyaan
         </Button>
