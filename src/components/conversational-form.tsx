@@ -66,7 +66,9 @@ export function ConversationalForm({ formFlowData }: Props) {
         setMessages(prev => [
             ...prev, 
             {type: 'bot', content: "Great! I've analyzed your text. Click the suggestions to fill the form."},
+            {type: 'bot', content: formFlow[0].question }
         ]);
+        setCurrentStep(0);
     }
   };
 
@@ -90,7 +92,9 @@ export function ConversationalForm({ formFlowData }: Props) {
   
   const handleSuggestionClick = (suggestion: string) => {
     const currentField = formFlow[currentStep];
-    setAnswers({ ...answers, [currentField.key]: suggestion });
+    if (currentField) {
+        setAnswers(prev => ({ ...prev, [currentField.key]: suggestion }));
+    }
   };
 
   const validateAndProceed = async (field: FormField, answer: any, currentAnswers: FormAnswers) => {
@@ -171,21 +175,20 @@ export function ConversationalForm({ formFlowData }: Props) {
     if (!suggestedAnswers) return null;
 
     const currentFieldKey = formFlow[currentStep]?.key;
-    const suggestionForCurrentField = suggestedAnswers[currentFieldKey];
-
-    // Get all suggestions except the one for the current field
-    const otherSuggestions = Object.entries(suggestedAnswers)
-      .filter(([key]) => key !== currentFieldKey)
-      .map(([, value]) => value as string)
-      .filter(Boolean); // Filter out empty or null values
-
-    const allSuggestions = [suggestionForCurrentField, ...otherSuggestions].flat().filter(Boolean).slice(0, 5);
-
-    if (allSuggestions.length === 0) return null;
+    if (!currentFieldKey) return null;
+    
+    const relevantSuggestions = Object.entries(suggestedAnswers)
+        .filter(([key, value]) => value && (key === currentFieldKey || typeof value === 'string'))
+        .map(([, value]) => value)
+        .flat() // Handle cases where a value might be an array
+        .filter((value, index, self) => self.indexOf(value) === index) // Unique values
+        .slice(0, 5);
+    
+    if (relevantSuggestions.length === 0) return null;
 
     return (
       <div className="mb-2 flex flex-wrap gap-2">
-        {allSuggestions.map((suggestion, index) => (
+        {relevantSuggestions.map((suggestion, index) => (
           <Button
             key={index}
             variant="outline"
@@ -212,7 +215,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       );
     }
     
-    if (formFlow.length === 0) return null;
+    if (formFlow.length === 0 || currentStep >= formFlow.length) return null;
 
     const currentField = formFlow[currentStep];
 
