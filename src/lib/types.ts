@@ -19,6 +19,7 @@ export type FormFlowData = {
   status?: 'draft' | 'published';
   publishStartTime?: string;
   publishEndTime?: string;
+  submissionCount?: number;
 };
 
 export type FormAnswers = Record<string, string | number | File | null>;

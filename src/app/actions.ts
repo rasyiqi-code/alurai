@@ -7,7 +7,7 @@ import { FormFlow, FormFlowData, FormAnswers } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
-import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit, collectionGroup } from 'firebase/firestore';
 
 
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
@@ -123,8 +123,11 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
     const formsCollection = collection(db, 'forms');
     const q = query(formsCollection, orderBy('createdAt', 'desc'));
     const formSnapshot = await getDocs(q);
-    const formList = formSnapshot.docs.map(doc => {
+    
+    const formListPromises = formSnapshot.docs.map(async (doc) => {
       const data = doc.data();
+      const submissionsCollection = collection(db, 'forms', doc.id, 'submissions');
+      const submissionsSnapshot = await getDocs(submissionsCollection);
 
       return {
         id: doc.id,
@@ -133,8 +136,11 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
         updatedAt: toISOString(data.updatedAt),
         publishStartTime: toISOString(data.publishStartTime),
         publishEndTime: toISOString(data.publishEndTime),
+        submissionCount: submissionsSnapshot.size,
       } as FormFlowData;
     });
+
+    const formList = await Promise.all(formListPromises);
     return formList;
   } catch (error) {
     console.error('Error fetching forms:', error);
@@ -220,6 +226,29 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
     console.error('Error saving submission:', error);
     return { error: 'Failed to save the submission. Please try again later.' };
   }
+}
+
+export async function getSubmissionsAction(formId: string): Promise<any[] | { error: string }> {
+    try {
+        const submissionsCollection = collection(db, 'forms', formId, 'submissions');
+        const q = query(submissionsCollection, orderBy('submittedAt', 'desc'));
+        const snapshot = await getDocs(q);
+        
+        const submissions = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                ...data,
+                submittedAt: toISOString(data.submittedAt),
+            }
+        });
+
+        return submissions;
+
+    } catch (error) {
+        console.error('Error fetching submissions:', error);
+        return { error: 'Failed to fetch submissions for this form.' };
+    }
 }
 
 export async function updateFormSlugAction(formId: string, slug: string): Promise<{ success: boolean } | { error: string }> {
