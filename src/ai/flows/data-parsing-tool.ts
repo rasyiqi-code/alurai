@@ -46,7 +46,7 @@ The following is the unstructured text provided by the user.
 Your goal is to populate a JSON object that strictly conforms to the Zod schema. Extract the values from the Input Data and assign them to the correct keys in the JSON output. 
 - If you cannot find a value for a specific field, leave it out of the JSON object. 
 - Do not invent data.
-- If no data can be extracted from the input, return an empty JSON object like {}.
+- If no data can be extracted from the input, you MUST return an empty JSON object like {}.
 
 Parsed Data (JSON):
 `,  
@@ -66,12 +66,13 @@ const dataParsingFlow = ai.defineFlow(
       return output ?? {};
     } catch (e: any) {
       console.error('Error during data parsing:', e);
-      // It's possible the model returns a non-JSON string.
+      // It's possible the model returns a non-JSON string or something else fails during generation.
       // Instead of throwing an error, we'll return an empty object
       // so the user experience isn't blocked.
-      if (e.message.includes('Failed to parse JSON')) {
+      if (e.message.includes('Failed to parse') || e.message.includes('No valid JSON')) {
         return {};
       }
+      // For other errors, we still might want to throw to understand the issue.
       throw new Error(`Data parsing failed: ${e.message}`);
     }
   }
