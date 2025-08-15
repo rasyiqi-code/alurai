@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, CheckCircle, Bot, RefreshCw } from 'lucide-react';
+import { Send, CheckCircle, Bot, RefreshCw, Edit } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
 import { saveSubmissionAction, validateAnswerAction } from '@/app/actions';
@@ -35,6 +35,9 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
+  const [suggestedAnswers, setSuggestedAnswers] = useState<Record<string, any> | null>(null);
+  const [isManualInput, setIsManualInput] = useState(false);
+  
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -52,35 +55,17 @@ export function ConversationalForm({ formFlowData }: Props) {
     setIsCompleted(false);
     setIsSubmitted(false);
     setIsSubmitting(false);
+    setSuggestedAnswers(null);
+    setIsManualInput(false);
     if (formFlow.length > 0) {
       setMessages([{ type: 'bot', content: formFlow[0].question }]);
     }
   };
   
   const handleDataParsed = (parsedData: Record<string, any>) => {
-    const newAnswers = { ...answers };
-    let firstUnansweredStep = -1;
-
-    formFlow.forEach((field, index) => {
-      if (parsedData[field.key]) {
-        newAnswers[field.key] = parsedData[field.key];
-      }
-      if (!newAnswers[field.key] && firstUnansweredStep === -1) {
-        firstUnansweredStep = index;
-      }
-    });
-
-    setAnswers(newAnswers);
-
-    const nextStep = firstUnansweredStep !== -1 ? firstUnansweredStep : formFlow.length;
-    
-    if (nextStep >= formFlow.length) {
-      setIsCompleted(true);
-      setMessages(prev => [...prev, {type: 'bot', content: "Thanks! I've filled the form with your data. Please review and submit."}]);
-    } else {
-       setCurrentStep(nextStep);
-       setMessages(prev => [...prev, {type: 'bot', content: "Great, I've filled in what I could. Let's continue with the rest."}, { type: 'bot', content: formFlow[nextStep].question }]);
-    }
+    setSuggestedAnswers(parsedData);
+    setIsManualInput(false); // Reset to suggestion mode
+    setMessages(prev => [...prev, {type: 'bot', content: "Great! I've analyzed your text. Let's confirm the details one by one."}]);
   };
 
   const handleSubmission = async () => {
@@ -100,51 +85,62 @@ export function ConversationalForm({ formFlowData }: Props) {
       setMessages(prev => [...prev, { type: 'user', content: 'Submit Form' }, { type: 'bot', content: 'Thank you for completing the form! Your submission has been received.'}]);
     }
   };
-
-  const handleNextStep = async (e: React.FormEvent) => {
-    e.preventDefault();
+  
+  const handleSuggestionClick = (suggestion: string) => {
     const currentField = formFlow[currentStep];
-    const answer = answers[currentField.key];
+    const newAnswers = { ...answers, [currentField.key]: suggestion };
+    setAnswers(newAnswers);
+    // Directly trigger validation and next step
+    validateAndProceed(currentField, suggestion);
+  };
 
-    const answerContent =
-      currentField.inputType === 'file'
+  const validateAndProceed = async (field: FormField, answer: any) => {
+     const answerContent =
+      field.inputType === 'file'
         ? (answer as File)?.name || 'File attached'
         : (answer as string) || '';
-
-    if (!answerContent && currentField.validationRules.includes('required')) {
-        toast({
-            variant: 'destructive',
-            title: 'This field is required.',
-        });
-        return;
-    }
 
     setIsValidating(true);
     setMessages(prev => [...prev, { type: 'user', content: answerContent }, {type: 'bot', content: <Spinner />, isThinking: true}]);
 
-    const validationResult = await validateAnswerAction(currentField, answerContent);
+    const validationResult = await validateAnswerAction(field, answerContent);
 
     // Remove thinking message
     setMessages(prev => prev.filter(m => !m.isThinking));
 
     if ('error' in validationResult) {
         toast({ variant: 'destructive', title: 'Validation Error', description: validationResult.error });
-        // Let the user try again
-        setMessages(prev => [...prev.slice(0, -1)]); // remove user message
+        setMessages(prev => [...prev.slice(0, -1)]);
     } else if (validationResult.isValid) {
         if (currentStep < formFlow.length - 1) {
             const nextStep = currentStep + 1;
             setCurrentStep(nextStep);
+            setIsManualInput(false); // Reset for next suggestion
             setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
         } else {
             setIsCompleted(true);
             setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
         }
     } else {
-        // Answer is invalid, remove user's message and show feedback
         setMessages(prev => [...prev.slice(0,-1), { type: 'bot', content: validationResult.feedback }]);
     }
     setIsValidating(false);
+  }
+
+  const handleNextStep = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const currentField = formFlow[currentStep];
+    const answer = answers[currentField.key];
+
+    if (!answer && currentField.validationRules.includes('required')) {
+        toast({
+            variant: 'destructive',
+            title: 'This field is required.',
+        });
+        return;
+    }
+    
+    validateAndProceed(currentField, answer);
   };
 
   const renderInput = (field: FormField) => {
@@ -170,6 +166,54 @@ export function ConversationalForm({ formFlowData }: Props) {
         return <Input type={field.inputType} value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
     }
   };
+
+  const renderFooterContent = () => {
+    if (isCompleted) {
+       return (
+        <div className="w-full flex flex-col items-center gap-4">
+          <Button onClick={handleSubmission} size="lg" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? <Spinner className='mr-2' /> : <Send className="h-4 w-4 mr-2" />}
+            {isSubmitting ? 'Submitting...' : 'Submit Form'}
+          </Button>
+        </div>
+      );
+    }
+    
+    if (formFlow.length === 0) return null;
+
+    const currentField = formFlow[currentStep];
+    const suggestion = suggestedAnswers?.[currentField.key];
+    
+    if (suggestion && !isManualInput) {
+       return (
+        <div className="w-full flex flex-col items-center gap-2">
+            <p className="text-sm text-muted-foreground mb-2">AI Suggestion:</p>
+            <Button onClick={() => handleSuggestionClick(suggestion)} variant="outline" className="w-full text-base py-6">
+                {suggestion}
+            </Button>
+            <Button onClick={() => setIsManualInput(true)} variant="ghost" size="sm" className="text-primary hover:text-primary">
+                <Edit className="h-4 w-4 mr-2" />
+                Enter Manually
+            </Button>
+        </div>
+       )
+    }
+
+    return (
+      <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
+        <div>
+          {renderInput(currentField)}
+        </div>
+        <div className='flex items-center justify-between'>
+          <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
+          <Button type="submit" size="sm" disabled={isValidating}>
+            {isValidating ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
+            {isValidating ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
+          </Button>
+        </div>
+      </form>
+    );
+  }
 
   const progress = isCompleted ? 100 : (currentStep / formFlow.length) * 100;
 
@@ -207,29 +251,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       </CardContent>
       {!isSubmitted && (
         <CardFooter className="border-t p-4">
-          {isCompleted ? (
-            <div className="w-full flex flex-col items-center gap-4">
-               <Button onClick={handleSubmission} size="lg" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? <Spinner className='mr-2' /> : <Send className="h-4 w-4 mr-2" />}
-                {isSubmitting ? 'Submitting...' : 'Submit Form'}
-              </Button>
-            </div>
-          ) : (
-             formFlow.length > 0 && (
-                <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
-                  <div>
-                  {renderInput(formFlow[currentStep])}
-                  </div>
-                  <div className='flex items-center justify-between'>
-                    <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
-                    <Button type="submit" size="sm" disabled={isValidating}>
-                      {isValidating ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
-                      {isValidating ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
-                    </Button>
-                  </div>
-                </form>
-              )
-          )}
+          {renderFooterContent()}
         </CardFooter>
       )}
     </Card>
