@@ -31,6 +31,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [answers, setAnswers] = useState<FormAnswers>({});
   const [messages, setMessages] = useState<Message[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -47,6 +48,7 @@ export function ConversationalForm({ formFlowData }: Props) {
     setCurrentStep(0);
     setAnswers({});
     setIsCompleted(false);
+    setIsSubmitted(false);
     setIsSubmitting(false);
     if (formFlow.length > 0) {
       setMessages([{ type: 'bot', content: formFlow[0].question }]);
@@ -92,7 +94,8 @@ export function ConversationalForm({ formFlowData }: Props) {
       toast({ variant: 'destructive', title: 'Submission Failed', description: result.error });
       setMessages(prev => [...prev, { type: 'bot', content: 'Sorry, there was an error submitting your form. Please try again.'}]);
     } else {
-      setMessages(prev => [...prev, { type: 'bot', content: 'Thank you for completing the form! Your submission has been received.'}]);
+      setIsSubmitted(true);
+      setMessages(prev => [...prev, { type: 'user', content: 'Submit Form' }, { type: 'bot', content: 'Thank you for completing the form! Your submission has been received.'}]);
     }
   };
 
@@ -118,7 +121,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
     } else {
       setIsCompleted(true);
-      handleSubmission();
+      setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
     }
   };
 
@@ -167,11 +170,11 @@ export function ConversationalForm({ formFlowData }: Props) {
             {msg.type === 'user' && <Avatar className='h-8 w-8'><AvatarFallback>U</AvatarFallback></Avatar>}
           </div>
         ))}
-         {isCompleted && (
+         {isSubmitted && (
             <div className="text-center p-4 flex flex-col items-center justify-center gap-4">
               <div className="flex items-center gap-2 text-green-600 font-semibold">
                 <CheckCircle size={20} />
-                <p>Form completed!</p>
+                <p>Submission Received!</p>
               </div>
               <Button onClick={startForm} variant="outline" size="sm">
                 <RefreshCw className="mr-2 h-4 w-4" />
@@ -180,20 +183,31 @@ export function ConversationalForm({ formFlowData }: Props) {
             </div>
           )}
       </CardContent>
-      {!isCompleted && formFlow.length > 0 && (
+      {!isSubmitted && (
         <CardFooter className="border-t p-4">
-          <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
-            <div>
-             {renderInput(formFlow[currentStep])}
-            </div>
-            <div className='flex items-center justify-between'>
-              <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
-              <Button type="submit" size="sm" disabled={isSubmitting}>
+          {isCompleted ? (
+            <div className="w-full flex flex-col items-center gap-4">
+               <Button onClick={handleSubmission} size="lg" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? <Spinner className='mr-2' /> : <Send className="h-4 w-4 mr-2" />}
-                {currentStep === formFlow.length - 1 ? (isSubmitting ? 'Submitting...' : 'Submit') : 'Next'}
+                {isSubmitting ? 'Submitting...' : 'Submit Form'}
               </Button>
             </div>
-          </form>
+          ) : (
+             formFlow.length > 0 && (
+                <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
+                  <div>
+                  {renderInput(formFlow[currentStep])}
+                  </div>
+                  <div className='flex items-center justify-between'>
+                    <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
+                    <Button type="submit" size="sm">
+                      <Send className="h-4 w-4 mr-2" />
+                      {currentStep === formFlow.length - 1 ? 'Finish' : 'Next'}
+                    </Button>
+                  </div>
+                </form>
+              )
+          )}
         </CardFooter>
       )}
     </Card>
