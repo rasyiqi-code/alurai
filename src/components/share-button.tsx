@@ -11,8 +11,8 @@ export function ShareButton({ formId }: { formId: string }) {
     const shareLink = `${window.location.origin}/form/${formId}`;
     navigator.clipboard.writeText(shareLink);
     toast({
-      title: 'Link disalin!',
-      description: 'Tautan formulir telah disalin ke clipboard Anda.',
+      title: 'Link copied!',
+      description: 'The form link has been copied to your clipboard.',
     });
   };
 

@@ -59,13 +59,13 @@ interface Props {
 }
 
 const inputTypePlaceholders: Record<FormField['inputType'], string> = {
-  text: 'Jawaban singkat',
-  email: 'Alamat email',
-  number: 'Angka',
-  date: 'Tanggal',
-  textarea: 'Jawaban panjang',
-  select: 'Pilihan',
-  file: 'Unggah file',
+  text: 'Short answer',
+  email: 'Email address',
+  number: 'Number',
+  date: 'Date',
+  textarea: 'Long answer',
+  select: 'Choice',
+  file: 'File upload',
 };
 
 const inputTypeIcons: Record<FormField['inputType'], React.ElementType> = {
@@ -129,7 +129,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const addField = () => {
     const newField: FormField = {
       id: crypto.randomUUID(),
-      question: 'Tanpa judul',
+      question: 'Untitled Question',
       inputType: 'text',
       validationRules: [],
       key: 'newQuestion',
@@ -176,7 +176,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
         ...prev,
         flow: prev.flow.map((field) =>
           field.id === fieldId
-            ? { ...field, options: [...(field.options || []), 'Opsi baru'] }
+            ? { ...field, options: [...(field.options || []), 'New Option'] }
             : field
         ),
       };
@@ -288,7 +288,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
             <div className='flex items-center gap-2'>
               <Button variant="outline" onClick={handleSave} disabled={saving}>
                 {saving ? <Spinner className='mr-2 h-4 w-4' /> : <Save className="mr-2 h-4 w-4" />}
-                {saving ? 'Menyimpan...' : 'Simpan Draf'}
+                {saving ? 'Saving...' : 'Save Draft'}
               </Button>
               <AlertDialog>
                 <AlertDialogTrigger asChild>
@@ -348,7 +348,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           )}
           <Input
             id="form-title"
-            placeholder="Judul Formulir"
+            placeholder="Form Title"
             value={title}
             onChange={(e) => updateTitle(e.target.value)}
             className="text-lg font-semibold font-headline border-0 shadow-none focus-visible:ring-0 pl-2"
@@ -380,7 +380,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                           updateField(field.id, { question: e.target.value })
                         }
                         className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
-                        placeholder="Pertanyaan"
+                        placeholder="Question"
                       />
                       <div className="flex items-center gap-1">
                         <Select
@@ -427,12 +427,12 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                                 onClick={() => duplicateField(field.id)}
                               >
                                 <Copy className="mr-2 h-4 w-4" />
-                                <span>Gandakan</span>
+                                <span>Duplicate</span>
                               </DropdownMenuItem>
                               <AlertDialogTrigger asChild>
                                 <DropdownMenuItem className="text-destructive focus:text-destructive">
                                   <Trash2 className="mr-2 h-4 w-4" />
-                                  <span>Hapus</span>
+                                  <span>Delete</span>
                                 </DropdownMenuItem>
                               </AlertDialogTrigger>
                             </DropdownMenuContent>
@@ -441,19 +441,19 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                           <AlertDialogContent>
                             <AlertDialogHeader>
                               <AlertDialogTitle className="font-headline">
-                                Apakah anda yakin?
+                                Are you sure?
                               </AlertDialogTitle>
                               <AlertDialogDescription>
-                                Tindakan ini tidak bisa dibatalkan. Ini akan
-                                menghapus bidang formulir ini secara permanen.
+                                This action cannot be undone. This will
+                                permanently delete this form field.
                               </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                              <AlertDialogCancel>Batal</AlertDialogCancel>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => removeField(field.id)}
                               >
-                                Hapus
+                                Delete
                               </AlertDialogAction>
                             </AlertDialogFooter>
                           </AlertDialogContent>
@@ -469,7 +469,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                               onChange={(e) =>
                                 updateOption(field.id, i, e.target.value)
                               }
-                              placeholder={`Opsi ${i + 1}`}
+                              placeholder={`Option ${i + 1}`}
                             />
                             <Button
                               variant="ghost"
@@ -486,7 +486,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                           size="sm"
                           onClick={() => addOption(field.id)}
                         >
-                          <Plus className="mr-2 h-4 w-4" /> Tambah Opsi
+                          <Plus className="mr-2 h-4 w-4" /> Add Option
                         </Button>
                       </div>
                     )}
@@ -504,7 +504,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           );
         })}
         <Button onClick={addField} variant="secondary" className="w-full">
-          <Plus className="mr-2 h-4 w-4" /> Tambah Pertanyaan
+          <Plus className="mr-2 h-4 w-4" /> Add Question
         </Button>
       </CardContent>
     </Card>

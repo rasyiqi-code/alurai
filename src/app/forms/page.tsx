@@ -26,10 +26,10 @@ export default async function FormsPage() {
       <Header />
       <main className="flex-1 container mx-auto px-4 py-6 md:p-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold font-headline">Formulir Anda</h1>
+          <h1 className="text-3xl font-bold font-headline">Your Forms</h1>
           <Button asChild>
             <Link href="/">
-              <Plus className="mr-2 h-4 w-4" /> Buat Formulir Baru
+              <Plus className="mr-2 h-4 w-4" /> Create New Form
             </Link>
           </Button>
         </div>
@@ -37,18 +37,18 @@ export default async function FormsPage() {
         {/* Desktop View: Table */}
         <Card className="hidden md:block">
           <CardHeader>
-            <CardTitle>Formulir Tersimpan</CardTitle>
+            <CardTitle>Saved Forms</CardTitle>
             <CardDescription>
-              Berikut adalah daftar formulir yang telah Anda buat dan simpan.
+              Here is a list of the forms you have created and saved.
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Judul</TableHead>
-                  <TableHead>Tanggal Dibuat</TableHead>
-                  <TableHead className="text-right">Aksi</TableHead>
+                  <TableHead>Title</TableHead>
+                  <TableHead>Date Created</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -73,7 +73,7 @@ export default async function FormsPage() {
                 ) : (
                   <TableRow>
                     <TableCell colSpan={3} className="text-center">
-                      Anda belum memiliki formulir tersimpan.
+                      You haven't saved any forms yet.
                     </TableCell>
                   </TableRow>
                 )}
@@ -108,7 +108,7 @@ export default async function FormsPage() {
             <Card>
               <CardContent className="pt-6">
                 <p className="text-center text-muted-foreground">
-                  Anda belum memiliki formulir tersimpan.
+                  You haven't saved any forms yet.
                 </p>
               </CardContent>
             </Card>

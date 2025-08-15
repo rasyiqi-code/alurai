@@ -16,7 +16,7 @@ export function Header() {
         <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
           <Link href="/forms">
             <List className="mr-2 h-4 w-4" />
-            Formulir Tersimpan
+            Saved Forms
           </Link>
         </Button>
       </div>
