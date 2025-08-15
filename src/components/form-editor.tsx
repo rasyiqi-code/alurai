@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import React, { useState } from 'react';
+import React, from 'react';
 import { optimizeFormAction } from '@/app/actions';
 import { Spinner } from './spinner';
 import { useToast } from '@/hooks/use-toast';
@@ -64,10 +64,19 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const [optimizing, setOptimizing] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState('');
   const [copied, setCopied] = React.useState(false);
-  const [activeFieldId, setActiveFieldId] = useState<string | null>(
+  const [activeFieldId, setActiveFieldId] = React.useState<string | null>(
     formFlow[0]?.id || null
   );
   const { toast } = useToast();
+
+  // Handle setting active field when formFlow changes (e.g., after deleting a field)
+  React.useEffect(() => {
+    if (formFlow.length > 0 && !formFlow.find(f => f.id === activeFieldId)) {
+      setActiveFieldId(formFlow[0].id);
+    } else if (formFlow.length === 0) {
+      setActiveFieldId(null);
+    }
+  }, [formFlow, activeFieldId]);
 
   const updateField = (id: string, newField: Partial<FormField>) => {
     setFormFlowData((prevData) => {
@@ -107,11 +116,6 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
     setFormFlowData((prev) => {
       if (!prev) return null;
       const newFlow = prev.flow.filter((field) => field.id !== id);
-      // Set active to the previous field or null if no fields left
-      const currentIndex = prev.flow.findIndex((f) => f.id === id);
-      const nextActiveId =
-        newFlow[currentIndex - 1]?.id || newFlow[0]?.id || null;
-      setActiveFieldId(nextActiveId);
       return { ...prev, flow: newFlow };
     });
   };
@@ -310,37 +314,43 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                       className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
                       placeholder="Pertanyaan"
                     />
-                    <div className='flex items-center gap-2'>
-                    <Select
-                      value={field.inputType}
-                      onValueChange={(value) =>
-                        updateField(field.id, {
-                          inputType: value as FormField['inputType'],
-                        })
-                      }
-                    >
-                      <SelectTrigger className="w-[150px] h-9">
-                        <SelectValue placeholder="Select input type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="text">Text</SelectItem>
-                        <SelectItem value="email">Email</SelectItem>
-                        <SelectItem value="number">Number</SelectItem>
-                        <SelectItem value="date">Date</SelectItem>
-                        <SelectItem value="textarea">Textarea</SelectItem>
-                        <SelectItem value="select">Select</SelectItem>
-                        <SelectItem value="file">File Upload</SelectItem>
-                      </SelectContent>
-                    </Select>
-                     <AlertDialog>
+                    <div className="flex items-center gap-2">
+                      <Select
+                        value={field.inputType}
+                        onValueChange={(value) =>
+                          updateField(field.id, {
+                            inputType: value as FormField['inputType'],
+                          })
+                        }
+                      >
+                        <SelectTrigger className="w-[150px] h-9">
+                          <SelectValue placeholder="Select input type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="text">Text</SelectItem>
+                          <SelectItem value="email">Email</SelectItem>
+                          <SelectItem value="number">Number</SelectItem>
+                          <SelectItem value="date">Date</SelectItem>
+                          <SelectItem value="textarea">Textarea</SelectItem>
+                          <SelectItem value="select">Select</SelectItem>
+                          <SelectItem value="file">File Upload</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <AlertDialog>
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-9 w-9 shrink-0"
+                            >
                               <MoreVertical className="h-4 w-4" />
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => duplicateField(field.id)}>
+                            <DropdownMenuItem
+                              onClick={() => duplicateField(field.id)}
+                            >
                               <Copy className="mr-2 h-4 w-4" />
                               <span>Gandakan</span>
                             </DropdownMenuItem>
@@ -365,7 +375,9 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                           </AlertDialogHeader>
                           <AlertDialogFooter>
                             <AlertDialogCancel>Batal</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => removeField(field.id)}>
+                            <AlertDialogAction
+                              onClick={() => removeField(field.id)}
+                            >
                               Hapus
                             </AlertDialogAction>
                           </AlertDialogFooter>
