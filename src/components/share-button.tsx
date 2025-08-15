@@ -7,7 +7,29 @@ import { useToast } from '@/hooks/use-toast';
 export function ShareButton({ formId }: { formId: string }) {
   const { toast } = useToast();
   
-  const handleShare = () => {
+  const handleShare = async () => {
+    const shareLink = `${window.location.origin}/form/${formId}`;
+    const shareData = {
+      title: 'Check out this form',
+      text: 'Fill out this form I created.',
+      url: shareLink,
+    };
+
+    if (navigator.share && navigator.canShare(shareData)) {
+      try {
+        await navigator.share(shareData);
+      } catch (error) {
+        console.error('Error sharing:', error);
+        // Fallback to clipboard if user cancels share dialog
+        copyToClipboard();
+      }
+    } else {
+      // Fallback for browsers that do not support Web Share API
+      copyToClipboard();
+    }
+  };
+
+  const copyToClipboard = () => {
     const shareLink = `${window.location.origin}/form/${formId}`;
     navigator.clipboard.writeText(shareLink);
     toast({
