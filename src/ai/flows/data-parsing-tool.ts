@@ -33,6 +33,7 @@ const dataParsingPrompt = ai.definePrompt({
 
 Form Schema (Zod):
 Each field in the Zod schema has a description (using .describe()) which corresponds to the question in the form. Use these descriptions to understand what data is expected for each field.
+For fields that represent multiple choices (like checkboxes or multi-select), the Zod schema might expect an array of strings (e.g., z.array(z.string())). You must extract all selected values from the input data and format them into a JSON array for that field.
 \`\`\`
 {{formDataSchema}}
 \`\`\`
@@ -43,7 +44,7 @@ The following is the unstructured text provided by the user.
 {{inputData}}
 \`\`\`
 
-Your goal is to populate a JSON object that strictly conforms to the Zod schema. Extract the values from the Input Data and assign them to the correct keys in the JSON output. 
+Your goal is to populate a JSON object that strictly conforms to the Zod schema. Extract the values from the Input Data and assign them to the correct keys in the JSON output.
 - If you cannot find a value for a specific field, leave it out of the JSON object. 
 - Do not invent data.
 - If no data can be extracted from the input, you MUST return an empty JSON object like {}.
