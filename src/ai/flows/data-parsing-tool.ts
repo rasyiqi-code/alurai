@@ -29,7 +29,7 @@ const dataParsingPrompt = ai.definePrompt({
   name: 'dataParsingPrompt',
   input: {schema: DataParsingInputSchema},
   output: {schema: DataParsingOutputSchema},
-  prompt: `You are an intelligent data parsing tool. Your task is to extract relevant information from unstructured input data and map it to a structured form based on a given Zod schema. The input data may not follow the order of the form fields. You must analyze the semantic meaning of the input data and match it to the field descriptions in the schema.
+  prompt: `You are an intelligent data parsing tool. Your task is to extract relevant information from unstructured input data and map it to a structured form based on a given Zod schema.
 
 Form Schema (Zod):
 Each field in the Zod schema has a description (using .describe()) which corresponds to the question in the form. Use these descriptions to understand what data is expected for each field.
@@ -43,7 +43,10 @@ The following is the unstructured text provided by the user.
 {{inputData}}
 \`\`\`
 
-Your goal is to populate a JSON object that strictly conforms to the Zod schema. Extract the values from the Input Data and assign them to the correct keys in the JSON output. If you cannot find a value for a specific field, leave it out of the JSON object. Do not invent data.
+Your goal is to populate a JSON object that strictly conforms to the Zod schema. Extract the values from the Input Data and assign them to the correct keys in the JSON output. 
+- If you cannot find a value for a specific field, leave it out of the JSON object. 
+- Do not invent data.
+- If no data can be extracted from the input, return an empty JSON object like {}.
 
 Parsed Data (JSON):
 `,  
@@ -58,12 +61,17 @@ const dataParsingFlow = ai.defineFlow(
   async input => {
     try {
       const {output} = await dataParsingPrompt(input);
-      if (!output) {
-        throw new Error('Failed to parse data: No output returned from prompt.');
-      }
-      return output;
+      // The model might return null/undefined if it can't parse anything.
+      // In that case, we'll return an empty object.
+      return output ?? {};
     } catch (e: any) {
       console.error('Error during data parsing:', e);
+      // It's possible the model returns a non-JSON string.
+      // Instead of throwing an error, we'll return an empty object
+      // so the user experience isn't blocked.
+      if (e.message.includes('Failed to parse JSON')) {
+        return {};
+      }
       throw new Error(`Data parsing failed: ${e.message}`);
     }
   }
