@@ -68,10 +68,10 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full pt-10 md:pt-20">
-      <Card className="w-full max-w-2xl shadow-lg bg-primary text-primary-foreground rounded-lg">
+      <Card className="w-full max-w-2xl shadow-lg bg-card rounded-lg">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center">Create a Conversational Form</CardTitle>
-          <CardDescription className="text-center pt-2 text-primary-foreground/80">
+          <CardTitle className="text-3xl font-bold text-center font-headline">Create a Conversational Form</CardTitle>
+          <CardDescription className="text-center pt-2 text-muted-foreground">
             Describe the form you want to create, and let AI handle the rest.
           </CardDescription>
         </CardHeader>
@@ -87,19 +87,19 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
                     <FormControl>
                       <Textarea
                         placeholder="e.g., 'A contact form with name, email, and message fields.'"
-                        className="min-h-[150px] text-base bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/60 border-primary-foreground/30 focus-visible:ring-primary-foreground"
+                        className="min-h-[150px] text-base bg-background text-foreground placeholder:text-muted-foreground border-border focus-visible:ring-ring"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage className="text-background" />
+                    <FormMessage />
                   </FormItem>
                 )}
               />
               <div className="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4">
-                <Button type="button" variant="link" onClick={setExample} className="p-0 h-auto self-start text-primary-foreground/80 hover:text-primary-foreground">
+                <Button type="button" variant="link" onClick={setExample} className="p-0 h-auto self-start text-primary hover:text-primary/90">
                   Use an example
                 </Button>
-                <Button type="submit" disabled={isLoading} size="lg" className="w-full sm:w-auto bg-primary-foreground text-primary hover:bg-primary-foreground/90">
+                <Button type="submit" disabled={isLoading} size="lg" className="w-full sm:w-auto">
                   {isLoading ? (
                     <>
                       <Spinner className="mr-2 h-4 w-4" /> Generating...

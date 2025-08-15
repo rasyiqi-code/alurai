@@ -128,11 +128,11 @@ export function ConversationalForm({ formFlowData }: Props) {
   const progress = isCompleted ? 100 : (currentStep / formFlow.length) * 100;
 
   return (
-    <Card className="h-full w-full flex flex-col shadow-2xl">
+    <Card className="h-full w-full flex flex-col shadow-2xl bg-card">
       <CardHeader className="border-b">
-        <p className="font-semibold">{title}</p>
+        <p className="font-semibold font-headline">{title}</p>
         <p className="text-sm text-muted-foreground">
-          By AlurAI from Google
+          by AlurAI
         </p>
         <Progress value={progress} className="mt-2" />
       </CardHeader>

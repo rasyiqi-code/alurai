@@ -168,7 +168,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   }
 
   return (
-    <Card className="h-full overflow-hidden flex flex-col">
+    <Card className="h-full overflow-hidden flex flex-col bg-card">
       <CardHeader className="p-4 border-b flex-row justify-between items-center gap-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
@@ -178,7 +178,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Optimization Suggestions</AlertDialogTitle>
+              <AlertDialogTitle className="font-headline">Optimization Suggestions</AlertDialogTitle>
               <AlertDialogDescription>
                 Here are some AI-based suggestions to improve your form's conversion rate and user experience.
               </AlertDialogDescription>
@@ -206,17 +206,17 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
         </div>
       </CardHeader>
       <CardContent className="p-4 space-y-4 overflow-y-auto flex-1">
-        <div className="p-4 border rounded-lg bg-card shadow-sm">
+        <div className="p-4 border rounded-lg bg-background shadow-sm">
           <Label htmlFor="form-title">Form Title</Label>
           <Input
             id="form-title"
             value={title}
             onChange={(e) => updateTitle(e.target.value)}
-            className="text-lg font-semibold"
+            className="text-lg font-semibold font-headline"
           />
         </div>
         {formFlow.map((field) => (
-          <div key={field.id} className="p-4 border rounded-lg bg-card shadow-sm">
+          <div key={field.id} className="p-4 border rounded-lg bg-background shadow-sm">
             <div className="flex items-start gap-2">
               <GripVertical className="mt-2.5 h-5 w-5 text-muted-foreground cursor-grab" />
               <div className="flex-1 space-y-4">
@@ -240,7 +240,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogTitle className="font-headline">Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
                           This action cannot be undone. This will permanently delete this form field.
                         </AlertDialogDescription>

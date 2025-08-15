@@ -67,7 +67,7 @@ export function DataParser({ formFlow, onDataParsed }: Props) {
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Intelligent Data Parsing</DialogTitle>
+          <DialogTitle className="font-headline">Intelligent Data Parsing</DialogTitle>
           <DialogDescription>
             Paste a block of text or upload a file, and AI will attempt to fill out the form for you.
           </DialogDescription>
