@@ -4,7 +4,8 @@ import type { Dispatch, SetStateAction } from 'react';
 import { useForm } from 'react-hook-form';
 import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Wand2 } from 'lucide-react';
+import { Wand2, List } from 'lucide-react';
+import Link from 'next/link';
 
 import type { FormFlowData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -68,6 +69,14 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full pt-8 md:pt-20">
+       <div className="absolute top-24 right-8">
+        <Button asChild variant="outline">
+          <Link href="/forms">
+            <List className="mr-2 h-4 w-4" />
+            Lihat Formulir Tersimpan
+          </Link>
+        </Button>
+      </div>
       <Card className="w-full max-w-2xl shadow-lg bg-card rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-center font-headline">Create a Conversational Form</CardTitle>

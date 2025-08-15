@@ -1,0 +1,82 @@
+import { getFormsAction } from '@/app/actions';
+import { Header } from '@/components/header';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import type { FormFlowData } from '@/lib/types';
+import { format } from 'date-fns';
+import { Plus, Pencil } from 'lucide-react';
+import Link from 'next/link';
+
+export default async function FormsPage() {
+  const result = await getFormsAction();
+
+  let forms: FormFlowData[] = [];
+  if ('error' in result) {
+    // Handle error case, maybe show a message
+    console.error(result.error);
+  } else {
+    forms = result;
+  }
+
+  return (
+    <div className="flex flex-col min-h-screen bg-background">
+      <Header />
+      <main className="flex-1 container mx-auto px-4 py-6 md:p-8">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold font-headline">Formulir Anda</h1>
+          <Button asChild>
+            <Link href="/">
+              <Plus className="mr-2 h-4 w-4" /> Buat Formulir Baru
+            </Link>
+          </Button>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Formulir Tersimpan</CardTitle>
+            <CardDescription>
+              Berikut adalah daftar formulir yang telah Anda buat dan simpan.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Judul</TableHead>
+                  <TableHead>Tanggal Dibuat</TableHead>
+                  <TableHead className="text-right">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {forms.length > 0 ? (
+                  forms.map((form) => (
+                    <TableRow key={form.id}>
+                      <TableCell className="font-medium">{form.title}</TableCell>
+                      <TableCell>
+                        {form.createdAt ? format(new Date(form.createdAt), 'PPpp') : 'N/A'}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={`/?formId=${form.id}`}>
+                            <Pencil className="mr-2 h-4 w-4" />
+                            Edit
+                          </Link>
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={3} className="text-center">
+                      Anda belum memiliki formulir tersimpan.
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </main>
+    </div>
+  );
+}

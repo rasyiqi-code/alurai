@@ -13,6 +13,8 @@ export type FormFlowData = {
   id?: string;
   title: string;
   flow: FormFlow;
+  createdAt?: string;
+  updatedAt?: string;
 };
 
 export type FormAnswers = Record<string, string | number | File | null>;
