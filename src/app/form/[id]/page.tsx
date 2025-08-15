@@ -1,5 +1,5 @@
 import { getFormAction } from '@/app/actions';
-import { ConversationalForm } from '@/components/conversational-form';
+import { FormDisplay } from '@/components/form-display';
 import { Header } from '@/components/header';
 import { notFound } from 'next/navigation';
 
@@ -16,7 +16,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
       <Header />
       <main className="flex-1 flex items-center justify-center p-4">
         <div className="w-full max-w-2xl h-[85vh]">
-          <ConversationalForm formFlowData={result} />
+          <FormDisplay formFlowData={result} />
         </div>
       </main>
     </div>

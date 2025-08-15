@@ -11,12 +11,13 @@ import {
   Type,
   Mail,
   Baseline,
-  Calendar,
+  Calendar as CalendarIcon,
   FileText,
   ChevronDown,
   Upload,
   Hash,
   Save,
+  Send,
 } from 'lucide-react';
 import type { FormFlowData, FormField } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
@@ -52,8 +53,10 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
-import Link from 'next/link';
-import { Settings } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Calendar } from './ui/calendar';
+import { Label } from './ui/label';
+import { format } from 'date-fns';
 
 interface Props {
   formFlowData: FormFlowData;
@@ -74,7 +77,7 @@ const inputTypeIcons: Record<FormField['inputType'], React.ElementType> = {
   text: Type,
   email: Mail,
   number: Hash,
-  date: Calendar,
+  date: CalendarIcon,
   textarea: FileText,
   select: ChevronDown,
   file: Upload,
@@ -238,14 +241,21 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
     setOptimizing(false);
   };
 
-  const handleSave = async () => {
+  const handleSave = async (publish = false) => {
     setSaving(true);
-    const result = await saveFormAction(formFlowData);
+    
+    const dataToSave = {
+        ...formFlowData,
+        status: publish ? 'published' : formFlowData.status || 'draft',
+    };
+
+    const result = await saveFormAction(dataToSave);
+
     if ('id' in result) {
-      setFormFlowData(prev => prev ? {...prev, id: result.id} : null);
+      setFormFlowData(prev => prev ? {...dataToSave, id: result.id} : null);
       toast({
         title: 'Success',
-        description: 'Your form has been saved successfully.',
+        description: `Your form has been ${publish ? 'published' : 'saved'}.`,
       });
     } else {
       toast({
@@ -255,7 +265,15 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
       });
     }
     setSaving(false);
+    return 'id' in result;
   };
+
+  const handlePublish = async () => {
+    const success = await handleSave(true);
+    if(success) {
+        // Potentially close the popover here if needed
+    }
+  }
 
   const getShareableLink = () => {
     if (typeof window !== 'undefined' && formFlowData.id) {
@@ -284,6 +302,13 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const updateTitle = (newTitle: string) => {
     setFormFlowData((prev) => (prev ? { ...prev, title: newTitle } : null));
   };
+  
+  const setDate = (field: 'publishStartTime' | 'publishEndTime', date?: Date) => {
+    setFormFlowData(prev => {
+        if (!prev) return null;
+        return { ...prev, [field]: date?.toISOString() };
+    });
+  }
 
   return (
     <Card className="h-full overflow-hidden flex flex-col bg-card border-0 shadow-none">
@@ -291,7 +316,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
          <div className="overflow-x-auto whitespace-nowrap">
           <div className="flex justify-between items-center gap-4 min-w-[500px]">
             <div className='flex items-center gap-2'>
-              <Button variant="outline" onClick={handleSave} disabled={saving}>
+              <Button variant="outline" onClick={() => handleSave()} disabled={saving}>
                 {saving ? <Spinner className='mr-2 h-4 w-4' /> : <Save className="mr-2 h-4 w-4" />}
                 {saving ? 'Saving...' : 'Save Draft'}
               </Button>
@@ -326,11 +351,80 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
-               <Button variant="outline" asChild>
-                <Link href="/settings">
-                  <Settings className="mr-2 h-4 w-4" /> Custom URL
-                </Link>
-              </Button>
+               <Popover>
+                <PopoverTrigger asChild>
+                  <Button>
+                    <Send className="mr-2 h-4 w-4" />
+                    Publish
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-80">
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <h4 className="font-medium leading-none font-headline">Publish Settings</h4>
+                      <p className="text-sm text-muted-foreground">
+                        Set a window for when your form will be available.
+                      </p>
+                    </div>
+                    <div className="grid gap-2">
+                      <div className="grid grid-cols-3 items-center gap-4">
+                        <Label htmlFor="start-date">Start</Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                variant={"outline"}
+                                className={cn(
+                                    "w-[160px] justify-start text-left font-normal col-span-2",
+                                    !formFlowData.publishStartTime && "text-muted-foreground"
+                                )}
+                                >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {formFlowData.publishStartTime ? format(new Date(formFlowData.publishStartTime), "PPP") : <span>Pick a date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                mode="single"
+                                selected={formFlowData.publishStartTime ? new Date(formFlowData.publishStartTime) : undefined}
+                                onSelect={(date) => setDate('publishStartTime', date)}
+                                initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                      </div>
+                      <div className="grid grid-cols-3 items-center gap-4">
+                        <Label htmlFor="end-date">End</Label>
+                        <Popover>
+                            <PopoverTrigger asChild>
+                                <Button
+                                variant={"outline"}
+                                className={cn(
+                                    "w-[160px] justify-start text-left font-normal col-span-2",
+                                    !formFlowData.publishEndTime && "text-muted-foreground"
+                                )}
+                                >
+                                <CalendarIcon className="mr-2 h-4 w-4" />
+                                {formFlowData.publishEndTime ? format(new Date(formFlowData.publishEndTime), "PPP") : <span>Pick a date</span>}
+                                </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-0">
+                                <Calendar
+                                mode="single"
+                                selected={formFlowData.publishEndTime ? new Date(formFlowData.publishEndTime) : undefined}
+                                onSelect={(date) => setDate('publishEndTime', date)}
+                                initialFocus
+                                />
+                            </PopoverContent>
+                        </Popover>
+                      </div>
+                    </div>
+                    <Button onClick={handlePublish} disabled={saving}>
+                        {saving ? <Spinner className="mr-2 h-4 w-4" /> : null}
+                        Save & Publish
+                    </Button>
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
             <div className="flex items-center gap-2">
               <Input value={getShareableLink()} readOnly className="h-9 text-xs" />
