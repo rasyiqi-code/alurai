@@ -65,7 +65,13 @@ export function ConversationalForm({ formFlowData }: Props) {
   const handleDataParsed = (parsedData: Record<string, any>) => {
     setSuggestedAnswers(parsedData);
     setIsManualInput(false); // Reset to suggestion mode
-    setMessages(prev => [...prev, {type: 'bot', content: "Great! I've analyzed your text. Let's confirm the details one by one."}]);
+    if (formFlow.length > 0) {
+        setMessages(prev => [
+            ...prev, 
+            {type: 'bot', content: "Great! I've analyzed your text. Let's confirm the details one by one."},
+            {type: 'bot', content: formFlow[currentStep].question}
+        ]);
+    }
   };
 
   const handleSubmission = async () => {
@@ -91,10 +97,10 @@ export function ConversationalForm({ formFlowData }: Props) {
     const newAnswers = { ...answers, [currentField.key]: suggestion };
     setAnswers(newAnswers);
     // Directly trigger validation and next step
-    validateAndProceed(currentField, suggestion);
+    validateAndProceed(currentField, suggestion, newAnswers);
   };
 
-  const validateAndProceed = async (field: FormField, answer: any) => {
+  const validateAndProceed = async (field: FormField, answer: any, currentAnswers: FormAnswers) => {
      const answerContent =
       field.inputType === 'file'
         ? (answer as File)?.name || 'File attached'
@@ -112,6 +118,7 @@ export function ConversationalForm({ formFlowData }: Props) {
         toast({ variant: 'destructive', title: 'Validation Error', description: validationResult.error });
         setMessages(prev => [...prev.slice(0, -1)]);
     } else if (validationResult.isValid) {
+        setAnswers(currentAnswers);
         if (currentStep < formFlow.length - 1) {
             const nextStep = currentStep + 1;
             setCurrentStep(nextStep);
@@ -140,7 +147,7 @@ export function ConversationalForm({ formFlowData }: Props) {
         return;
     }
     
-    validateAndProceed(currentField, answer);
+    validateAndProceed(currentField, answer, answers);
   };
 
   const renderInput = (field: FormField) => {
