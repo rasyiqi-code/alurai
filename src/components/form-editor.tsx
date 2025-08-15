@@ -32,7 +32,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
-import React, from 'react';
+import React from 'react';
 import { optimizeFormAction } from '@/app/actions';
 import { Spinner } from './spinner';
 import { useToast } from '@/hooks/use-toast';
@@ -69,7 +69,6 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   );
   const { toast } = useToast();
 
-  // Handle setting active field when formFlow changes (e.g., after deleting a field)
   React.useEffect(() => {
     if (formFlow.length > 0 && !formFlow.find(f => f.id === activeFieldId)) {
       setActiveFieldId(formFlow[0].id);
@@ -314,7 +313,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                       className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
                       placeholder="Pertanyaan"
                     />
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1">
                       <Select
                         value={field.inputType}
                         onValueChange={(value) =>
@@ -323,7 +322,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                           })
                         }
                       >
-                        <SelectTrigger className="w-[150px] h-9">
+                        <SelectTrigger className="w-[140px] h-9">
                           <SelectValue placeholder="Select input type" />
                         </SelectTrigger>
                         <SelectContent>
