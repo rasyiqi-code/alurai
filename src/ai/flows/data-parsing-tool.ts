@@ -17,9 +17,11 @@ const DataParsingInputSchema = z.object({
 });
 export type DataParsingInput = z.infer<typeof DataParsingInputSchema>;
 
-const DataParsingOutputSchema = z.record(z.string(), z.any())
+// The output can be any JSON object, so we'll validate it within the flow.
+const DataParsingOutputSchema = z.any()
   .describe('A record representing the parsed form fields and their values.');
-export type DataParsingOutput = z.infer<typeof DataParsingOutputSchema>;
+export type DataParsingOutput = Record<string, any>;
+
 
 export async function intelligentlyParseDataToFillForm(input: DataParsingInput): Promise<DataParsingOutput> {
   return dataParsingFlow(input);
@@ -57,24 +59,24 @@ const dataParsingFlow = ai.defineFlow(
   {
     name: 'dataParsingFlow',
     inputSchema: DataParsingInputSchema,
-    outputSchema: DataParsingOutputSchema,
+    outputSchema: z.record(z.string(), z.any()), // We'll validate the final output here.
   },
   async input => {
     try {
       const {output} = await dataParsingPrompt(input);
+      // Validate the output to ensure it's a record-like object.
       // The model might return null/undefined if it can't parse anything.
-      // In that case, we'll return an empty object.
-      return output ?? {};
+      if (output && typeof output === 'object' && !Array.isArray(output)) {
+        return output as Record<string, any>;
+      }
+      // If output is not a valid object, return an empty one.
+      return {};
     } catch (e: any) {
-      console.error('Error during data parsing:', e);
+      console.error('Error during data parsing flow:', e);
       // It's possible the model returns a non-JSON string or something else fails during generation.
       // Instead of throwing an error, we'll return an empty object
       // so the user experience isn't blocked.
-      if (e.message.includes('Failed to parse') || e.message.includes('No valid JSON')) {
-        return {};
-      }
-      // For other errors, we still might want to throw to understand the issue.
-      throw new Error(`Data parsing failed: ${e.message}`);
+      return {};
     }
   }
 );
