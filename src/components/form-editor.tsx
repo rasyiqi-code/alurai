@@ -332,27 +332,27 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                         <SelectItem value="file">File Upload</SelectItem>
                       </SelectContent>
                     </Select>
-                     <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
-                            <MoreVertical className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent>
-                          <DropdownMenuItem onClick={() => duplicateField(field.id)}>
-                            <Copy className="mr-2 h-4 w-4" />
-                            <span>Gandakan</span>
-                          </DropdownMenuItem>
-                          <AlertDialogTrigger asChild>
-                            <DropdownMenuItem className="text-destructive focus:text-destructive">
-                              <Trash2 className="mr-2 h-4 w-4" />
-                              <span>Hapus</span>
+                     <AlertDialog>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => duplicateField(field.id)}>
+                              <Copy className="mr-2 h-4 w-4" />
+                              <span>Gandakan</span>
                             </DropdownMenuItem>
-                          </AlertDialogTrigger>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <AlertDialogTrigger asChild>
+                              <DropdownMenuItem className="text-destructive focus:text-destructive">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                <span>Hapus</span>
+                              </DropdownMenuItem>
+                            </AlertDialogTrigger>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
 
-                      <AlertDialog>
                         <AlertDialogContent>
                           <AlertDialogHeader>
                             <AlertDialogTitle className="font-headline">
