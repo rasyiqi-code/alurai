@@ -17,7 +17,7 @@ export default async function SettingsPage() {
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
       <main className="flex-1 container mx-auto px-4 py-6 md:p-8">
-        <h1 className="text-3xl font-bold font-headline mb-6">Settings</h1>
+        <h1 className="text-3xl font-bold font-headline mb-6">Custom URLs</h1>
         <Card>
           <CardHeader>
             <CardTitle>Custom URLs</CardTitle>

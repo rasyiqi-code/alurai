@@ -1,7 +1,7 @@
 import { Logo } from '@/components/icons/logo';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { List, Settings } from 'lucide-react';
+import { List, Link as LinkIcon } from 'lucide-react';
 
 export function Header() {
   return (
@@ -22,8 +22,8 @@ export function Header() {
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
             <Link href="/settings">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
+              <LinkIcon className="mr-2 h-4 w-4" />
+              Custom URL
             </Link>
           </Button>
         </div>
