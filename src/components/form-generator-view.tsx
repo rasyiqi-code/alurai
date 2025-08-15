@@ -68,10 +68,10 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full pt-10 md:pt-20">
-      <Card className="w-full max-w-2xl shadow-lg">
+      <Card className="w-full max-w-2xl shadow-lg bg-primary text-primary-foreground">
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-center">Buat Formulir Percakapan</CardTitle>
-          <CardDescription className="text-center pt-2">
+          <CardDescription className="text-center pt-2 text-primary-foreground/80">
             Jelaskan formulir yang ingin Anda buat, dan biarkan AI yang mengerjakan sisanya.
           </CardDescription>
         </CardHeader>
@@ -87,19 +87,19 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
                     <FormControl>
                       <Textarea
                         placeholder="misalnya, 'Formulir kontak dengan kolom nama, email, dan pesan.'"
-                        className="min-h-[150px] text-base"
+                        className="min-h-[150px] text-base bg-primary-foreground/10 text-primary-foreground placeholder:text-primary-foreground/60 border-primary-foreground/30 focus-visible:ring-primary-foreground"
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage className="text-background" />
                   </FormItem>
                 )}
               />
               <div className="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4">
-                <Button type="button" variant="link" onClick={setExample} className="p-0 h-auto self-start">
+                <Button type="button" variant="link" onClick={setExample} className="p-0 h-auto self-start text-primary-foreground/80 hover:text-primary-foreground">
                   Gunakan contoh
                 </Button>
-                <Button type="submit" disabled={isLoading} size="lg" className="w-full sm:w-auto">
+                <Button type="submit" disabled={isLoading} size="lg" className="w-full sm:w-auto bg-primary-foreground text-primary hover:bg-primary-foreground/90">
                   {isLoading ? (
                     <>
                       <Spinner className="mr-2 h-4 w-4" /> Membuat...
