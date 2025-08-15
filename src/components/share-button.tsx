@@ -6,9 +6,9 @@ import { useToast } from '@/hooks/use-toast';
 
 export function ShareButton({ formId }: { formId: string }) {
   const { toast } = useToast();
-  const shareLink = `${window.location.origin}/form/${formId}`;
   
   const handleShare = () => {
+    const shareLink = `${window.location.origin}/form/${formId}`;
     navigator.clipboard.writeText(shareLink);
     toast({
       title: 'Link disalin!',
