@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Wand2 } from 'lucide-react';
 
-import type { FormFlow } from '@/lib/types';
+import type { FormFlowData } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
@@ -22,12 +22,12 @@ const formSchema = z.object({
 });
 
 interface Props {
-  setFormFlow: Dispatch<SetStateAction<FormFlow | null>>;
+  setFormFlowData: Dispatch<SetStateAction<FormFlowData | null>>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   isLoading: boolean;
 }
 
-export function FormGeneratorView({ setFormFlow, setIsLoading, isLoading }: Props) {
+export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: Props) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -49,7 +49,7 @@ export function FormGeneratorView({ setFormFlow, setIsLoading, isLoading }: Prop
     } else if (typeof result === 'string') {
       try {
         const parsedFlow = JSON.parse(result);
-        setFormFlow(parsedFlow);
+        setFormFlowData(parsedFlow);
       } catch (e) {
         toast({
           variant: 'destructive',

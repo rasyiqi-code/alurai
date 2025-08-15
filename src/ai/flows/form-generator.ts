@@ -24,7 +24,7 @@ const GenerateFormFlowOutputSchema = z.object({
   formFlow: z
     .string()
     .describe(
-      'A JSON representation of the generated conversational form flow, including questions, input types, and validation rules.'
+      'A JSON representation of the generated conversational form flow, including a title and questions, input types, and validation rules.'
     ),
 });
 export type GenerateFormFlowOutput = z.infer<typeof GenerateFormFlowOutputSchema>;
@@ -41,7 +41,7 @@ const prompt = ai.definePrompt({
   output: {schema: GenerateFormFlowOutputSchema},
   prompt: `You are an expert in designing conversational form flows.  A user will provide a description of the form they want to create, and you will generate a JSON representation of the form flow.
 
-The JSON should include a series of steps. Each step should have:
+The JSON should have a "title" property for the form's title and a "flow" property which is an array of steps. Each step in the "flow" array should have:
 - A "question" field containing the question to ask the user.
 - An "inputType" field describing the type of input expected from the user (e.g., "text", "number", "email", "file", "date", "select", "textarea").
 - A "validationRules" field containing an array of validation rules to apply to the input (e.g., "required", "email", "minLength:3", "maxLength:100").

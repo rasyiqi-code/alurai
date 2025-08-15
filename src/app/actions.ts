@@ -10,16 +10,21 @@ import { z } from 'zod';
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
   try {
     const result = await generateFormFlowFromDescription({ description });
-    const parsedFlow = JSON.parse(result.formFlow);
+    const parsedResult = JSON.parse(result.formFlow);
 
     // Add id and key to each field
-    const flowWithIds = parsedFlow.map((field: any, index: number) => ({
+    const flowWithIds = parsedResult.flow.map((field: any, index: number) => ({
       ...field,
       id: crypto.randomUUID(),
       key: toCamelCase(field.question) || `field${index + 1}`,
     }));
+
+    const finalData = {
+      title: parsedResult.title,
+      flow: flowWithIds,
+    }
     
-    return JSON.stringify(flowWithIds);
+    return JSON.stringify(finalData);
   } catch (error) {
     console.error(error);
     return { error: 'Failed to generate form. Please try again.' };

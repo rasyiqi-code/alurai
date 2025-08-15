@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import type { FormFlow, FormField, FormAnswers } from '@/lib/types';
+import type { FormFlowData, FormField, FormAnswers } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,7 +14,7 @@ import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
 
 interface Props {
-  formFlow: FormFlow;
+  formFlowData: FormFlowData;
 }
 
 type Message = {
@@ -22,7 +22,8 @@ type Message = {
   content: React.ReactNode;
 };
 
-export function ConversationalForm({ formFlow }: Props) {
+export function ConversationalForm({ formFlowData }: Props) {
+  const { title, flow: formFlow } = formFlowData;
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<FormAnswers>({});
   const [messages, setMessages] = useState<Message[]>([]);
@@ -129,7 +130,7 @@ export function ConversationalForm({ formFlow }: Props) {
   return (
     <Card className="h-full w-full flex flex-col shadow-2xl">
       <CardHeader className="border-b">
-        <p className="font-semibold">Form Submission</p>
+        <p className="font-semibold">{title}</p>
         <Progress value={progress} className="mt-2" />
       </CardHeader>
       <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">

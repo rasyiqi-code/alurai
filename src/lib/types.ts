@@ -9,4 +9,9 @@ export type FormField = {
 
 export type FormFlow = FormField[];
 
+export type FormFlowData = {
+  title: string;
+  flow: FormFlow;
+};
+
 export type FormAnswers = Record<string, string | number | File | null>;

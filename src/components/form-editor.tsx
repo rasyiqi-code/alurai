@@ -5,12 +5,10 @@ import {
   Plus,
   Trash2,
   Sparkles,
-  ChevronDown,
-  ChevronRight,
   Clipboard,
   ClipboardCheck,
 } from 'lucide-react';
-import type { FormFlow, FormField } from '@/lib/types';
+import type { FormFlowData, FormField } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,7 +21,6 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -41,30 +38,36 @@ import { Spinner } from './spinner';
 import { useToast } from '@/hooks/use-toast';
 
 interface Props {
-  formFlow: FormFlow;
-  setFormFlow: Dispatch<SetStateAction<FormFlow | null>>;
+  formFlowData: FormFlowData;
+  setFormFlowData: Dispatch<SetStateAction<FormFlowData | null>>;
 }
 
-export function FormEditor({ formFlow, setFormFlow }: Props) {
+export function FormEditor({ formFlowData, setFormFlowData }: Props) {
+  const { title, flow: formFlow } = formFlowData;
   const [optimizing, setOptimizing] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState('');
   const [copied, setCopied] = React.useState(false);
   const { toast } = useToast();
 
   const updateField = (id: string, newField: Partial<FormField>) => {
-    setFormFlow(
-      (prevFlow) =>
-        prevFlow?.map((field) =>
-          field.id === id
-            ? {
-                ...field,
-                ...newField,
-                ...(newField.question
-                  ? { key: toCamelCase(newField.question) }
-                  : {}),
-              }
-            : field
-        ) || null
+    setFormFlowData(
+      (prevData) => {
+        if (!prevData) return null;
+        return {
+          ...prevData,
+          flow: prevData.flow.map((field) =>
+            field.id === id
+              ? {
+                  ...field,
+                  ...newField,
+                  ...(newField.question
+                    ? { key: toCamelCase(newField.question) }
+                    : {}),
+                }
+              : field
+          )
+        }
+      }
     );
   };
 
@@ -76,49 +79,61 @@ export function FormEditor({ formFlow, setFormFlow }: Props) {
       validationRules: [],
       key: 'newQuestion',
     };
-    setFormFlow((prev) => [...(prev || []), newField]);
+    setFormFlowData((prev) => prev ? { ...prev, flow: [...prev.flow, newField] } : null);
   };
 
   const removeField = (id: string) => {
-    setFormFlow((prev) => prev?.filter((field) => field.id !== id) || null);
+    setFormFlowData((prev) => prev ? { ...prev, flow: prev.flow.filter((field) => field.id !== id)} : null);
   };
 
   const addOption = (fieldId: string) => {
-    setFormFlow(
-      (prev) =>
-        prev?.map((field) =>
+    setFormFlowData(
+      (prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          flow: prev.flow.map((field) =>
           field.id === fieldId
             ? { ...field, options: [...(field.options || []), 'New Option'] }
             : field
-        ) || null
+        )}
+      }
     );
   };
 
   const updateOption = (fieldId: string, optionIndex: number, value: string) => {
-    setFormFlow(
-      (prev) =>
-        prev?.map((field) => {
+    setFormFlowData(
+      (prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          flow: prev.flow.map((field) => {
           if (field.id === fieldId) {
             const newOptions = [...(field.options || [])];
             newOptions[optionIndex] = value;
             return { ...field, options: newOptions };
           }
           return field;
-        }) || null
+        })}
+      }
     );
   };
 
   const removeOption = (fieldId: string, optionIndex: number) => {
-    setFormFlow(
-      (prev) =>
-        prev?.map((field) => {
+    setFormFlowData(
+      (prev) => {
+        if (!prev) return null;
+        return {
+          ...prev,
+          flow: prev.flow.map((field) => {
           if (field.id === fieldId) {
             const newOptions = [...(field.options || [])];
             newOptions.splice(optionIndex, 1);
             return { ...field, options: newOptions };
           }
           return field;
-        }) || null
+        })}
+      }
     );
   };
 
@@ -137,7 +152,7 @@ export function FormEditor({ formFlow, setFormFlow }: Props) {
     if (typeof window !== 'undefined') {
       // In a real app, this would point to a unique URL for the saved form.
       // For this demo, we'll encode the form flow in the URL hash.
-      return `${window.location.origin}${window.location.pathname}#form=${btoa(JSON.stringify(formFlow))}`;
+      return `${window.location.origin}${window.location.pathname}#form=${btoa(JSON.stringify(formFlowData))}`;
     }
     return '';
   };
@@ -148,9 +163,13 @@ export function FormEditor({ formFlow, setFormFlow }: Props) {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const updateTitle = (newTitle: string) => {
+    setFormFlowData(prev => prev ? {...prev, title: newTitle} : null);
+  }
+
   return (
     <Card className="h-full overflow-hidden flex flex-col">
-      <div className="p-4 border-b flex justify-between items-center">
+      <div className="p-4 border-b flex justify-between items-center gap-4">
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="outline" onClick={handleOptimize}>
@@ -187,7 +206,16 @@ export function FormEditor({ formFlow, setFormFlow }: Props) {
         </div>
       </div>
       <CardContent className="p-4 space-y-4 overflow-y-auto flex-1">
-        {formFlow.map((field, index) => (
+        <div className="p-4 border rounded-lg bg-card shadow-sm">
+          <Label htmlFor="form-title">Form Title</Label>
+          <Input
+            id="form-title"
+            value={title}
+            onChange={(e) => updateTitle(e.target.value)}
+            className="text-lg font-semibold"
+          />
+        </div>
+        {formFlow.map((field) => (
           <div key={field.id} className="p-4 border rounded-lg bg-card shadow-sm">
             <div className="flex items-start gap-2">
               <GripVertical className="mt-2.5 h-5 w-5 text-muted-foreground cursor-grab" />
