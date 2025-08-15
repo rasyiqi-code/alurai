@@ -282,53 +282,57 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
 
   return (
     <Card className="h-full overflow-hidden flex flex-col bg-card">
-      <CardHeader className="p-4 border-b flex-row justify-between items-center gap-4">
-        <div className='flex items-center gap-2'>
-          <Button variant="outline" onClick={handleSave} disabled={saving}>
-            {saving ? <Spinner className='mr-2 h-4 w-4' /> : <Save className="mr-2 h-4 w-4" />}
-            {saving ? 'Menyimpan...' : 'Simpan Draf'}
-          </Button>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline" onClick={handleOptimize}>
-                <Sparkles className="mr-2 h-4 w-4" /> Optimize Flow
+      <CardHeader className="p-4 border-b">
+         <div className="overflow-x-auto whitespace-nowrap">
+          <div className="flex justify-between items-center gap-4 min-w-[500px]">
+            <div className='flex items-center gap-2'>
+              <Button variant="outline" onClick={handleSave} disabled={saving}>
+                {saving ? <Spinner className='mr-2 h-4 w-4' /> : <Save className="mr-2 h-4 w-4" />}
+                {saving ? 'Menyimpan...' : 'Simpan Draf'}
               </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="font-headline">
-                  Optimization Suggestions
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  Here are some AI-based suggestions to improve your form's
-                  conversion rate and user experience.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="max-h-80 overflow-y-auto p-1">
-                {optimizing ? (
-                  <div className="flex items-center justify-center h-20">
-                    <Spinner />
-                    <span className="ml-2">Generating suggestions...</span>
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" onClick={handleOptimize}>
+                    <Sparkles className="mr-2 h-4 w-4" /> Optimize Flow
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle className="font-headline">
+                      Optimization Suggestions
+                    </AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Here are some AI-based suggestions to improve your form's
+                      conversion rate and user experience.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="max-h-80 overflow-y-auto p-1">
+                    {optimizing ? (
+                      <div className="flex items-center justify-center h-20">
+                        <Spinner />
+                        <span className="ml-2">Generating suggestions...</span>
+                      </div>
+                    ) : (
+                      <p className="whitespace-pre-wrap">{suggestions}</p>
+                    )}
                   </div>
+                  <AlertDialogFooter>
+                    <AlertDialogAction>Got it, thanks!</AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            </div>
+            <div className="flex items-center gap-2">
+              <Input value={getShareableLink()} readOnly className="h-9 text-xs" />
+              <Button size="icon" className="h-9 w-9" onClick={copyLink}>
+                {copied ? (
+                  <ClipboardCheck className="h-4 w-4" />
                 ) : (
-                  <p className="whitespace-pre-wrap">{suggestions}</p>
+                  <Clipboard className="h-4 w-4" />
                 )}
-              </div>
-              <AlertDialogFooter>
-                <AlertDialogAction>Got it, thanks!</AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-        <div className="flex items-center gap-2">
-          <Input value={getShareableLink()} readOnly className="h-9 text-xs" />
-          <Button size="icon" className="h-9 w-9" onClick={copyLink}>
-            {copied ? (
-              <ClipboardCheck className="h-4 w-4" />
-            ) : (
-              <Clipboard className="h-4 w-4" />
-            )}
-          </Button>
+              </Button>
+            </div>
+          </div>
         </div>
       </CardHeader>
       <CardContent className="p-2 md:p-3 space-y-2 overflow-y-auto flex-1">
