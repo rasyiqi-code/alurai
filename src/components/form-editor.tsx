@@ -281,7 +281,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   };
 
   return (
-    <Card className="h-full overflow-hidden flex flex-col bg-card">
+    <Card className="h-full overflow-hidden flex flex-col bg-card border-0 shadow-none">
       <CardHeader className="p-4 border-b">
          <div className="overflow-x-auto whitespace-nowrap">
           <div className="flex justify-between items-center gap-4 min-w-[500px]">
@@ -335,7 +335,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           </div>
         </div>
       </CardHeader>
-      <CardContent className="p-2 md:p-3 space-y-2 overflow-y-auto flex-1">
+      <CardContent className="px-0 pt-2 md:pt-3 space-y-2 overflow-y-auto flex-1">
         <div
           className={cn(
             'p-3 md:p-4 border rounded-lg bg-background shadow-sm transition-all relative',
