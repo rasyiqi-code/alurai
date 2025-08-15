@@ -1,8 +1,7 @@
-import { getFormAction, getSubmissionsAction } from '@/app/actions';
+import { getFormAction } from '@/app/actions';
 import { Header } from '@/components/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { format } from 'date-fns';
 import { MessageSquare, ArrowLeft } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -10,14 +9,13 @@ import { Button } from '@/components/ui/button';
 
 export default async function FormAnalyticsPage({ params }: { params: { id: string } }) {
   const formResult = await getFormAction(params.id);
-  const submissionsResult = await getSubmissionsAction(params.id);
 
   if (!formResult || 'error' in formResult) {
     return notFound();
   }
 
   const form = formResult;
-  const submissions = 'error' in submissionsResult ? [] : submissionsResult;
+  const submissions: any[] = []; // Temporarily remove submissions fetching
 
   const tableHeaders = form.flow.map(field => field.key).filter(key => key !== 'submittedAt');
 
@@ -54,7 +52,7 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
             <CardHeader>
               <CardTitle>Submissions Data</CardTitle>
               <CardDescription>
-                A log of all the responses your form has received.
+                Submissions are not available at this moment due to security policies.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -66,22 +64,11 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {submissions.length > 0 ? (
-                    submissions.map(submission => (
-                      <TableRow key={submission.id}>
-                        <TableCell className="font-medium">
-                          {submission.submittedAt ? format(new Date(submission.submittedAt), 'PPpp') : 'N/A'}
-                        </TableCell>
-                        {tableHeaders.map(key => <TableCell key={key}>{submission[key] || '–'}</TableCell>)}
-                      </TableRow>
-                    ))
-                  ) : (
-                    <TableRow>
-                      <TableCell colSpan={tableHeaders.length + 1} className="text-center">
-                        No submissions yet.
-                      </TableCell>
-                    </TableRow>
-                  )}
+                  <TableRow>
+                    <TableCell colSpan={tableHeaders.length + 1} className="text-center">
+                      No submissions to display.
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </CardContent>
