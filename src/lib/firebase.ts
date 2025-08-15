@@ -2,12 +2,13 @@ import { initializeApp, getApps } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBa60b6Xa869HnjgJCA1DoLE_jp7209vsY",
-  authDomain: "alurai-conversational-forms.firebaseapp.com",
-  projectId: "alurai-conversational-forms",
-  storageBucket: "alurai-conversational-forms.firebasestorage.app",
-  messagingSenderId: "513530691493",
-  appId: "1:513530691493:web:8a0fc80301d68dc3b1724c"
+  "projectId": "formflow-ai-966kl",
+  "appId": "1:584895579440:web:826a8d9f7fddea4756f4f5",
+  "storageBucket": "formflow-ai-966kl.firebasestorage.app",
+  "apiKey": "AIzaSyBnjIkax1IaFr2YA5cCtmdDs4qySi0kMh0",
+  "authDomain": "formflow-ai-966kl.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "584895579440"
 };
 
 // Initialize Firebase
