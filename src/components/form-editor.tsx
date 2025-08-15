@@ -21,7 +21,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -38,7 +37,6 @@ import { optimizeFormAction } from '@/app/actions';
 import { Spinner } from './spinner';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { Separator } from './ui/separator';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -312,6 +310,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                       className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
                       placeholder="Pertanyaan"
                     />
+                    <div className='flex items-center gap-2'>
                     <Select
                       value={field.inputType}
                       onValueChange={(value) =>
@@ -333,6 +332,46 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                         <SelectItem value="file">File Upload</SelectItem>
                       </SelectContent>
                     </Select>
+                     <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon" className="h-9 w-9 shrink-0">
+                            <MoreVertical className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent>
+                          <DropdownMenuItem onClick={() => duplicateField(field.id)}>
+                            <Copy className="mr-2 h-4 w-4" />
+                            <span>Gandakan</span>
+                          </DropdownMenuItem>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem className="text-destructive focus:text-destructive">
+                              <Trash2 className="mr-2 h-4 w-4" />
+                              <span>Hapus</span>
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+
+                      <AlertDialog>
+                        <AlertDialogContent>
+                          <AlertDialogHeader>
+                            <AlertDialogTitle className="font-headline">
+                              Apakah anda yakin?
+                            </AlertDialogTitle>
+                            <AlertDialogDescription>
+                              Tindakan ini tidak bisa dibatalkan. Ini akan
+                              menghapus bidang formulir ini secara permanen.
+                            </AlertDialogDescription>
+                          </AlertDialogHeader>
+                          <AlertDialogFooter>
+                            <AlertDialogCancel>Batal</AlertDialogCancel>
+                            <AlertDialogAction onClick={() => removeField(field.id)}>
+                              Hapus
+                            </AlertDialogAction>
+                          </AlertDialogFooter>
+                        </AlertDialogContent>
+                      </AlertDialog>
+                    </div>
                   </div>
                   {field.inputType === 'select' && (
                     <div className="space-y-2 pl-2">
@@ -374,47 +413,6 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                 </div>
               )}
             </div>
-            {activeFieldId === field.id && (
-              <>
-                <Separator />
-                <div className="p-2 flex justify-end items-center gap-2">
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => duplicateField(field.id)}
-                    title="Gandakan"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                  <AlertDialog>
-                    <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" title="Hapus">
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </AlertDialogTrigger>
-                    <AlertDialogContent>
-                      <AlertDialogHeader>
-                        <AlertDialogTitle className="font-headline">
-                          Apakah anda yakin?
-                        </AlertDialogTitle>
-                        <AlertDialogDescription>
-                          Tindakan ini tidak bisa dibatalkan. Ini akan
-                          menghapus bidang formulir ini secara permanen.
-                        </AlertDialogDescription>
-                      </AlertDialogHeader>
-                      <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
-                        <AlertDialogAction
-                          onClick={() => removeField(field.id)}
-                        >
-                          Hapus
-                        </AlertDialogAction>
-                      </AlertDialogFooter>
-                    </AlertDialogContent>
-                  </AlertDialog>
-                </div>
-              </>
-            )}
           </div>
         ))}
         <Button onClick={addField} variant="secondary" className="w-full">
