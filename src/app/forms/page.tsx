@@ -1,11 +1,11 @@
 import { getFormsAction } from '@/app/actions';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { FormFlowData } from '@/lib/types';
 import { format } from 'date-fns';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Share2 } from 'lucide-react';
 import Link from 'next/link';
 import { ShareButton } from '@/components/share-button';
 
@@ -33,7 +33,9 @@ export default async function FormsPage() {
             </Link>
           </Button>
         </div>
-        <Card>
+
+        {/* Desktop View: Table */}
+        <Card className="hidden md:block">
           <CardHeader>
             <CardTitle>Formulir Tersimpan</CardTitle>
             <CardDescription>
@@ -79,6 +81,39 @@ export default async function FormsPage() {
             </Table>
           </CardContent>
         </Card>
+
+        {/* Mobile View: Cards */}
+        <div className="md:hidden space-y-4">
+          {forms.length > 0 ? (
+            forms.map((form) => (
+              <Card key={form.id} className="w-full">
+                <CardHeader>
+                  <CardTitle className="text-lg">{form.title}</CardTitle>
+                  <CardDescription>
+                    {form.createdAt ? format(new Date(form.createdAt), 'PPpp') : 'N/A'}
+                  </CardDescription>
+                </CardHeader>
+                <CardFooter className="flex justify-end gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/?formId=${form.id}`}>
+                      <Pencil className="mr-2 h-4 w-4" />
+                      Edit
+                    </Link>
+                  </Button>
+                  {form.id && <ShareButton formId={form.id} />}
+                </CardFooter>
+              </Card>
+            ))
+          ) : (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-center text-muted-foreground">
+                  Anda belum memiliki formulir tersimpan.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </main>
     </div>
   );
