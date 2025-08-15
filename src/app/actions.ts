@@ -3,7 +3,7 @@
 import { generateFormFlowFromDescription } from '@/ai/flows/form-generator';
 import { suggestImprovementsToFormFlow } from '@/ai/flows/form-flow-optimization';
 import { intelligentlyParseDataToFillForm } from '@/ai/flows/data-parsing-tool';
-import { FormFlow, FormFlowData } from '@/lib/types';
+import { FormFlow, FormFlowData, FormAnswers } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
@@ -148,5 +148,32 @@ export async function getFormAction(id: string): Promise<FormFlowData | null | {
   } catch (error) {
     console.error('Error fetching form:', error);
     return { error: 'Failed to fetch form. Please try again later.' };
+  }
+}
+
+export async function saveSubmissionAction(formId: string, answers: FormAnswers): Promise<{ id: string } | { error: string }> {
+  try {
+    // We can't store File objects in Firestore, so we'll just store the name for now.
+    const sanitizedAnswers: Record<string, any> = {};
+    for (const key in answers) {
+      const value = answers[key];
+      if (value instanceof File) {
+        sanitizedAnswers[key] = value.name;
+      } else {
+        sanitizedAnswers[key] = value;
+      }
+    }
+
+    const submissionData = {
+      ...sanitizedAnswers,
+      submittedAt: new Date(),
+    };
+    
+    const submissionRef = await addDoc(collection(db, 'forms', formId, 'submissions'), submissionData);
+    return { id: submissionRef.id };
+
+  } catch (error) {
+    console.error('Error saving submission:', error);
+    return { error: 'Failed to save the submission. Please try again later.' };
   }
 }

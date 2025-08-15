@@ -85,17 +85,26 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const [suggestions, setSuggestions] = React.useState('');
   const [copied, setCopied] = React.useState(false);
   const [activeFieldId, setActiveFieldId] = React.useState<string | null>(
-    formFlow[0]?.id || null
+    null
   );
   const { toast } = useToast();
-
+  
   React.useEffect(() => {
-    if (formFlow.length > 0 && !formFlow.some((f) => f.id === activeFieldId)) {
+    if (formFlow.length > 0 && !activeFieldId) {
       setActiveFieldId(formFlow[0].id);
-    } else if (formFlow.length === 0) {
-      setActiveFieldId(null);
     }
   }, [formFlow, activeFieldId]);
+
+  React.useEffect(() => {
+    // This effect ensures that if the active field is deleted,
+    // we select another one to avoid a UI dead state.
+    if (formFlow.length > 0 && !formFlow.some(f => f.id === activeFieldId)) {
+        setActiveFieldId(formFlow[0].id);
+    } else if (formFlow.length === 0) {
+        setActiveFieldId(null);
+    }
+  }, [formFlow, activeFieldId]);
+
 
   const updateField = (id: string, newField: Partial<FormField>) => {
     setFormFlowData((prevData) => {
@@ -247,15 +256,21 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   };
 
   const getShareableLink = () => {
-    if (typeof window !== 'undefined') {
-      return `${window.location.origin}${window.location.pathname}#form=${btoa(
-        JSON.stringify(formFlowData)
-      )}`;
+    if (typeof window !== 'undefined' && formFlowData.id) {
+      return `${window.location.origin}/form/${formFlowData.id}`;
     }
-    return '';
+    return 'Save the form to get a shareable link';
   };
 
   const copyLink = () => {
+    if (!formFlowData.id) {
+       toast({
+        variant: 'destructive',
+        title: 'Cannot Copy Link',
+        description: 'Please save the form first to generate a shareable link.',
+      });
+      return;
+    }
     navigator.clipboard.writeText(getShareableLink());
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);

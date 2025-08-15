@@ -5,8 +5,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { FormFlowData } from '@/lib/types';
 import { format } from 'date-fns';
-import { Plus, Pencil } from 'lucide-react';
+import { Plus, Pencil, Share2 } from 'lucide-react';
 import Link from 'next/link';
+
+function ShareButton({ formId }: { formId: string }) {
+  const shareLink = `${window.location.origin}/form/${formId}`;
+  
+  const handleShare = () => {
+    navigator.clipboard.writeText(shareLink);
+    // In a real app, you'd use a toast notification here.
+    alert('Link copied to clipboard!');
+  };
+
+  return (
+    <Button onClick={handleShare} variant="outline" size="sm" className="ml-2">
+      <Share2 className="mr-2 h-4 w-4" />
+      Share
+    </Button>
+  );
+}
+
 
 export default async function FormsPage() {
   const result = await getFormsAction();
@@ -18,6 +36,11 @@ export default async function FormsPage() {
   } else {
     forms = result;
   }
+  
+  const ShareButtonClient = (await import('next/dynamic')).default(
+    () => Promise.resolve(ShareButton),
+    { ssr: false }
+  );
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -62,6 +85,7 @@ export default async function FormsPage() {
                             Edit
                           </Link>
                         </Button>
+                         {form.id && <ShareButtonClient formId={form.id} />}
                       </TableCell>
                     </TableRow>
                   ))

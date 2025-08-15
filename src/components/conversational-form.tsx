@@ -9,9 +9,12 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, CheckCircle, Bot } from 'lucide-react';
+import { Send, CheckCircle, Bot, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
+import { saveSubmissionAction } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
+import { Spinner } from './spinner';
 
 interface Props {
   formFlowData: FormFlowData;
@@ -23,30 +26,32 @@ type Message = {
 };
 
 export function ConversationalForm({ formFlowData }: Props) {
-  const { title, flow: formFlow } = formFlowData;
+  const { title, flow: formFlow, id: formId } = formFlowData;
   const [currentStep, setCurrentStep] = useState(0);
   const [answers, setAnswers] = useState<FormAnswers>({});
   const [messages, setMessages] = useState<Message[]>([]);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
-    // This effect can be used to load a form from URL hash
-    if (typeof window !== 'undefined' && window.location.hash.startsWith('#form=')) {
-        // In a real app you'd parse this and set the formFlow.
-        // This is just a placeholder for the functionality.
-    }
-  }, []);
-
-  useEffect(() => {
-    if (formFlow.length > 0) {
-      setMessages([{ type: 'bot', content: formFlow[0].question }]);
-    }
+    startForm();
   }, [formFlow]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
+
+  const startForm = () => {
+    setCurrentStep(0);
+    setAnswers({});
+    setIsCompleted(false);
+    setIsSubmitting(false);
+    if (formFlow.length > 0) {
+      setMessages([{ type: 'bot', content: formFlow[0].question }]);
+    }
+  };
   
   const handleDataParsed = (parsedData: Record<string, any>) => {
     const newAnswers = { ...answers };
@@ -67,13 +72,29 @@ export function ConversationalForm({ formFlowData }: Props) {
     
     if (nextStep >= formFlow.length) {
       setIsCompleted(true);
-       setMessages(prev => [...prev, {type: 'bot', content: "Thanks! I've filled the form with your data."}]);
+      setMessages(prev => [...prev, {type: 'bot', content: "Thanks! I've filled the form with your data. Please review and submit."}]);
     } else {
        setCurrentStep(nextStep);
        setMessages(prev => [...prev, {type: 'bot', content: "Great, I've filled in what I could. Let's continue with the rest."}, { type: 'bot', content: formFlow[nextStep].question }]);
     }
   };
 
+  const handleSubmission = async () => {
+    if (!formId) {
+      toast({ variant: 'destructive', title: 'Cannot Submit', description: 'This form has not been saved yet.' });
+      return;
+    }
+    setIsSubmitting(true);
+    const result = await saveSubmissionAction(formId, answers);
+    setIsSubmitting(false);
+
+    if ('error' in result) {
+      toast({ variant: 'destructive', title: 'Submission Failed', description: result.error });
+      setMessages(prev => [...prev, { type: 'bot', content: 'Sorry, there was an error submitting your form. Please try again.'}]);
+    } else {
+      setMessages(prev => [...prev, { type: 'bot', content: 'Thank you for completing the form! Your submission has been received.'}]);
+    }
+  };
 
   const handleNextStep = (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +118,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
     } else {
       setIsCompleted(true);
-      setMessages(prev => [...prev, { type: 'bot', content: 'Thank you for completing the form!'}]);
+      handleSubmission();
     }
   };
 
@@ -147,9 +168,15 @@ export function ConversationalForm({ formFlowData }: Props) {
           </div>
         ))}
          {isCompleted && (
-            <div className="flex items-center gap-2 text-green-600 font-semibold justify-center">
-              <CheckCircle size={20} />
-              <p>Form completed!</p>
+            <div className="text-center p-4 flex flex-col items-center justify-center gap-4">
+              <div className="flex items-center gap-2 text-green-600 font-semibold">
+                <CheckCircle size={20} />
+                <p>Form completed!</p>
+              </div>
+              <Button onClick={startForm} variant="outline" size="sm">
+                <RefreshCw className="mr-2 h-4 w-4" />
+                Fill Again
+              </Button>
             </div>
           )}
       </CardContent>
@@ -161,9 +188,9 @@ export function ConversationalForm({ formFlowData }: Props) {
             </div>
             <div className='flex items-center justify-between'>
               <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
-              <Button type="submit" size="sm">
-                <Send className="h-4 w-4 mr-2" />
-                {currentStep === formFlow.length - 1 ? 'Submit' : 'Next'}
+              <Button type="submit" size="sm" disabled={isSubmitting}>
+                {isSubmitting ? <Spinner className='mr-2' /> : <Send className="h-4 w-4 mr-2" />}
+                {currentStep === formFlow.length - 1 ? (isSubmitting ? 'Submitting...' : 'Submit') : 'Next'}
               </Button>
             </div>
           </form>
