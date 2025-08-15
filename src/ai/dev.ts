@@ -1,1 +1,6 @@
-// Flows will be imported for their side effects in this file.
+import { config } from 'dotenv';
+config();
+
+import '@/ai/flows/form-generator.ts';
+import '@/ai/flows/data-parsing-tool.ts';
+import '@/ai/flows/form-flow-optimization.ts';
