@@ -16,6 +16,7 @@ import {
   ChevronDown,
   Upload,
   Hash,
+  Save,
 } from 'lucide-react';
 import type { FormFlowData, FormField } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
@@ -41,7 +42,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import React from 'react';
-import { optimizeFormAction } from '@/app/actions';
+import { optimizeFormAction, saveFormAction } from '@/app/actions';
 import { Spinner } from './spinner';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -80,6 +81,7 @@ const inputTypeIcons: Record<FormField['inputType'], React.ElementType> = {
 export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const { title, flow: formFlow } = formFlowData;
   const [optimizing, setOptimizing] = React.useState(false);
+  const [saving, setSaving] = React.useState(false);
   const [suggestions, setSuggestions] = React.useState('');
   const [copied, setCopied] = React.useState(false);
   const [activeFieldId, setActiveFieldId] = React.useState<string | null>(
@@ -88,10 +90,10 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const { toast } = useToast();
 
   React.useEffect(() => {
-    if (formFlow.length > 0 && !formFlow.some(f => f.id === activeFieldId)) {
-        setActiveFieldId(formFlow[0].id);
+    if (formFlow.length > 0 && !formFlow.some((f) => f.id === activeFieldId)) {
+      setActiveFieldId(formFlow[0].id);
     } else if (formFlow.length === 0) {
-        setActiveFieldId(null);
+      setActiveFieldId(null);
     }
   }, [formFlow, activeFieldId]);
 
@@ -130,13 +132,13 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   };
 
   const removeField = (id: string) => {
-    const fieldToRemove = formFlow.find(f => f.id === id);
+    const fieldToRemove = formFlow.find((f) => f.id === id);
     if (!fieldToRemove) return;
 
-    setFormFlowData(prev => {
-        if (!prev) return null;
-        const newFlow = prev.flow.filter(field => field.id !== id);
-        return { ...prev, flow: newFlow };
+    setFormFlowData((prev) => {
+      if (!prev) return null;
+      const newFlow = prev.flow.filter((field) => field.id !== id);
+      return { ...prev, flow: newFlow };
     });
   };
 
@@ -225,6 +227,25 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
     setOptimizing(false);
   };
 
+  const handleSave = async () => {
+    setSaving(true);
+    const result = await saveFormAction(formFlowData);
+    if ('id' in result) {
+      setFormFlowData(prev => prev ? {...prev, id: result.id} : null);
+      toast({
+        title: 'Success',
+        description: 'Your form has been saved successfully.',
+      });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: result.error,
+      });
+    }
+    setSaving(false);
+  };
+
   const getShareableLink = () => {
     if (typeof window !== 'undefined') {
       return `${window.location.origin}${window.location.pathname}#form=${btoa(
@@ -247,37 +268,43 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   return (
     <Card className="h-full overflow-hidden flex flex-col bg-card">
       <CardHeader className="p-4 border-b flex-row justify-between items-center gap-4">
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button variant="outline" onClick={handleOptimize}>
-              <Sparkles className="mr-2 h-4 w-4" /> Optimize Flow
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle className="font-headline">
-                Optimization Suggestions
-              </AlertDialogTitle>
-              <AlertDialogDescription>
-                Here are some AI-based suggestions to improve your form's
-                conversion rate and user experience.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="max-h-80 overflow-y-auto p-1">
-              {optimizing ? (
-                <div className="flex items-center justify-center h-20">
-                  <Spinner />
-                  <span className="ml-2">Generating suggestions...</span>
-                </div>
-              ) : (
-                <p className="whitespace-pre-wrap">{suggestions}</p>
-              )}
-            </div>
-            <AlertDialogFooter>
-              <AlertDialogAction>Got it, thanks!</AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
+        <div className='flex items-center gap-2'>
+          <Button variant="outline" onClick={handleSave} disabled={saving}>
+            {saving ? <Spinner className='mr-2 h-4 w-4' /> : <Save className="mr-2 h-4 w-4" />}
+            {saving ? 'Menyimpan...' : 'Simpan Draf'}
+          </Button>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline" onClick={handleOptimize}>
+                <Sparkles className="mr-2 h-4 w-4" /> Optimize Flow
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="font-headline">
+                  Optimization Suggestions
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Here are some AI-based suggestions to improve your form's
+                  conversion rate and user experience.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <div className="max-h-80 overflow-y-auto p-1">
+                {optimizing ? (
+                  <div className="flex items-center justify-center h-20">
+                    <Spinner />
+                    <span className="ml-2">Generating suggestions...</span>
+                  </div>
+                ) : (
+                  <p className="whitespace-pre-wrap">{suggestions}</p>
+                )}
+              </div>
+              <AlertDialogFooter>
+                <AlertDialogAction>Got it, thanks!</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
         <div className="flex items-center gap-2">
           <Input value={getShareableLink()} readOnly className="h-9 text-xs" />
           <Button size="icon" className="h-9 w-9" onClick={copyLink}>
@@ -351,14 +378,18 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
-                            {Object.entries(inputTypeIcons).map(([key, IconComponent]) => (
+                            {Object.entries(inputTypeIcons).map(
+                              ([key, IconComponent]) => (
                                 <SelectItem key={key} value={key}>
                                   <div className="flex items-center gap-2">
                                     <IconComponent className="h-4 w-4" />
-                                    <span>{key.charAt(0).toUpperCase() + key.slice(1)}</span>
+                                    <span>
+                                      {key.charAt(0).toUpperCase() + key.slice(1)}
+                                    </span>
                                   </div>
                                 </SelectItem>
-                            ))}
+                              )
+                            )}
                           </SelectContent>
                         </Select>
                         <AlertDialog>

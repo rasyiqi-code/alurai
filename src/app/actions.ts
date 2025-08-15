@@ -3,9 +3,12 @@
 import { generateFormFlowFromDescription } from '@/ai/flows/form-generator';
 import { suggestImprovementsToFormFlow } from '@/ai/flows/form-flow-optimization';
 import { intelligentlyParseDataToFillForm } from '@/ai/flows/data-parsing-tool';
-import { FormFlow } from '@/lib/types';
+import { FormFlow, FormFlowData } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
 import { z } from 'zod';
+import { db } from '@/lib/firebase';
+import { doc, setDoc, addDoc, collection } from 'firebase/firestore';
+
 
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
   try {
@@ -78,5 +81,23 @@ export async function parseDataAction(formFlow: FormFlow, inputData: string): Pr
   } catch (error) {
     console.error(error);
     return { error: 'Failed to parse data. Please check the input and try again.' };
+  }
+}
+
+export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: string } | { error: string }> {
+  try {
+    if (formFlowData.id) {
+      // Update existing document
+      const formRef = doc(db, 'forms', formFlowData.id);
+      await setDoc(formRef, { ...formFlowData, updatedAt: new Date() }, { merge: true });
+      return { id: formFlowData.id };
+    } else {
+      // Create new document
+      const docRef = await addDoc(collection(db, 'forms'), { ...formFlowData, createdAt: new Date() });
+      return { id: docRef.id };
+    }
+  } catch (error) {
+    console.error('Error saving form:', error);
+    return { error: 'Failed to save the form. Please try again later.' };
   }
 }

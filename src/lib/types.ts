@@ -10,6 +10,7 @@ export type FormField = {
 export type FormFlow = FormField[];
 
 export type FormFlowData = {
+  id?: string;
   title: string;
   flow: FormFlow;
 };
