@@ -110,6 +110,13 @@ export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: 
   }
 }
 
+const toISOString = (date: any): string | undefined => {
+  if (!date) return undefined;
+  if (date instanceof Timestamp) return date.toDate().toISOString();
+  if (date.toDate instanceof Function) return date.toDate().toISOString();
+  if (typeof date === 'string') return date;
+  return new Date(date).toISOString();
+}
 
 export async function getFormsAction(): Promise<FormFlowData[] | { error: string }> {
   try {
@@ -118,19 +125,14 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
     const formSnapshot = await getDocs(q);
     const formList = formSnapshot.docs.map(doc => {
       const data = doc.data();
-      // Ensure timestamps are converted correctly, even if they are null
-      const createdAt = data.createdAt ? (data.createdAt as Timestamp).toDate().toISOString() : undefined;
-      const updatedAt = data.updatedAt ? (data.updatedAt as Timestamp).toDate().toISOString() : undefined;
-      const publishStartTime = data.publishStartTime ? (data.publishStartTime as Timestamp).toDate().toISOString() : undefined;
-      const publishEndTime = data.publishEndTime ? (data.publishEndTime as Timestamp).toDate().toISOString() : undefined;
 
       return {
         id: doc.id,
         ...data,
-        createdAt,
-        updatedAt,
-        publishStartTime,
-        publishEndTime,
+        createdAt: toISOString(data.createdAt),
+        updatedAt: toISOString(data.updatedAt),
+        publishStartTime: toISOString(data.publishStartTime),
+        publishEndTime: toISOString(data.publishEndTime),
       } as FormFlowData;
     });
     return formList;
@@ -150,20 +152,17 @@ export async function getFormAction(id: string): Promise<FormFlowData | null | {
     }
 
     const data = formSnap.data();
-    const createdAt = data.createdAt ? (data.createdAt as Timestamp).toDate().toISOString() : undefined;
-    const updatedAt = data.updatedAt ? (data.updatedAt as Timestamp).toDate().toISOString() : undefined;
-    const publishStartTime = data.publishStartTime ? (data.publishStartTime as Timestamp).toDate().toISOString() : undefined;
-    const publishEndTime = data.publishEndTime ? (data.publishEndTime as Timestamp).toDate().toISOString() : undefined;
 
     return {
       id: formSnap.id,
       ...data,
-      createdAt,
-      updatedAt,
-      publishStartTime,
-      publishEndTime,
+      createdAt: toISOString(data.createdAt),
+      updatedAt: toISOString(data.updatedAt),
+      publishStartTime: toISOString(data.publishStartTime),
+      publishEndTime: toISOString(data.publishEndTime),
     } as FormFlowData;
-  } catch (error) {
+  } catch (error)
+ {
     console.error('Error fetching form:', error);
     return { error: 'Failed to fetch form. Please try again later.' };
   }
@@ -181,18 +180,14 @@ export async function getFormBySlugAction(slug: string): Promise<FormFlowData | 
 
     const formDoc = formSnapshot.docs[0];
     const data = formDoc.data();
-    const createdAt = data.createdAt ? (data.createdAt as Timestamp).toDate().toISOString() : undefined;
-    const updatedAt = data.updatedAt ? (data.updatedAt as Timestamp).toDate().toISOString() : undefined;
-    const publishStartTime = data.publishStartTime ? (data.publishStartTime as Timestamp).toDate().toISOString() : undefined;
-    const publishEndTime = data.publishEndTime ? (data.publishEndTime as Timestamp).toDate().toISOString() : undefined;
 
     return {
       id: formDoc.id,
       ...data,
-      createdAt,
-      updatedAt,
-      publishStartTime,
-      publishEndTime,
+      createdAt: toISOString(data.createdAt),
+      updatedAt: toISOString(data.updatedAt),
+      publishStartTime: toISOString(data.publishStartTime),
+      publishEndTime: toISOString(data.publishEndTime),
     } as FormFlowData;
   } catch (error) {
     console.error('Error fetching form by slug:', error);
