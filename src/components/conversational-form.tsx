@@ -12,7 +12,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Send, CheckCircle, Bot, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
-import { saveSubmissionAction } from '@/app/actions';
+import { saveSubmissionAction, validateAnswerAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Spinner } from './spinner';
 
@@ -23,6 +23,7 @@ interface Props {
 type Message = {
   type: 'bot' | 'user';
   content: React.ReactNode;
+  isThinking?: boolean;
 };
 
 export function ConversationalForm({ formFlowData }: Props) {
@@ -33,6 +34,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [isCompleted, setIsCompleted] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidating, setIsValidating] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
@@ -99,30 +101,50 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
   };
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault();
     const currentField = formFlow[currentStep];
     const answer = answers[currentField.key];
-    
-    if (currentField.validationRules.includes('required') && !answer) {
-        // Basic validation feedback
+
+    const answerContent =
+      currentField.inputType === 'file'
+        ? (answer as File)?.name || 'File attached'
+        : (answer as string) || '';
+
+    if (!answerContent && currentField.validationRules.includes('required')) {
+        toast({
+            variant: 'destructive',
+            title: 'This field is required.',
+        });
         return;
     }
 
-    const answerContent = currentField.inputType === 'file' 
-      ? (answer as File)?.name || 'File attached'
-      : answer as string;
+    setIsValidating(true);
+    setMessages(prev => [...prev, { type: 'user', content: answerContent }, {type: 'bot', content: <Spinner />, isThinking: true}]);
 
-    setMessages(prev => [...prev, { type: 'user', content: answerContent }]);
-    
-    if (currentStep < formFlow.length - 1) {
-      const nextStep = currentStep + 1;
-      setCurrentStep(nextStep);
-      setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
+    const validationResult = await validateAnswerAction(currentField, answerContent);
+
+    // Remove thinking message
+    setMessages(prev => prev.filter(m => !m.isThinking));
+
+    if ('error' in validationResult) {
+        toast({ variant: 'destructive', title: 'Validation Error', description: validationResult.error });
+        // Let the user try again
+        setMessages(prev => [...prev.slice(0, -1)]); // remove user message
+    } else if (validationResult.isValid) {
+        if (currentStep < formFlow.length - 1) {
+            const nextStep = currentStep + 1;
+            setCurrentStep(nextStep);
+            setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
+        } else {
+            setIsCompleted(true);
+            setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
+        }
     } else {
-      setIsCompleted(true);
-      setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
+        // Answer is invalid, remove user's message and show feedback
+        setMessages(prev => [...prev.slice(0,-1), { type: 'bot', content: validationResult.feedback }]);
     }
+    setIsValidating(false);
   };
 
   const renderInput = (field: FormField) => {
@@ -164,7 +186,7 @@ export function ConversationalForm({ formFlowData }: Props) {
         {messages.map((msg, index) => (
           <div key={index} className={cn('flex items-end gap-2', msg.type === 'user' ? 'justify-end' : 'justify-start')}>
             {msg.type === 'bot' && <Avatar className='h-8 w-8'><AvatarFallback className='bg-primary text-primary-foreground'><Bot size={20}/></AvatarFallback></Avatar>}
-            <div className={cn('max-w-[75%] rounded-lg px-4 py-2', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted')}>
+            <div className={cn('max-w-[75%] rounded-lg px-4 py-2', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted', msg.isThinking ? 'p-3' : '')}>
               {msg.content}
             </div>
             {msg.type === 'user' && <Avatar className='h-8 w-8'><AvatarFallback>U</AvatarFallback></Avatar>}
@@ -200,9 +222,9 @@ export function ConversationalForm({ formFlowData }: Props) {
                   </div>
                   <div className='flex items-center justify-between'>
                     <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
-                    <Button type="submit" size="sm">
-                      <Send className="h-4 w-4 mr-2" />
-                      {currentStep === formFlow.length - 1 ? 'Finish' : 'Next'}
+                    <Button type="submit" size="sm" disabled={isValidating}>
+                      {isValidating ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
+                      {isValidating ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
                     </Button>
                   </div>
                 </form>

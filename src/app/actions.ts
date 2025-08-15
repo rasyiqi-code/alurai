@@ -3,7 +3,8 @@
 import { generateFormFlowFromDescription } from '@/ai/flows/form-generator';
 import { suggestImprovementsToFormFlow } from '@/ai/flows/form-flow-optimization';
 import { intelligentlyParseDataToFillForm } from '@/ai/flows/data-parsing-tool';
-import { FormFlow, FormFlowData, FormAnswers } from '@/lib/types';
+import { validateAnswer } from '@/ai/flows/answer-validator';
+import { FormFlow, FormFlowData, FormAnswers, FormField } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
@@ -269,5 +270,22 @@ export async function updateFormSlugAction(formId: string, slug: string): Promis
   } catch (error) {
     console.error('Error updating slug:', error);
     return { error: 'Failed to update the slug. Please try again.' };
+  }
+}
+
+export async function validateAnswerAction(
+  field: FormField,
+  answer: string
+): Promise<{ isValid: boolean; feedback: string } | { error: string }> {
+  try {
+    const result = await validateAnswer({
+      question: field.question,
+      answer: answer,
+      validationRules: field.validationRules,
+    });
+    return result;
+  } catch (error) {
+    console.error('Error validating answer:', error);
+    return { error: 'Failed to validate answer. Please try again.' };
   }
 }
