@@ -172,23 +172,40 @@ export function ConversationalForm({ formFlowData }: Props) {
   };
 
   const renderSuggestions = () => {
-    if (!suggestedAnswers) return null;
+    if (!suggestedAnswers || isCompleted) return null;
 
     const currentFieldKey = formFlow[currentStep]?.key;
     if (!currentFieldKey) return null;
+
+    const relevantSuggestion = suggestedAnswers[currentFieldKey];
     
-    const relevantSuggestions = Object.entries(suggestedAnswers)
-        .filter(([key, value]) => value && (key === currentFieldKey || typeof value === 'string'))
-        .map(([, value]) => value)
-        .flat() // Handle cases where a value might be an array
-        .filter((value, index, self) => self.indexOf(value) === index) // Unique values
-        .slice(0, 5);
+    // Create an array of all available suggestions for quick access
+    const allSuggestions = Object.values(suggestedAnswers).flat().filter(Boolean);
+    if (!relevantSuggestion && allSuggestions.length === 0) return null;
+
+    // Use a Set to ensure unique suggestions
+    const suggestionsToShow = new Set<string>();
     
-    if (relevantSuggestions.length === 0) return null;
+    if (relevantSuggestion) {
+        if (Array.isArray(relevantSuggestion)) {
+            relevantSuggestion.forEach(s => suggestionsToShow.add(s));
+        } else {
+            suggestionsToShow.add(String(relevantSuggestion));
+        }
+    }
+    
+    // Add other available string suggestions, prioritizing the most relevant one
+    allSuggestions.forEach(s => {
+        if (typeof s === 'string') {
+            suggestionsToShow.add(s);
+        }
+    });
+
+    if (suggestionsToShow.size === 0) return null;
 
     return (
       <div className="mb-2 flex flex-wrap gap-2">
-        {relevantSuggestions.map((suggestion, index) => (
+        {Array.from(suggestionsToShow).slice(0, 5).map((suggestion, index) => (
           <Button
             key={index}
             variant="outline"
