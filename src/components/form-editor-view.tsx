@@ -30,10 +30,14 @@ export function FormEditorView({ formFlowData, setFormFlowData }: Props) {
             setFormFlowData={setFormFlowData}
           />
         </div>
-        <div className="hidden lg:flex flex-col gap-4">
-          <h2 className="text-2xl font-bold font-headline">Live Preview</h2>
-          <div className="lg:h-[75vh] h-[80vh] w-full max-w-lg mx-auto lg:max-w-none">
-            <ConversationalForm formFlowData={formFlowData} />
+        <div className="hidden lg:block">
+          <div className="sticky top-8">
+            <div className="flex flex-col gap-4">
+              <h2 className="text-2xl font-bold font-headline">Live Preview</h2>
+              <div className="lg:h-[75vh] h-[80vh] w-full max-w-lg mx-auto lg:max-w-none">
+                <ConversationalForm formFlowData={formFlowData} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -51,11 +55,11 @@ export function FormEditorView({ formFlowData, setFormFlowData }: Props) {
             </Button>
           </SheetTrigger>
           <SheetContent side="bottom" className="h-[90vh] flex flex-col p-0">
-            <SheetHeader className='p-4 border-b'>
-              <SheetTitle className='font-headline'>Live Preview</SheetTitle>
+            <SheetHeader className="p-4 border-b">
+              <SheetTitle className="font-headline">Live Preview</SheetTitle>
             </SheetHeader>
             <div className="flex-1 p-4">
-               <ConversationalForm formFlowData={formFlowData} />
+              <ConversationalForm formFlowData={formFlowData} />
             </div>
           </SheetContent>
         </Sheet>
