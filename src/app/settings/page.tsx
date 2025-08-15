@@ -6,6 +6,7 @@ import { SlugEditor } from '@/components/slug-editor';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export default async function SettingsPage() {
   const result = await getFormsAction();
@@ -49,9 +50,12 @@ export default async function SettingsPage() {
         
         <Card>
             <CardHeader>
-                <CardTitle>Custom Domains</CardTitle>
+                <div className='flex items-center gap-4'>
+                    <CardTitle>Custom Domains</CardTitle>
+                    <Badge variant="outline">Coming Soon</Badge>
+                </div>
                 <CardDescription>
-                    Connect your own domain to serve forms from your brand's URL. This feature is not fully implemented.
+                    Connect your own domain to serve forms from your brand's URL. This feature is not yet available.
                 </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
