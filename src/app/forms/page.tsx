@@ -93,7 +93,7 @@ export default async function FormsPage() {
                     {form.createdAt ? format(new Date(form.createdAt), 'PPpp') : 'N/A'}
                   </CardDescription>
                 </CardHeader>
-                <CardFooter className="flex justify-end gap-2">
+                <CardFooter className="grid grid-cols-2 gap-2">
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/?formId=${form.id}`}>
                       <Pencil className="mr-2 h-4 w-4" />
