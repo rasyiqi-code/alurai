@@ -67,7 +67,7 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
 
 
   return (
-    <div className="flex flex-col items-center justify-center w-full h-full pt-10 md:pt-20">
+    <div className="flex flex-col items-center justify-center w-full h-full pt-8 md:pt-20">
       <Card className="w-full max-w-2xl shadow-lg bg-card rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-center font-headline">Create a Conversational Form</CardTitle>
