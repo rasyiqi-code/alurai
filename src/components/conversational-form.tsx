@@ -132,7 +132,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       <CardHeader className="border-b">
         <p className="font-semibold">{title}</p>
         <p className="text-sm text-muted-foreground">
-          By FormFlow AI from Google
+          By AlurAI from Google
         </p>
         <Progress value={progress} className="mt-2" />
       </CardHeader>

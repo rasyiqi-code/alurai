@@ -6,7 +6,7 @@ export function Header() {
       <div className="container mx-auto flex items-center gap-3">
         <Logo />
         <h1 className="text-xl font-bold tracking-tight text-foreground">
-          FormFlow AI
+          AlurAI
         </h1>
       </div>
     </header>

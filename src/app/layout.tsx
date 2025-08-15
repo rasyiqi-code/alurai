@@ -3,7 +3,7 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'FormFlow AI',
+  title: 'AlurAI',
   description: 'Create conversational forms with the power of AI.',
 };
 
