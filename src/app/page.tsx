@@ -15,7 +15,7 @@ export default function Home() {
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
-      <main className="flex-1 container mx-auto p-4 md:p-8">
+      <main className="flex-1 container mx-auto px-4 py-6 md:p-8">
         {!formFlowData ? (
           <FormGeneratorView setFormFlowData={setFormFlowData} setIsLoading={setIsLoading} isLoading={isLoading} />
         ) : (
