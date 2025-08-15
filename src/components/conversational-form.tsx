@@ -66,7 +66,6 @@ export function ConversationalForm({ formFlowData }: Props) {
         setMessages(prev => [
             ...prev, 
             {type: 'bot', content: "Great! I've analyzed your text. Click the suggestions to fill the form."},
-            {type: 'bot', content: formFlow[currentStep].question}
         ]);
     }
   };
@@ -180,7 +179,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       .map(([, value]) => value as string)
       .filter(Boolean); // Filter out empty or null values
 
-    const allSuggestions = [suggestionForCurrentField, ...otherSuggestions].filter(Boolean).slice(0, 5);
+    const allSuggestions = [suggestionForCurrentField, ...otherSuggestions].flat().filter(Boolean).slice(0, 5);
 
     if (allSuggestions.length === 0) return null;
 
