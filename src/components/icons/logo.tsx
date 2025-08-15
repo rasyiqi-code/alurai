@@ -1,4 +1,7 @@
-export function Logo() {
+import { cn } from '@/lib/utils';
+import type { SVGProps } from 'react';
+
+export function Logo(props: SVGProps<SVGSVGElement>) {
   return (
     <svg
       width="32"
@@ -6,7 +9,8 @@ export function Logo() {
       viewBox="0 0 100 100"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="text-primary"
+      className={cn("text-primary", props.className)}
+      {...props}
     >
       <path
         d="M25 12.5H87.5V50C87.5 63.8071 76.3071 75 62.5 75H50L25 93.75V75H25C18.3696 75 12.5 69.1304 12.5 62.5V25C12.5 18.3696 18.3696 12.5 25 12.5Z"
