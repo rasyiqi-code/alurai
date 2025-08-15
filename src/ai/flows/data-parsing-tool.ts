@@ -29,13 +29,21 @@ const dataParsingPrompt = ai.definePrompt({
   name: 'dataParsingPrompt',
   input: {schema: DataParsingInputSchema},
   output: {schema: DataParsingOutputSchema},
-  prompt: `You are an intelligent data parsing tool. Given the following input data and a Zod schema representing a form, parse the input data and return a JSON object conforming to the schema.
+  prompt: `You are an intelligent data parsing tool. Your task is to extract relevant information from unstructured input data and map it to a structured form based on a given Zod schema. The input data may not follow the order of the form fields. You must analyze the semantic meaning of the input data and match it to the field descriptions in the schema.
 
 Form Schema (Zod):
+Each field in the Zod schema has a description (using .describe()) which corresponds to the question in the form. Use these descriptions to understand what data is expected for each field.
+\`\`\`
 {{formDataSchema}}
+\`\`\`
 
 Input Data:
+The following is the unstructured text provided by the user.
+\`\`\`
 {{inputData}}
+\`\`\`
+
+Your goal is to populate a JSON object that strictly conforms to the Zod schema. Extract the values from the Input Data and assign them to the correct keys in the JSON output. If you cannot find a value for a specific field, leave it out of the JSON object. Do not invent data.
 
 Parsed Data (JSON):
 `,  
