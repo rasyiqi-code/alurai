@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label';
 import { Progress } from '@/components/ui/progress';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, CheckCircle, Bot, RefreshCw, Edit } from 'lucide-react';
+import { Send, CheckCircle, Bot, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
 import { saveSubmissionAction, validateAnswerAction } from '@/app/actions';
@@ -36,7 +36,6 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [suggestedAnswers, setSuggestedAnswers] = useState<Record<string, any> | null>(null);
-  const [isManualInput, setIsManualInput] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -56,7 +55,6 @@ export function ConversationalForm({ formFlowData }: Props) {
     setIsSubmitted(false);
     setIsSubmitting(false);
     setSuggestedAnswers(null);
-    setIsManualInput(false);
     if (formFlow.length > 0) {
       setMessages([{ type: 'bot', content: formFlow[0].question }]);
     }
@@ -64,11 +62,10 @@ export function ConversationalForm({ formFlowData }: Props) {
   
   const handleDataParsed = (parsedData: Record<string, any>) => {
     setSuggestedAnswers(parsedData);
-    setIsManualInput(false); // Reset to suggestion mode
     if (formFlow.length > 0) {
         setMessages(prev => [
             ...prev, 
-            {type: 'bot', content: "Great! I've analyzed your text. Let's confirm the details one by one."},
+            {type: 'bot', content: "Great! I've analyzed your text. Click the suggestions to fill the form."},
             {type: 'bot', content: formFlow[currentStep].question}
         ]);
     }
@@ -94,10 +91,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   
   const handleSuggestionClick = (suggestion: string) => {
     const currentField = formFlow[currentStep];
-    const newAnswers = { ...answers, [currentField.key]: suggestion };
-    setAnswers(newAnswers);
-    // Directly trigger validation and next step
-    validateAndProceed(currentField, suggestion, newAnswers);
+    setAnswers({ ...answers, [currentField.key]: suggestion });
   };
 
   const validateAndProceed = async (field: FormField, answer: any, currentAnswers: FormAnswers) => {
@@ -116,13 +110,13 @@ export function ConversationalForm({ formFlowData }: Props) {
 
     if ('error' in validationResult) {
         toast({ variant: 'destructive', title: 'Validation Error', description: validationResult.error });
+        // remove user message on error
         setMessages(prev => [...prev.slice(0, -1)]);
     } else if (validationResult.isValid) {
         setAnswers(currentAnswers);
         if (currentStep < formFlow.length - 1) {
             const nextStep = currentStep + 1;
             setCurrentStep(nextStep);
-            setIsManualInput(false); // Reset for next suggestion
             setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
         } else {
             setIsCompleted(true);
@@ -174,6 +168,39 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
   };
 
+  const renderSuggestions = () => {
+    if (!suggestedAnswers) return null;
+
+    const currentFieldKey = formFlow[currentStep]?.key;
+    const suggestionForCurrentField = suggestedAnswers[currentFieldKey];
+
+    // Get all suggestions except the one for the current field
+    const otherSuggestions = Object.entries(suggestedAnswers)
+      .filter(([key]) => key !== currentFieldKey)
+      .map(([, value]) => value as string)
+      .filter(Boolean); // Filter out empty or null values
+
+    const allSuggestions = [suggestionForCurrentField, ...otherSuggestions].filter(Boolean).slice(0, 5);
+
+    if (allSuggestions.length === 0) return null;
+
+    return (
+      <div className="mb-2 flex flex-wrap gap-2">
+        {allSuggestions.map((suggestion, index) => (
+          <Button
+            key={index}
+            variant="outline"
+            size="sm"
+            onClick={() => handleSuggestionClick(suggestion)}
+            className="text-xs h-auto py-1 px-2"
+          >
+            {suggestion}
+          </Button>
+        ))}
+      </div>
+    );
+  };
+
   const renderFooterContent = () => {
     if (isCompleted) {
        return (
@@ -189,25 +216,10 @@ export function ConversationalForm({ formFlowData }: Props) {
     if (formFlow.length === 0) return null;
 
     const currentField = formFlow[currentStep];
-    const suggestion = suggestedAnswers?.[currentField.key];
-    
-    if (suggestion && !isManualInput) {
-       return (
-        <div className="w-full flex flex-col items-center gap-2">
-            <p className="text-sm text-muted-foreground mb-2">AI Suggestion:</p>
-            <Button onClick={() => handleSuggestionClick(suggestion)} variant="outline" className="w-full text-base py-6">
-                {suggestion}
-            </Button>
-            <Button onClick={() => setIsManualInput(true)} variant="ghost" size="sm" className="text-primary hover:text-primary">
-                <Edit className="h-4 w-4 mr-2" />
-                Enter Manually
-            </Button>
-        </div>
-       )
-    }
 
     return (
       <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
+        {renderSuggestions()}
         <div>
           {renderInput(currentField)}
         </div>
