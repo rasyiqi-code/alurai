@@ -74,7 +74,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
   const addField = () => {
     const newField: FormField = {
       id: crypto.randomUUID(),
-      question: 'Pertanyaan Baru',
+      question: 'New Question',
       inputType: 'text',
       validationRules: [],
       key: 'newQuestion',
@@ -94,7 +94,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           ...prev,
           flow: prev.flow.map((field) =>
           field.id === fieldId
-            ? { ...field, options: [...(field.options || []), 'Opsi Baru'] }
+            ? { ...field, options: [...(field.options || []), 'New Option'] }
             : field
         )}
       }
@@ -173,28 +173,28 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="outline" onClick={handleOptimize}>
-              <Sparkles className="mr-2 h-4 w-4" /> Optimalkan Alur
+              <Sparkles className="mr-2 h-4 w-4" /> Optimize Flow
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Saran Pengoptimalan</AlertDialogTitle>
+              <AlertDialogTitle>Optimization Suggestions</AlertDialogTitle>
               <AlertDialogDescription>
-                Berikut adalah beberapa saran berbasis AI untuk meningkatkan tingkat konversi dan pengalaman pengguna formulir Anda.
+                Here are some AI-based suggestions to improve your form's conversion rate and user experience.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="max-h-80 overflow-y-auto p-1">
               {optimizing ? (
                 <div className="flex items-center justify-center h-20">
                   <Spinner />
-                  <span className="ml-2">Membuat saran...</span>
+                  <span className="ml-2">Generating suggestions...</span>
                 </div>
               ) : (
                 <p className="whitespace-pre-wrap">{suggestions}</p>
               )}
             </div>
             <AlertDialogFooter>
-              <AlertDialogAction>Mengerti, terima kasih!</AlertDialogAction>
+              <AlertDialogAction>Got it, thanks!</AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -207,7 +207,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
       </CardHeader>
       <CardContent className="p-4 space-y-4 overflow-y-auto flex-1">
         <div className="p-4 border rounded-lg bg-card shadow-sm">
-          <Label htmlFor="form-title">Judul Formulir</Label>
+          <Label htmlFor="form-title">Form Title</Label>
           <Input
             id="form-title"
             value={title}
@@ -222,7 +222,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
               <div className="flex-1 space-y-4">
                 <div className="flex justify-between items-start">
                   <div className='w-full'>
-                    <Label htmlFor={`question-${field.id}`}>Pertanyaan</Label>
+                    <Label htmlFor={`question-${field.id}`}>Question</Label>
                     <Input
                       id={`question-${field.id}`}
                       value={field.question}
@@ -240,22 +240,22 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
-                        <AlertDialogTitle>Apakah Anda yakin?</AlertDialogTitle>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
                         <AlertDialogDescription>
-                          Tindakan ini tidak dapat dibatalkan. Ini akan menghapus bidang formulir ini secara permanen.
+                          This action cannot be undone. This will permanently delete this form field.
                         </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
-                        <AlertDialogCancel>Batal</AlertDialogCancel>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
                         <AlertDialogAction onClick={() => removeField(field.id)}>
-                          Hapus
+                          Delete
                         </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
                 </div>
                 <div>
-                  <Label htmlFor={`inputType-${field.id}`}>Tipe Input</Label>
+                  <Label htmlFor={`inputType-${field.id}`}>Input Type</Label>
                   <Select
                     value={field.inputType}
                     onValueChange={(value) =>
@@ -265,23 +265,23 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                     }
                   >
                     <SelectTrigger id={`inputType-${field.id}`}>
-                      <SelectValue placeholder="Pilih tipe input" />
+                      <SelectValue placeholder="Select input type" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="text">Teks</SelectItem>
+                      <SelectItem value="text">Text</SelectItem>
                       <SelectItem value="email">Email</SelectItem>
-                      <SelectItem value="number">Angka</SelectItem>
-                      <SelectItem value="date">Tanggal</SelectItem>
+                      <SelectItem value="number">Number</SelectItem>
+                      <SelectItem value="date">Date</SelectItem>
                       <SelectItem value="textarea">Textarea</SelectItem>
-                      <SelectItem value="select">Pilihan</SelectItem>
-                      <SelectItem value="file">Unggah File</SelectItem>
+                      <SelectItem value="select">Select</SelectItem>
+                      <SelectItem value="file">File Upload</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
                 {field.inputType === 'select' && (
                   <div className="space-y-2 pl-4 border-l-2 ml-2">
-                    <Label>Opsi</Label>
+                    <Label>Options</Label>
                     {field.options?.map((option, i) => (
                       <div key={i} className="flex items-center gap-2">
                         <Input
@@ -298,7 +298,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                       </div>
                     ))}
                     <Button variant="outline" size="sm" onClick={() => addOption(field.id)}>
-                      <Plus className="mr-2 h-4 w-4" /> Tambah Opsi
+                      <Plus className="mr-2 h-4 w-4" /> Add Option
                     </Button>
                   </div>
                 )}
@@ -307,7 +307,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           </div>
         ))}
         <Button onClick={addField} variant="secondary" className="w-full">
-          <Plus className="mr-2 h-4 w-4" /> Tambah Pertanyaan
+          <Plus className="mr-2 h-4 w-4" /> Add Question
         </Button>
       </CardContent>
     </Card>
