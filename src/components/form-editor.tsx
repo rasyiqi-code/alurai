@@ -205,21 +205,21 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="p-4 space-y-4 overflow-y-auto flex-1">
-        <div className="p-4 border rounded-lg bg-background shadow-sm">
+      <CardContent className="p-2 md:p-4 space-y-3 md:space-y-4 overflow-y-auto flex-1">
+        <div className="p-3 md:p-4 border rounded-lg bg-background shadow-sm">
           <Label htmlFor="form-title">Form Title</Label>
           <Input
             id="form-title"
             value={title}
             onChange={(e) => updateTitle(e.target.value)}
-            className="text-lg font-semibold font-headline"
+            className="text-lg font-semibold font-headline mt-1"
           />
         </div>
         {formFlow.map((field) => (
-          <div key={field.id} className="p-4 border rounded-lg bg-background shadow-sm">
+          <div key={field.id} className="p-3 md:p-4 border rounded-lg bg-background shadow-sm">
             <div className="flex items-start gap-2">
-              <GripVertical className="mt-2.5 h-5 w-5 text-muted-foreground cursor-grab" />
-              <div className="flex-1 space-y-4">
+              <GripVertical className="mt-2 h-5 w-5 text-muted-foreground cursor-grab" />
+              <div className="flex-1 space-y-3">
                 <div className="flex justify-between items-start">
                   <div className='w-full'>
                     <Label htmlFor={`question-${field.id}`}>Question</Label>
@@ -229,12 +229,12 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                       onChange={(e) =>
                         updateField(field.id, { question: e.target.value })
                       }
-                      className="text-base"
+                      className="text-base mt-1"
                     />
                   </div>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button variant="ghost" size="icon" className="ml-2 shrink-0">
+                      <Button variant="ghost" size="icon" className="ml-2 shrink-0 h-9 w-9">
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </AlertDialogTrigger>
@@ -264,7 +264,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                       })
                     }
                   >
-                    <SelectTrigger id={`inputType-${field.id}`}>
+                    <SelectTrigger id={`inputType-${field.id}`} className="mt-1">
                       <SelectValue placeholder="Select input type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -280,7 +280,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                 </div>
 
                 {field.inputType === 'select' && (
-                  <div className="space-y-2 pl-4 border-l-2 ml-2">
+                  <div className="space-y-2 pl-4 border-l-2 ml-2 pt-2">
                     <Label>Options</Label>
                     {field.options?.map((option, i) => (
                       <div key={i} className="flex items-center gap-2">
@@ -291,6 +291,7 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                         <Button
                           variant="ghost"
                           size="icon"
+                          className="h-9 w-9"
                           onClick={() => removeOption(field.id, i)}
                         >
                           <Trash2 className="h-4 w-4" />

@@ -13,7 +13,7 @@ interface Props {
 
 export function FormEditorView({ formFlowData, setFormFlowData }: Props) {
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 h-full">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-8 h-full">
       <div className="flex flex-col gap-4">
         <h2 className="text-2xl font-bold font-headline">Form Editor</h2>
         <FormEditor formFlowData={formFlowData} setFormFlowData={setFormFlowData} />
