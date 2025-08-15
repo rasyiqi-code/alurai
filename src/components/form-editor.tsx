@@ -52,6 +52,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
+import Link from 'next/link';
+import { Settings } from 'lucide-react';
 
 interface Props {
   formFlowData: FormFlowData;
@@ -257,6 +259,9 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
 
   const getShareableLink = () => {
     if (typeof window !== 'undefined' && formFlowData.id) {
+      if (formFlowData.slug) {
+        return `${window.location.origin}/view/${formFlowData.slug}`;
+      }
       return `${window.location.origin}/form/${formFlowData.id}`;
     }
     return 'Save the form to get a shareable link';
@@ -321,6 +326,11 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
+               <Button variant="outline" asChild>
+                <Link href="/settings">
+                  <Settings className="mr-2 h-4 w-4" /> Custom URL
+                </Link>
+              </Button>
             </div>
             <div className="flex items-center gap-2">
               <Input value={getShareableLink()} readOnly className="h-9 text-xs" />

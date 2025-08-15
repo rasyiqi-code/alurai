@@ -1,13 +1,12 @@
-import { getFormAction } from '@/app/actions';
+import { getFormBySlugAction } from '@/app/actions';
 import { ConversationalForm } from '@/components/conversational-form';
 import { Header } from '@/components/header';
 import { notFound } from 'next/navigation';
 
-export default async function FormPage({ params }: { params: { id: string } }) {
-  const result = await getFormAction(params.id);
+export default async function ViewFormPage({ params }: { params: { slug: string } }) {
+  const result = await getFormBySlugAction(params.slug);
 
   if (!result || 'error' in result) {
-    // In a real app, you might want to show a more specific error page
     return notFound();
   }
 

@@ -7,7 +7,7 @@ import { FormFlow, FormFlowData, FormAnswers } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
-import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit } from 'firebase/firestore';
 
 
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
@@ -98,6 +98,7 @@ export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: 
     } else {
       // Create new document
       dataToSave.createdAt = new Date();
+      dataToSave.slug = ''; // Initialize slug for new forms
       const docRef = await addDoc(collection(db, 'forms'), dataToSave);
       return { id: docRef.id };
     }
@@ -151,6 +152,30 @@ export async function getFormAction(id: string): Promise<FormFlowData | null | {
   }
 }
 
+export async function getFormBySlugAction(slug: string): Promise<FormFlowData | null | { error: string }> {
+  try {
+    const formsCollection = collection(db, 'forms');
+    const q = query(formsCollection, where('slug', '==', slug), limit(1));
+    const formSnapshot = await getDocs(q);
+
+    if (formSnapshot.empty) {
+      return null;
+    }
+
+    const formDoc = formSnapshot.docs[0];
+    const data = formDoc.data();
+    return {
+      id: formDoc.id,
+      ...data,
+      createdAt: (data.createdAt as Timestamp)?.toDate().toISOString(),
+      updatedAt: (data.updatedAt as Timestamp)?.toDate().toISOString(),
+    } as FormFlowData;
+  } catch (error) {
+    console.error('Error fetching form by slug:', error);
+    return { error: 'Failed to fetch form. Please try again later.' };
+  }
+}
+
 export async function saveSubmissionAction(formId: string, answers: FormAnswers): Promise<{ id: string } | { error: string }> {
   try {
     // We can't store File objects in Firestore, so we'll just store the name for now.
@@ -175,5 +200,30 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
   } catch (error) {
     console.error('Error saving submission:', error);
     return { error: 'Failed to save the submission. Please try again later.' };
+  }
+}
+
+export async function updateFormSlugAction(formId: string, slug: string): Promise<{ success: boolean } | { error: string }> {
+  try {
+    // Check if slug is already in use by another form
+    const formsCollection = collection(db, 'forms');
+    const q = query(formsCollection, where('slug', '==', slug));
+    const formSnapshot = await getDocs(q);
+
+    if (!formSnapshot.empty) {
+      const existingForm = formSnapshot.docs[0];
+      if (existingForm.id !== formId) {
+        return { error: 'This URL slug is already in use. Please choose another one.' };
+      }
+    }
+
+    // Update slug
+    const formRef = doc(db, 'forms', formId);
+    await setDoc(formRef, { slug, updatedAt: new Date() }, { merge: true });
+    return { success: true };
+
+  } catch (error) {
+    console.error('Error updating slug:', error);
+    return { error: 'Failed to update the slug. Please try again.' };
   }
 }

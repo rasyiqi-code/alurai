@@ -13,6 +13,7 @@ export type FormFlowData = {
   id?: string;
   title: string;
   flow: FormFlow;
+  slug?: string;
   createdAt?: string;
   updatedAt?: string;
 };

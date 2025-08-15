@@ -3,12 +3,21 @@
 import { Share2 } from 'lucide-react';
 import { Button } from './ui/button';
 import { useToast } from '@/hooks/use-toast';
+import type { FormFlowData } from '@/lib/types';
 
-export function ShareButton({ formId }: { formId: string }) {
+export function ShareButton({ form }: { form: FormFlowData }) {
   const { toast } = useToast();
   
+  const getShareLink = () => {
+    if (typeof window === 'undefined') return '';
+    if (form.slug) {
+      return `${window.location.origin}/view/${form.slug}`;
+    }
+    return `${window.location.origin}/form/${form.id}`;
+  };
+
   const handleShare = async () => {
-    const shareLink = `${window.location.origin}/form/${formId}`;
+    const shareLink = getShareLink();
     const shareData = {
       title: 'Check out this form',
       text: 'Fill out this form I created.',
@@ -30,7 +39,7 @@ export function ShareButton({ formId }: { formId: string }) {
   };
 
   const copyToClipboard = () => {
-    const shareLink = `${window.location.origin}/form/${formId}`;
+    const shareLink = getShareLink();
     navigator.clipboard.writeText(shareLink);
     toast({
       title: 'Link copied!',

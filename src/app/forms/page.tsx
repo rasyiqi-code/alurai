@@ -66,7 +66,7 @@ export default async function FormsPage() {
                             Edit
                           </Link>
                         </Button>
-                         {form.id && <ShareButton formId={form.id} />}
+                         {form.id && <ShareButton form={form} />}
                       </TableCell>
                     </TableRow>
                   ))
@@ -100,7 +100,7 @@ export default async function FormsPage() {
                       Edit
                     </Link>
                   </Button>
-                  {form.id && <ShareButton formId={form.id} />}
+                  {form.id && <ShareButton form={form} />}
                 </CardFooter>
               </Card>
             ))
