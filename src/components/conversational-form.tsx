@@ -66,15 +66,17 @@ export function ConversationalForm({ formFlowData }: Props) {
   };
   
   const handleDataParsed = (parsedData: ExtractedPair[]) => {
-    setSuggestedAnswers(parsedData);
     setMessages(prev => [
-      ...prev,
-      { type: 'bot', content: "Great! I've analyzed your text. I'll show suggestions for each step." }
+        ...prev,
+        { type: 'bot', content: "Great! I've analyzed your text. I'll show suggestions for each step." }
     ]);
-    // This is the key fix: restart the form flow to show the first question
-    // along with the new suggestions.
+    
     setTimeout(() => {
-      startForm(true); // pass true to keep suggestions
+        setSuggestedAnswers(parsedData);
+        setCurrentStep(0);
+        setAnswers({});
+        setIsCompleted(false);
+        setMessages([{ type: 'bot', content: formFlow[0].question }]);
     }, 10);
   };
 
@@ -164,8 +166,6 @@ export function ConversationalForm({ formFlowData }: Props) {
       return null;
     }
     
-    // Simple logic: Show all extracted values as buttons.
-    // The user can then click the one that is relevant for the current question.
     return (
         <div className="flex flex-wrap gap-2 mb-2">
             {suggestedAnswers.map((suggestion, index) => (
@@ -244,7 +244,7 @@ export function ConversationalForm({ formFlowData }: Props) {
 
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
-      <CardHeader className="border-b">
+      <CardHeader className="border-b p-4">
         <p className="font-semibold font-headline">{title}</p>
         <p className="text-sm text-muted-foreground">
           by AlurAI
