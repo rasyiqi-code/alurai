@@ -175,8 +175,11 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
     const sanitizedAnswers: Record<string, any> = {};
     for (const key in answers) {
       const value = answers[key];
-      // Skip file objects entirely for now
+      
       if (value instanceof File) {
+        // In a real app, you would upload the file to a storage service (like Firebase Storage)
+        // and save the URL. For now, we'll just save the file name as a placeholder.
+        sanitizedAnswers[key] = value.name;
         continue;
       }
       
