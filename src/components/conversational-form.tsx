@@ -158,7 +158,9 @@ export function ConversationalForm({ formFlowData }: Props) {
   
   const handleSuggestionClick = (value: string) => {
     const currentField = formFlow[currentStep];
-    setAnswers({ ...answers, [currentField.key]: value });
+    const newAnswers = { ...answers, [currentField.key]: value };
+    setAnswers(newAnswers);
+    validateAndProceed(currentField, value, { [currentField.key]: value });
   };
 
   const renderSuggestions = () => {
@@ -244,12 +246,14 @@ export function ConversationalForm({ formFlowData }: Props) {
 
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
-      <CardHeader className="border-b px-4 py-2">
-        <p className="font-semibold font-headline">{title}</p>
-        <p className="text-sm text-muted-foreground">
-          by AlurAI
-        </p>
-        <Progress value={progress} className="mt-2" />
+      <CardHeader className="border-b p-0">
+        <div className="p-4">
+          <p className="font-semibold font-headline">{title}</p>
+          <p className="text-sm text-muted-foreground">
+            by AlurAI
+          </p>
+        </div>
+        <Progress value={progress} />
       </CardHeader>
       <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, index) => (
