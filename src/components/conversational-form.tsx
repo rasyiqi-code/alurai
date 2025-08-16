@@ -182,15 +182,16 @@ export function ConversationalForm({ formFlowData }: Props) {
   const renderSuggestions = () => {
     if (!suggestedAnswers || isCompleted) return null;
 
+    // A more robust way to get all string values from the parsed data.
     const suggestions = Object.values(suggestedAnswers)
-      .flat()
+      .flat() // Handles cases where a value might be an array
       .filter((value): value is string => typeof value === 'string' && value.trim() !== '');
       
     if (suggestions.length === 0) return null;
 
     return (
       <div className="mb-2 flex flex-wrap gap-2">
-        {suggestions.slice(0, 5).map((suggestion, index) => (
+        {suggestions.map((suggestion, index) => (
           <Button
             key={index}
             variant="outline"
