@@ -10,8 +10,8 @@ export default async function ViewFormPage({ params }: { params: { slug: string 
   }
 
   return (
-    <div className="h-screen w-screen bg-background">
-       <main className="h-full w-full">
+    <div className="min-h-screen w-full bg-muted flex items-center justify-center">
+       <main className="h-screen w-full md:h-[85vh] md:max-w-lg md:rounded-xl md:shadow-2xl overflow-hidden">
         <FormDisplay formFlowData={result} />
       </main>
     </div>
