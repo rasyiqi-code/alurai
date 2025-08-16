@@ -1,5 +1,11 @@
 
 {
-  "indexes": [],
+  "indexes": [
+    {
+      "collectionGroup": "submissions",
+      "queryScope": "COLLECTION_GROUP",
+      "fields": []
+    }
+  ],
   "fieldOverrides": []
 }
