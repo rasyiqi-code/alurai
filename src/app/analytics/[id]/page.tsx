@@ -1,11 +1,12 @@
-import { getFormAction } from '@/app/actions';
+import { getFormAction, getSubmissionsAction } from '@/app/actions';
 import { Header } from '@/components/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MessageSquare, ArrowLeft } from 'lucide-react';
+import { MessageSquare, ArrowLeft, Construction } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 export default async function FormAnalyticsPage({ params }: { params: { id: string } }) {
   const formResult = await getFormAction(params.id);
@@ -15,9 +16,11 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
   }
 
   const form = formResult;
-  const submissions: any[] = []; // Temporarily remove submissions fetching
+  // Fetch submissions, but handle potential errors
+  const submissionsResult = await getSubmissionsAction(params.id);
+  const submissions = 'error' in submissionsResult ? [] : submissionsResult;
 
-  const tableHeaders = form.flow.map(field => field.key).filter(key => key !== 'submittedAt');
+  const tableHeaders = form.flow.map(field => field.key).filter(Boolean);
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -50,27 +53,40 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
 
           <Card>
             <CardHeader>
-              <CardTitle>Submissions Data</CardTitle>
+              <div className='flex items-center gap-4'>
+                <CardTitle>Submissions Data</CardTitle>
+                <Badge variant="outline">Coming Soon</Badge>
+              </div>
               <CardDescription>
-                Submissions are not available at this moment due to security policies.
+                Viewing individual submission data is currently in development.
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Submitted At</TableHead>
-                    {tableHeaders.map(key => <TableHead key={key}>{form.flow.find(f => f.key === key)?.question || key}</TableHead>)}
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  <TableRow>
-                    <TableCell colSpan={tableHeaders.length + 1} className="text-center">
-                      No submissions to display.
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
+              <div className="border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Submitted At</TableHead>
+                      {tableHeaders.map(key => <TableHead key={key}>{form.flow.find(f => f.key === key)?.question || key}</TableHead>)}
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    <TableRow>
+                      <TableCell colSpan={tableHeaders.length + 1}>
+                        <div className="flex flex-col items-center justify-center text-center p-8 gap-4">
+                            <div className="mx-auto bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center">
+                                <Construction className="h-8 w-8" />
+                            </div>
+                            <h3 className="text-lg font-semibold font-headline">Feature in Progress</h3>
+                            <p className="text-muted-foreground max-w-md">
+                                We are working hard to bring you detailed submission analytics. Check back soon!
+                            </p>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </div>
             </CardContent>
           </Card>
         </div>
