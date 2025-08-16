@@ -1,14 +1,14 @@
 
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow public read, create and update access to the forms collection.
-    // Deletes are disallowed for safety.
-    // For a production app, you would want to secure this further,
-    // likely by checking if a user is authenticated.
-    match /forms/{formId} {
-      allow read, create, update: if true;
-      allow delete: if false;
+    // WARNING: This rule is insecure and allows anyone to read or write to your database.
+    // It is intended for initial development and testing only.
+    // TODO: Secure your database before deploying to production.
+    // See https://firebase.google.com/docs/firestore/security/get-started
+    match /{document=**} {
+      allow read, write: if true;
     }
   }
 }
