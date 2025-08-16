@@ -202,7 +202,7 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
 
     const submissionData = {
       ...sanitizedAnswers,
-      submittedAt: new Date(),
+      submittedAt: Timestamp.now(),
     };
     
     const submissionRef = await addDoc(collection(db, 'forms', formId, 'submissions'), submissionData);
