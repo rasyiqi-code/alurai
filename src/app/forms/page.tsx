@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { FormFlowData } from '@/lib/types';
 import { format } from 'date-fns';
-import { Plus, Pencil, Share2 } from 'lucide-react';
+import { Plus, Pencil, Share2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { ShareButton } from '@/components/share-button';
 
@@ -21,6 +21,13 @@ export default async function FormsPage() {
     forms = result;
   }
   
+  const getFormViewLink = (form: FormFlowData) => {
+    if (form.slug) {
+        return `/view/${form.slug}`;
+    }
+    return `/form/${form.id}`;
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
@@ -59,7 +66,13 @@ export default async function FormsPage() {
                       <TableCell>
                         {form.createdAt ? format(new Date(form.createdAt), 'PPpp') : 'N/A'}
                       </TableCell>
-                      <TableCell className="text-right">
+                      <TableCell className="text-right space-x-2">
+                        <Button asChild variant="outline" size="sm">
+                          <Link href={getFormViewLink(form)}>
+                            <Eye className="mr-2 h-4 w-4" />
+                            View
+                          </Link>
+                        </Button>
                         <Button asChild variant="outline" size="sm">
                           <Link href={`/?formId=${form.id}`}>
                             <Pencil className="mr-2 h-4 w-4" />
@@ -93,7 +106,13 @@ export default async function FormsPage() {
                     {form.createdAt ? format(new Date(form.createdAt), 'PPpp') : 'N/A'}
                   </CardDescription>
                 </CardHeader>
-                <CardFooter className="grid grid-cols-2 gap-2">
+                <CardFooter className="grid grid-cols-3 gap-2">
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={getFormViewLink(form)}>
+                      <Eye className="mr-2 h-4 w-4" />
+                      View
+                    </Link>
+                  </Button>
                   <Button asChild variant="outline" size="sm">
                     <Link href={`/?formId=${form.id}`}>
                       <Pencil className="mr-2 h-4 w-4" />
