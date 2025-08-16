@@ -40,8 +40,6 @@ export function ConversationalForm({ formFlowData }: Props) {
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
-  const isProcessingSuggestion = useRef(false);
-
 
   useEffect(() => {
     startForm();
@@ -50,13 +48,6 @@ export function ConversationalForm({ formFlowData }: Props) {
   useEffect(() => {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
-  
-  useEffect(() => {
-    if (suggestedAnswers && !isCompleted && !isProcessingSuggestion.current) {
-        handleSuggestionForCurrentStep();
-    }
-  }, [currentStep, suggestedAnswers, isCompleted]);
-
 
   const startForm = () => {
     setCurrentStep(0);
@@ -65,7 +56,6 @@ export function ConversationalForm({ formFlowData }: Props) {
     setIsSubmitted(false);
     setIsSubmitting(false);
     setSuggestedAnswers(null);
-    isProcessingSuggestion.current = false;
     if (formFlow.length > 0) {
       setMessages([{ type: 'bot', content: formFlow[0].question }]);
     }
@@ -75,11 +65,9 @@ export function ConversationalForm({ formFlowData }: Props) {
     setSuggestedAnswers(parsedData);
     setMessages(prev => [
       ...prev,
-      { type: 'bot', content: "Great! I've analyzed your text. Let's confirm the suggestions." }
+      { type: 'bot', content: "Great! I've analyzed your text. Here are some suggestions." }
     ]);
-     // This will trigger the useEffect to process the first suggestion
   };
-
 
   const handleSubmission = async () => {
     if (!formId) {
@@ -99,18 +87,13 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
   };
   
-  const proceedToNextStep = (updatedAnswers: FormAnswers, fromSuggestion = false) => {
+  const proceedToNextStep = (updatedAnswers: FormAnswers) => {
     const newAnswers = { ...answers, ...updatedAnswers };
     setAnswers(newAnswers);
 
     if (currentStep < formFlow.length - 1) {
         const nextStep = currentStep + 1;
         setCurrentStep(nextStep);
-        // Only add the next question if we're not in a suggestion flow,
-        // as the suggestion flow will add the user message first.
-        if (!fromSuggestion) {
-            setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
-        }
     } else {
         setIsCompleted(true);
         setSuggestedAnswers(null); // Clear suggestions once done
@@ -118,43 +101,36 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
   };
 
-
-  const validateAndProceed = async (field: FormField, answer: any, currentAnswers: FormAnswers, fromSuggestion = false) => {
+  const validateAndProceed = async (field: FormField, answer: any, currentAnswers: FormAnswers) => {
      const answerContent =
       field.inputType === 'file'
         ? (answer as File)?.name || 'File attached'
         : (answer as string) || '';
 
     setIsValidating(true);
-    // Add user message and thinking indicator
     setMessages(prev => [...prev, { type: 'user', content: answerContent }, {type: 'bot', content: <Spinner />, isThinking: true}]);
 
     const validationResult = await validateAnswerAction(field, answerContent);
 
-    // Remove thinking message
     setMessages(prev => prev.filter(m => !m.isThinking));
 
     if ('error' in validationResult) {
         toast({ variant: 'destructive', title: 'Validation Error', description: validationResult.error });
-        // remove user message on error
         setMessages(prev => [...prev.slice(0, -1)]);
     } else if (validationResult.isValid) {
-        // Add the next question *after* the user's valid answer has been shown
         if (currentStep < formFlow.length - 1) {
              setMessages(prev => [...prev, { type: 'bot', content: formFlow[currentStep + 1].question }]);
         }
-        proceedToNextStep(currentAnswers, fromSuggestion);
+        proceedToNextStep(currentAnswers);
     } else {
-        // If invalid, remove the user's message and show feedback instead
         setMessages(prev => [...prev.slice(0,-1), { type: 'bot', content: validationResult.feedback }]);
     }
     setIsValidating(false);
-    isProcessingSuggestion.current = false; // Release the lock
   }
 
   const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (isValidating || isProcessingSuggestion.current) return;
+    if (isValidating) return;
     
     const currentField = formFlow[currentStep];
     const answer = answers[currentField.key];
@@ -170,26 +146,31 @@ export function ConversationalForm({ formFlowData }: Props) {
     validateAndProceed(currentField, answer, answers);
   };
   
-  const handleSuggestionForCurrentStep = () => {
-    if (isProcessingSuggestion.current || !suggestedAnswers || currentStep >= formFlow.length) {
-        return;
-    }
-
-    const currentField = formFlow[currentStep];
-    
-    // Simple matching logic: find a suggestion where the key is included in the question.
-    const suggestion = suggestedAnswers.find(s =>
-        currentField.question.toLowerCase().includes(s.key.toLowerCase())
-    );
-
-    if (suggestion) {
-        isProcessingSuggestion.current = true; // Set a lock
-        const newAnswers = { ...answers, [currentField.key]: suggestion.value };
-        setAnswers(newAnswers);
-        // Treat this as a user submission
-        validateAndProceed(currentField, suggestion.value, newAnswers, true);
-    }
+  const handleSuggestionClick = (fieldKey: string, value: string) => {
+    setAnswers({ ...answers, [fieldKey]: value });
   };
+
+  const renderSuggestions = (field: FormField) => {
+    if (!suggestedAnswers || suggestedAnswers.length === 0) {
+      return null;
+    }
+    
+    return (
+        <div className="flex flex-wrap gap-2 mb-2">
+            {suggestedAnswers.map((suggestion, index) => (
+                <Button 
+                    key={`${suggestion.key}-${index}`} 
+                    size="sm" 
+                    variant="outline"
+                    className="h-auto py-1 px-3 text-xs"
+                    onClick={() => handleSuggestionClick(field.key, suggestion.value)}
+                >
+                    {suggestion.value}
+                </Button>
+            ))}
+        </div>
+    )
+  }
 
   const renderInput = (field: FormField) => {
     const value = (answers[field.key] as string) || '';
@@ -234,13 +215,14 @@ export function ConversationalForm({ formFlowData }: Props) {
     return (
       <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
         <div>
+          {renderSuggestions(currentField)}
           {renderInput(currentField)}
         </div>
         <div className='flex items-center justify-between'>
           <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
-          <Button type="submit" size="sm" disabled={isValidating || isProcessingSuggestion.current}>
-            {(isValidating || isProcessingSuggestion.current) ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
-            {(isValidating || isProcessingSuggestion.current) ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
+          <Button type="submit" size="sm" disabled={isValidating}>
+            {isValidating ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
+            {isValidating ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
           </Button>
         </div>
       </form>
