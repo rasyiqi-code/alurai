@@ -63,15 +63,22 @@ export function ConversationalForm({ formFlowData }: Props) {
   
   const handleDataParsed = (parsedData: Record<string, any>) => {
     setSuggestedAnswers(parsedData);
-    if (formFlow.length > 0) {
-        setMessages(prev => [
-            ...prev, 
-            {type: 'bot', content: "Great! I've analyzed your text. Click the suggestions to fill the form."},
-            {type: 'bot', content: formFlow[0].question }
-        ]);
-        setCurrentStep(0);
-    }
+    
+    // 1. Show confirmation message
+    setMessages(prev => [
+      ...prev,
+      { type: 'bot', content: "Great! I've analyzed your text. Click the suggestions to fill the form." }
+    ]);
+    
+    // 2. After a short delay, ask the first question to start the suggestion flow
+    setTimeout(() => {
+        if (formFlow.length > 0) {
+            setMessages(prev => [...prev, { type: 'bot', content: formFlow[0].question }]);
+            setCurrentStep(0);
+        }
+    }, 50); // A small delay to ensure React processes state updates separately
   };
+
 
   const handleSubmission = async () => {
     if (!formId) {
@@ -175,15 +182,10 @@ export function ConversationalForm({ formFlowData }: Props) {
   const renderSuggestions = () => {
     if (!suggestedAnswers || isCompleted) return null;
 
-    // Create a flat, unique list of all string values from the parsed data.
-    const suggestions = [
-      ...new Set(
-        Object.values(suggestedAnswers)
-          .flat() // Handles arrays from checkboxes/multi-select
-          .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
-      ),
-    ];
-
+    const suggestions = Object.values(suggestedAnswers)
+      .flat()
+      .filter((value): value is string => typeof value === 'string' && value.trim() !== '');
+      
     if (suggestions.length === 0) return null;
 
     return (
