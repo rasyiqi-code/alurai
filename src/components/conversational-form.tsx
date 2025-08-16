@@ -160,7 +160,6 @@ export function ConversationalForm({ formFlowData }: Props) {
     const currentField = formFlow[currentStep];
     const newAnswers = { ...answers, [currentField.key]: value };
     setAnswers(newAnswers);
-    validateAndProceed(currentField, value, { [currentField.key]: value });
   };
 
   const renderSuggestions = () => {
@@ -247,8 +246,8 @@ export function ConversationalForm({ formFlowData }: Props) {
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
       <CardHeader className="border-b p-0">
-        <div className="px-4 py-2">
-          <p className="font-semibold font-headline">{title}</p>
+        <div className="px-4 pt-2 pb-1">
+          <p className="font-semibold font-headline leading-tight mb-0">{title}</p>
           <p className="text-sm text-muted-foreground">
             by AlurAI
           </p>
