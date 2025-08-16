@@ -172,12 +172,15 @@ export async function getFormBySlugAction(slug: string): Promise<FormFlowData | 
 
 export async function saveSubmissionAction(formId: string, answers: FormAnswers): Promise<{ id: string } | { error: string }> {
   try {
-    // We can't store File objects in Firestore, so we'll just store the name for now.
     const sanitizedAnswers: Record<string, any> = {};
     for (const key in answers) {
       const value = answers[key];
       if (value instanceof File) {
+        // We can't store File objects in Firestore, so we'll just store the name for now.
         sanitizedAnswers[key] = value.name;
+      } else if (value === null) {
+        // Firestore doesn't like `undefined`, so we store `null` for empty fields.
+        sanitizedAnswers[key] = null;
       } else {
         sanitizedAnswers[key] = value;
       }
