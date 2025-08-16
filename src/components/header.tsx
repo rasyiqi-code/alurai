@@ -32,7 +32,7 @@ export function Header() {
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
             <Link href="/analytics">
               <BarChart className="mr-2 h-4 w-4" />
-              Analytics
+              Submission
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
@@ -61,7 +61,7 @@ export function Header() {
                     <DropdownMenuItem asChild>
                          <Link href="/analytics">
                             <BarChart className="mr-2 h-4 w-4" />
-                            <span>Analytics</span>
+                            <span>Submission</span>
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
