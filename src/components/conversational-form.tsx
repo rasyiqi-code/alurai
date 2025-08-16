@@ -70,13 +70,13 @@ export function ConversationalForm({ formFlowData }: Props) {
       { type: 'bot', content: "Great! I've analyzed your text. Click the suggestions to fill the form." }
     ]);
     
-    // 2. After a short delay, ask the first question to start the suggestion flow
+    // 2. After a short delay, reset to the first question to start the suggestion flow
     setTimeout(() => {
         if (formFlow.length > 0) {
             setMessages(prev => [...prev, { type: 'bot', content: formFlow[0].question }]);
             setCurrentStep(0);
         }
-    }, 50); // A small delay to ensure React processes state updates separately
+    }, 50);
   };
 
 
