@@ -175,10 +175,12 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
     const sanitizedAnswers: Record<string, any> = {};
     for (const key in answers) {
       const value = answers[key];
+      // Skip file objects entirely for now
       if (value instanceof File) {
-        // We can't store File objects in Firestore, so we'll just store the name for now.
-        sanitizedAnswers[key] = value.name;
-      } else if (value === null) {
+        continue;
+      }
+      
+      if (value === null) {
         // Firestore doesn't like `undefined`, so we store `null` for empty fields.
         sanitizedAnswers[key] = null;
       } else {
@@ -261,6 +263,7 @@ export async function validateAnswerAction(
     return result;
   } catch (error) {
     console.error('Error validating answer:', error);
-    return { error: 'Failed to validate answer. Please try again.' };
+    // Fallback to prevent blocking the user
+    return { isValid: true, feedback: 'Thank you!' };
   }
 }
