@@ -48,3 +48,9 @@ Semoga berhasil dengan implementasi manualnya! Ini adalah proyek belajar yang sa
 ### 3. Dukungan Custom Domain
 - **Status:** UI di halaman Pengaturan ada tetapi dinonaktifkan dan ditandai sebagai "Coming Soon".
 - **Rencana:** Mengimplementasikan logika backend yang diperlukan untuk memungkinkan pengguna memetakan domain kustom mereka sendiri (misalnya, `forms.yourcompany.com`) ke aplikasi, memberikan pengalaman yang lebih bermerek.
+
+### 4. Autentikasi dan Manajemen User (BELUM ADA)
+- **User Authentication:** Tidak ada sistem login/register.
+- **User Management:** Tidak ada profil user, session management.
+- **Authorization:** Semua form bisa diakses siapa saja tanpa kontrol akses.
+- **Multi-tenancy:** Tidak ada pemisahan data antar user.
