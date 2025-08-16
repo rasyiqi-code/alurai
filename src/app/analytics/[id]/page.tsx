@@ -2,11 +2,11 @@ import { getFormAction, getSubmissionsAction } from '@/app/actions';
 import { Header } from '@/components/header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { MessageSquare, ArrowLeft, Construction } from 'lucide-react';
+import { MessageSquare, ArrowLeft, Inbox } from 'lucide-react';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
 export default async function FormAnalyticsPage({ params }: { params: { id: string } }) {
   const formResult = await getFormAction(params.id);
@@ -21,6 +21,19 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
   const submissions = 'error' in submissionsResult ? [] : submissionsResult;
 
   const tableHeaders = form.flow.map(field => field.key).filter(Boolean);
+
+  const formatValue = (value: any): string => {
+    if (value === null || typeof value === 'undefined') {
+      return 'N/A';
+    }
+    if (typeof value === 'object' && value.toDate) { // Firestore Timestamp
+      return format(value.toDate(), 'PPpp');
+    }
+    if (typeof value === 'string' && value.startsWith('placeholder/for/')) {
+        return value.replace('placeholder/for/', '');
+    }
+    return String(value);
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -53,12 +66,9 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
 
           <Card>
             <CardHeader>
-              <div className='flex items-center gap-4'>
                 <CardTitle>Submissions Data</CardTitle>
-                <Badge variant="outline">Coming Soon</Badge>
-              </div>
               <CardDescription>
-                Viewing individual submission data is currently in development.
+                View all the entries submitted to your form.
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -71,19 +81,32 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    <TableRow>
-                      <TableCell colSpan={tableHeaders.length + 1}>
-                        <div className="flex flex-col items-center justify-center text-center p-8 gap-4">
-                            <div className="mx-auto bg-primary text-primary-foreground rounded-full h-16 w-16 flex items-center justify-center">
-                                <Construction className="h-8 w-8" />
-                            </div>
-                            <h3 className="text-lg font-semibold font-headline">Feature in Progress</h3>
-                            <p className="text-muted-foreground max-w-md">
-                                We are working hard to bring you detailed submission analytics. Check back soon!
-                            </p>
-                        </div>
-                      </TableCell>
-                    </TableRow>
+                    {submissions.length > 0 ? (
+                        submissions.map(submission => (
+                            <TableRow key={submission.id}>
+                                <TableCell>{format(new Date(submission.submittedAt), 'PPpp')}</TableCell>
+                                {tableHeaders.map(header => (
+                                    <TableCell key={`${submission.id}-${header}`}>
+                                        {formatValue(submission[header])}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))
+                    ) : (
+                        <TableRow>
+                            <TableCell colSpan={tableHeaders.length + 1}>
+                                <div className="flex flex-col items-center justify-center text-center p-8 gap-4">
+                                    <div className="mx-auto bg-muted text-muted-foreground rounded-full h-16 w-16 flex items-center justify-center">
+                                        <Inbox className="h-8 w-8" />
+                                    </div>
+                                    <h3 className="text-lg font-semibold font-headline">No Submissions Yet</h3>
+                                    <p className="text-muted-foreground max-w-md">
+                                        Share your form to start collecting responses. They will appear here as soon as they come in.
+                                    </p>
+                                </div>
+                            </TableCell>
+                        </TableRow>
+                    )}
                   </TableBody>
                 </Table>
               </div>
