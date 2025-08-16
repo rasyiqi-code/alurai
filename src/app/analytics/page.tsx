@@ -37,7 +37,7 @@ export default async function AnalyticsDashboardPage() {
                 <CardContent className="space-y-4">
                    <div className="flex items-center text-sm text-muted-foreground">
                       <MessageSquare className="mr-2 h-4 w-4" />
-                      <span>Submissions unavailable</span>
+                      <span>{form.submissionCount ?? 0} Submissions</span>
                     </div>
                   <Button asChild className="w-full">
                     <Link href={`/analytics/${form.id}`}>

@@ -60,8 +60,9 @@ export async function parseDataForSuggestionsAction(inputData: string): Promise<
 
 export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: string } | { error: string }> {
   try {
-    const dataToSave: Omit<FormFlowData, 'id'> & { createdAt?: any, updatedAt?: any } = { ...formFlowData };
+    const dataToSave: Omit<FormFlowData, 'id' | 'submissionCount'> & { createdAt?: any, updatedAt?: any } = { ...formFlowData };
     delete dataToSave.id;
+    delete dataToSave.submissionCount; // Ensure submissionCount isn't saved directly
 
     if (formFlowData.id) {
       // Update existing document
@@ -98,11 +99,18 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
     const q = query(formsCollection, orderBy('createdAt', 'desc'));
     const formSnapshot = await getDocs(q);
     
-    const formList = formSnapshot.docs.map(doc => {
+    const formListPromises = formSnapshot.docs.map(async (doc) => {
       const data = doc.data();
+      
+      // Get submission count for each form
+      const submissionsCollection = collection(db, 'forms', doc.id, 'submissions');
+      const snapshot = await getCountFromServer(submissionsCollection);
+      const submissionCount = snapshot.data().count;
+
       return {
         id: doc.id,
         ...data,
+        submissionCount, // Add submission count here
         createdAt: toISOString(data.createdAt),
         updatedAt: toISOString(data.updatedAt),
         publishStartTime: toISOString(data.publishStartTime),
@@ -110,6 +118,7 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
       } as FormFlowData;
     });
 
+    const formList = await Promise.all(formListPromises);
     return formList;
   } catch (error) {
     console.error('Error fetching forms:', error);
