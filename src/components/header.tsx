@@ -30,15 +30,9 @@ export function Header() {
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
-            <Link href="/analytics/overview">
-              <LayoutDashboard className="mr-2 h-4 w-4" />
-              Analytics
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
             <Link href="/analytics">
               <BarChart className="mr-2 h-4 w-4" />
-              Submission
+              Analytics
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
@@ -65,15 +59,9 @@ export function Header() {
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                         <Link href="/analytics/overview">
-                            <LayoutDashboard className="mr-2 h-4 w-4" />
-                            <span>Analytics</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
                          <Link href="/analytics">
                             <BarChart className="mr-2 h-4 w-4" />
-                            <span>Submission</span>
+                            <span>Analytics</span>
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
