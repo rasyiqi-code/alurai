@@ -1,7 +1,7 @@
 
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
-import type { FormFlowData, FormField, FormAnswers } from '@/lib/types';
+import type { FormFlowData, FormField, FormAnswers, ExtractedPair } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -16,6 +16,7 @@ import { DataParser } from './data-parser';
 import { saveSubmissionAction, validateAnswerAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Spinner } from './spinner';
+import { SuggestionConfirmation } from './suggestion-confirmation';
 
 interface Props {
   formFlowData: FormFlowData;
@@ -36,7 +37,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const [suggestedAnswers, setSuggestedAnswers] = useState<Record<string, any> | null>(null);
+  const [suggestedAnswers, setSuggestedAnswers] = useState<ExtractedPair[] | null>(null);
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
@@ -61,22 +62,12 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
   };
   
-  const handleDataParsed = (parsedData: Record<string, any>) => {
+  const handleDataParsed = (parsedData: ExtractedPair[]) => {
     setSuggestedAnswers(parsedData);
-    
-    // 1. Show confirmation message
     setMessages(prev => [
       ...prev,
-      { type: 'bot', content: "Great! I've analyzed your text. Click the suggestions to fill the form." }
+      { type: 'bot', content: "Great! I've analyzed your text. Please confirm the suggestions below." }
     ]);
-    
-    // 2. After a short delay, reset to the first question to start the suggestion flow
-    setTimeout(() => {
-        if (formFlow.length > 0) {
-            setMessages(prev => [...prev, { type: 'bot', content: formFlow[0].question }]);
-            setCurrentStep(0);
-        }
-    }, 50);
   };
 
 
@@ -98,12 +89,18 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
   };
   
-  const handleSuggestionClick = (suggestion: string) => {
-    const currentField = formFlow[currentStep];
-    if (currentField) {
-        setAnswers(prev => ({ ...prev, [currentField.key]: suggestion }));
+  const proceedToNextStep = (updatedAnswers: FormAnswers) => {
+    setAnswers(updatedAnswers);
+    if (currentStep < formFlow.length - 1) {
+        const nextStep = currentStep + 1;
+        setCurrentStep(nextStep);
+        setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
+    } else {
+        setIsCompleted(true);
+        setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
     }
   };
+
 
   const validateAndProceed = async (field: FormField, answer: any, currentAnswers: FormAnswers) => {
      const answerContent =
@@ -124,15 +121,7 @@ export function ConversationalForm({ formFlowData }: Props) {
         // remove user message on error
         setMessages(prev => [...prev.slice(0, -1)]);
     } else if (validationResult.isValid) {
-        setAnswers(currentAnswers);
-        if (currentStep < formFlow.length - 1) {
-            const nextStep = currentStep + 1;
-            setCurrentStep(nextStep);
-            setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
-        } else {
-            setIsCompleted(true);
-            setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
-        }
+        proceedToNextStep(currentAnswers);
     } else {
         setMessages(prev => [...prev.slice(0,-1), { type: 'bot', content: validationResult.feedback }]);
     }
@@ -179,34 +168,39 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
   };
 
-  const renderSuggestions = () => {
-    if (!suggestedAnswers || isCompleted) return null;
-
-    // A more robust way to get all string values from the parsed data.
-    const suggestions = Object.values(suggestedAnswers)
-      .flat() // Handles cases where a value might be an array
-      .filter((value): value is string => typeof value === 'string' && value.trim() !== '');
+  const handleSuggestionConfirmed = (confirmedAnswers: FormAnswers) => {
+    setSuggestedAnswers(null); // Clear suggestions
+    setAnswers(confirmedAnswers); // Update main answers state
+    
+    // Find the next unanswered question
+    const lastAnsweredKey = Object.keys(confirmedAnswers).pop();
+    const lastAnsweredIndex = formFlow.findIndex(f => f.key === lastAnsweredKey);
+    
+    const nextStep = (lastAnsweredIndex !== -1 && lastAnsweredIndex < formFlow.length - 1)
+      ? lastAnsweredIndex + 1
+      : formFlow.findIndex(f => !confirmedAnswers[f.key]);
       
-    if (suggestions.length === 0) return null;
-
-    return (
-      <div className="mb-2 flex flex-wrap gap-2">
-        {suggestions.map((suggestion, index) => (
-          <Button
-            key={index}
-            variant="outline"
-            size="sm"
-            onClick={() => handleSuggestionClick(suggestion)}
-            className="text-xs h-auto py-1 px-2"
-          >
-            {suggestion}
-          </Button>
-        ))}
-      </div>
-    );
+    if (nextStep !== -1 && nextStep < formFlow.length) {
+      setCurrentStep(nextStep);
+      setMessages(prev => [...prev, { type: 'bot', content: formFlow[nextStep].question }]);
+    } else {
+      setIsCompleted(true);
+      setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
+    }
   };
 
+
   const renderFooterContent = () => {
+    if (suggestedAnswers) {
+        return (
+          <SuggestionConfirmation
+            suggestions={suggestedAnswers}
+            formFlow={formFlow}
+            onConfirm={handleSuggestionConfirmed}
+          />
+        );
+    }
+    
     if (isCompleted) {
        return (
         <div className="w-full flex flex-col items-center gap-4">
@@ -224,7 +218,6 @@ export function ConversationalForm({ formFlowData }: Props) {
 
     return (
       <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
-        {renderSuggestions()}
         <div>
           {renderInput(currentField)}
         </div>

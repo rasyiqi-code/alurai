@@ -14,15 +14,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from './ui/textarea';
 import { useToast } from '@/hooks/use-toast';
-import { parseDataAction } from '@/app/actions';
-import { FormFlow } from '@/lib/types';
+import { parseDataForSuggestionsAction } from '@/app/actions';
+import { FormFlow, ExtractedPair } from '@/lib/types';
 import { Spinner } from './spinner';
 import { Label } from './ui/label';
 import { Input } from './ui/input';
 
 interface Props {
   formFlow: FormFlow;
-  onDataParsed: (data: Record<string, any>) => void;
+  onDataParsed: (data: ExtractedPair[]) => void;
 }
 
 export function DataParser({ formFlow, onDataParsed }: Props) {
@@ -35,7 +35,12 @@ export function DataParser({ formFlow, onDataParsed }: Props) {
   const handleParse = async () => {
     let inputData = pastedText;
     if (!inputData && file) {
-      inputData = await file.text();
+      try {
+        inputData = await file.text();
+      } catch (e) {
+        toast({ variant: 'destructive', title: 'File Read Error', description: 'Could not read the contents of the file.' });
+        return;
+      }
     }
 
     if (!inputData) {
@@ -44,14 +49,18 @@ export function DataParser({ formFlow, onDataParsed }: Props) {
     }
     
     setIsLoading(true);
-    const result = await parseDataAction(formFlow, inputData);
+    const result = await parseDataForSuggestionsAction(inputData);
     setIsLoading(false);
     
     if ('error' in result) {
       toast({ variant: 'destructive', title: 'Parsing Error', description: result.error });
     } else {
-      onDataParsed(result);
-      toast({ title: 'Success', description: 'Form fields have been pre-filled.' });
+      if (result.length > 0) {
+        onDataParsed(result);
+        toast({ title: 'Success', description: 'Information extracted. Please confirm the suggestions.' });
+      } else {
+        toast({ title: 'No Information Found', description: 'AI could not find any information to extract from the text.' });
+      }
       setIsOpen(false);
       setPastedText('');
       setFile(null);
@@ -69,7 +78,7 @@ export function DataParser({ formFlow, onDataParsed }: Props) {
         <DialogHeader>
           <DialogTitle className="font-headline">Intelligent Data Parsing</DialogTitle>
           <DialogDescription>
-            Paste a block of text or upload a file, and AI will attempt to fill out the form for you.
+            Paste a block of text or upload a file, and AI will attempt to find information to fill the form.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">

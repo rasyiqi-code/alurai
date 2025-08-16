@@ -23,3 +23,8 @@ export type FormFlowData = {
 };
 
 export type FormAnswers = Record<string, string | number | File | null>;
+
+export type ExtractedPair = {
+  key: string;
+  value: string;
+};
