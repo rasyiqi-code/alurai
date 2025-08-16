@@ -1,3 +1,4 @@
+
 'use client';
 import React, { useState, useRef, useEffect } from 'react';
 import type { FormFlowData, FormField, FormAnswers } from '@/lib/types';
@@ -174,35 +175,20 @@ export function ConversationalForm({ formFlowData }: Props) {
   const renderSuggestions = () => {
     if (!suggestedAnswers || isCompleted) return null;
 
-    const currentFieldKey = formFlow[currentStep]?.key;
-    if (!currentFieldKey) return null;
+    // Create a flat, unique list of all string values from the parsed data.
+    const suggestions = [
+      ...new Set(
+        Object.values(suggestedAnswers)
+          .flat() // Handles arrays from checkboxes/multi-select
+          .filter((value): value is string => typeof value === 'string' && value.trim() !== '')
+      ),
+    ];
 
-    const suggestionsToShow = new Set<string>();
-
-    // Add the most relevant suggestion first, if it exists and is a string
-    const relevantSuggestion = suggestedAnswers[currentFieldKey];
-    if (relevantSuggestion && typeof relevantSuggestion === 'string') {
-        suggestionsToShow.add(relevantSuggestion);
-    }
-    
-    // Add all other string values from the parsed data
-    Object.values(suggestedAnswers).forEach(value => {
-        if (typeof value === 'string' && value.trim() !== '') {
-            suggestionsToShow.add(value);
-        } else if (Array.isArray(value)) {
-            value.forEach(item => {
-                if(typeof item === 'string' && item.trim() !== '') {
-                    suggestionsToShow.add(item);
-                }
-            });
-        }
-    });
-
-    if (suggestionsToShow.size === 0) return null;
+    if (suggestions.length === 0) return null;
 
     return (
       <div className="mb-2 flex flex-wrap gap-2">
-        {Array.from(suggestionsToShow).slice(0, 5).map((suggestion, index) => (
+        {suggestions.slice(0, 5).map((suggestion, index) => (
           <Button
             key={index}
             variant="outline"
