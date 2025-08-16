@@ -74,7 +74,19 @@ const validateAnswerFlow = ai.defineFlow(
         };
     }
     
-    const {output} = await prompt(input);
-    return output!;
+    try {
+        const {output} = await prompt(input);
+        if (output) {
+            return output;
+        }
+    } catch (e) {
+        console.error("Error during answer validation AI flow:", e);
+    }
+
+    // Fallback: If AI fails, assume the answer is valid to not block the user.
+    return {
+        isValid: true,
+        feedback: "Thank you!"
+    };
   }
 );
