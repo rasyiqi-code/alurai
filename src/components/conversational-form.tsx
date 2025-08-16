@@ -247,7 +247,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
       <CardHeader className="border-b p-0">
-        <div className="p-4">
+        <div className="px-4 py-2">
           <p className="font-semibold font-headline">{title}</p>
           <p className="text-sm text-muted-foreground">
             by AlurAI
