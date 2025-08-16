@@ -3,7 +3,8 @@ import { FormDisplay } from '@/components/form-display';
 import { notFound } from 'next/navigation';
 
 export default async function FormPage({ params }: { params: { id: string } }) {
-  const result = await getFormAction(params.id);
+  const formId = params.id;
+  const result = await getFormAction(formId);
 
   if (!result || 'error' in result) {
     // In a real app, you might want to show a more specific error page
