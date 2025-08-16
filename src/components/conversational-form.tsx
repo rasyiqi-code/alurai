@@ -105,7 +105,7 @@ export function ConversationalForm({ formFlowData }: Props) {
      const answerContent =
       field.inputType === 'file'
         ? (answer as File)?.name || 'File attached'
-        : (answer as string) || '';
+        : String(answer || '');
 
     setIsValidating(true);
     setMessages(prev => [...prev, { type: 'user', content: answerContent }, {type: 'bot', content: <Spinner />, isThinking: true}]);
