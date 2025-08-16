@@ -286,17 +286,13 @@ export async function getAnalyticsOverviewAction(): Promise<{
   mostSubmittedForm: { title: string; count: number; id: string; } | null;
 } | { error: string }> {
   try {
-    // 1. Get total number of forms
+    // 1. Get all forms
     const formsCollection = collection(db, 'forms');
     const formsSnapshot = await getDocs(formsCollection);
     const totalForms = formsSnapshot.size;
 
-    // 2. Get total number of submissions across all forms
-    const submissionsCollectionGroup = collectionGroup(db, 'submissions');
-    const submissionsSnapshot = await getCountFromServer(submissionsCollectionGroup);
-    const totalSubmissions = submissionsSnapshot.data().count;
-
-    // 3. Find the most submitted-to form
+    // 2. Iterate and sum up submissions
+    let totalSubmissions = 0;
     let mostSubmittedForm: { title: string; count: number; id: string } | null = null;
     let maxSubmissions = -1;
 
@@ -304,6 +300,8 @@ export async function getAnalyticsOverviewAction(): Promise<{
       const submissionsCollection = collection(db, 'forms', formDoc.id, 'submissions');
       const snapshot = await getCountFromServer(submissionsCollection);
       const submissionCount = snapshot.data().count;
+      
+      totalSubmissions += submissionCount;
 
       if (submissionCount > maxSubmissions) {
         maxSubmissions = submissionCount;
