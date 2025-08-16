@@ -9,7 +9,7 @@ import { FormFlow, FormFlowData, FormAnswers, FormField, ExtractedPair } from '@
 import { toCamelCase } from '@/lib/utils';
 import { z } from 'zod';
 import { db } from '@/lib/firebase';
-import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit, collectionGroup } from 'firebase/firestore';
+import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit, collectionGroup,getCountFromServer } from 'firebase/firestore';
 
 
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
@@ -179,7 +179,7 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
       if (value instanceof File) {
         // In a real app, you would upload the file to a storage service (like Firebase Storage)
         // and save the URL. For now, we'll just save the file name as a placeholder.
-        sanitizedAnswers[key] = value.name;
+        sanitizedAnswers[key] = `placeholder/for/${value.name}`;
         continue;
       }
       
@@ -268,5 +268,52 @@ export async function validateAnswerAction(
     console.error('Error validating answer:', error);
     // Fallback to prevent blocking the user
     return { isValid: true, feedback: 'Thank you!' };
+  }
+}
+
+export async function getAnalyticsOverviewAction(): Promise<{
+  totalForms: number;
+  totalSubmissions: number;
+  mostSubmittedForm: { title: string; count: number; id: string; } | null;
+} | { error: string }> {
+  try {
+    // 1. Get total number of forms
+    const formsCollection = collection(db, 'forms');
+    const formsSnapshot = await getDocs(formsCollection);
+    const totalForms = formsSnapshot.size;
+
+    // 2. Get total number of submissions across all forms
+    const submissionsCollectionGroup = collectionGroup(db, 'submissions');
+    const submissionsSnapshot = await getCountFromServer(submissionsCollectionGroup);
+    const totalSubmissions = submissionsSnapshot.data().count;
+
+    // 3. Find the most submitted-to form
+    let mostSubmittedForm: { title: string; count: number; id: string } | null = null;
+    let maxSubmissions = -1;
+
+    for (const formDoc of formsSnapshot.docs) {
+      const submissionsCollection = collection(db, 'forms', formDoc.id, 'submissions');
+      const snapshot = await getCountFromServer(submissionsCollection);
+      const submissionCount = snapshot.data().count;
+
+      if (submissionCount > maxSubmissions) {
+        maxSubmissions = submissionCount;
+        mostSubmittedForm = { 
+          id: formDoc.id,
+          title: formDoc.data().title, 
+          count: submissionCount 
+        };
+      }
+    }
+
+    return {
+      totalForms,
+      totalSubmissions,
+      mostSubmittedForm,
+    };
+
+  } catch (error) {
+    console.error('Error fetching analytics overview:', error);
+    return { error: 'Failed to fetch analytics overview data.' };
   }
 }
