@@ -185,6 +185,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   }
 
   const renderInput = (field: FormField) => {
+    // Ensure value is always a string to prevent controlled/uncontrolled error
     const value = (answers[field.key] as string) || '';
 
     switch (field.inputType) {
@@ -202,6 +203,7 @@ export function ConversationalForm({ formFlowData }: Props) {
             </RadioGroup>
         );
       case 'file':
+        // File inputs are uncontrolled, so we don't pass a value prop.
         return <Input type="file" onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.files?.[0] || null })} />;
       default:
         return <Input type={field.inputType} value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
