@@ -177,27 +177,24 @@ export function ConversationalForm({ formFlowData }: Props) {
     const currentFieldKey = formFlow[currentStep]?.key;
     if (!currentFieldKey) return null;
 
-    const relevantSuggestion = suggestedAnswers[currentFieldKey];
-    
-    // Create an array of all available suggestions for quick access
-    const allSuggestions = Object.values(suggestedAnswers).flat().filter(Boolean);
-    if (!relevantSuggestion && allSuggestions.length === 0) return null;
-
-    // Use a Set to ensure unique suggestions
     const suggestionsToShow = new Set<string>();
-    
-    if (relevantSuggestion) {
-        if (Array.isArray(relevantSuggestion)) {
-            relevantSuggestion.forEach(s => suggestionsToShow.add(s));
-        } else {
-            suggestionsToShow.add(String(relevantSuggestion));
-        }
+
+    // Add the most relevant suggestion first, if it exists and is a string
+    const relevantSuggestion = suggestedAnswers[currentFieldKey];
+    if (relevantSuggestion && typeof relevantSuggestion === 'string') {
+        suggestionsToShow.add(relevantSuggestion);
     }
     
-    // Add other available string suggestions, prioritizing the most relevant one
-    allSuggestions.forEach(s => {
-        if (typeof s === 'string') {
-            suggestionsToShow.add(s);
+    // Add all other string values from the parsed data
+    Object.values(suggestedAnswers).forEach(value => {
+        if (typeof value === 'string' && value.trim() !== '') {
+            suggestionsToShow.add(value);
+        } else if (Array.isArray(value)) {
+            value.forEach(item => {
+                if(typeof item === 'string' && item.trim() !== '') {
+                    suggestionsToShow.add(item);
+                }
+            });
         }
     });
 
