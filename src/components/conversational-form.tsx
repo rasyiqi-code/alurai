@@ -49,15 +49,19 @@ export function ConversationalForm({ formFlowData }: Props) {
     scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
   }, [messages]);
 
-  const startForm = () => {
+  const startForm = (isRestart = false) => {
     setCurrentStep(0);
     setAnswers({});
     setIsCompleted(false);
     setIsSubmitted(false);
     setIsSubmitting(false);
-    setSuggestedAnswers(null);
+    if (!isRestart) {
+       setSuggestedAnswers(null);
+    }
     if (formFlow.length > 0) {
       setMessages([{ type: 'bot', content: formFlow[0].question }]);
+    } else {
+      setMessages([]);
     }
   };
   
@@ -65,8 +69,13 @@ export function ConversationalForm({ formFlowData }: Props) {
     setSuggestedAnswers(parsedData);
     setMessages(prev => [
       ...prev,
-      { type: 'bot', content: "Great! I've analyzed your text. Here are some suggestions." }
+      { type: 'bot', content: "Great! I've analyzed your text. I'll show suggestions for each step." }
     ]);
+    // This is the key fix: restart the form flow to show the first question
+    // along with the new suggestions.
+    setTimeout(() => {
+      startForm(true); // pass true to keep suggestions
+    }, 10);
   };
 
   const handleSubmission = async () => {
@@ -96,7 +105,6 @@ export function ConversationalForm({ formFlowData }: Props) {
         setCurrentStep(nextStep);
     } else {
         setIsCompleted(true);
-        setSuggestedAnswers(null); // Clear suggestions once done
         setMessages(prev => [...prev, { type: 'bot', content: 'Great, that\'s all the questions. Please click Submit to finish.'}]);
     }
   };
@@ -143,18 +151,21 @@ export function ConversationalForm({ formFlowData }: Props) {
         return;
     }
     
-    validateAndProceed(currentField, answer, answers);
+    validateAndProceed(currentField, answer, { [currentField.key]: answer });
   };
   
-  const handleSuggestionClick = (fieldKey: string, value: string) => {
-    setAnswers({ ...answers, [fieldKey]: value });
+  const handleSuggestionClick = (value: string) => {
+    const currentField = formFlow[currentStep];
+    setAnswers({ ...answers, [currentField.key]: value });
   };
 
-  const renderSuggestions = (field: FormField) => {
+  const renderSuggestions = () => {
     if (!suggestedAnswers || suggestedAnswers.length === 0) {
       return null;
     }
     
+    // Simple logic: Show all extracted values as buttons.
+    // The user can then click the one that is relevant for the current question.
     return (
         <div className="flex flex-wrap gap-2 mb-2">
             {suggestedAnswers.map((suggestion, index) => (
@@ -163,7 +174,7 @@ export function ConversationalForm({ formFlowData }: Props) {
                     size="sm" 
                     variant="outline"
                     className="h-auto py-1 px-3 text-xs"
-                    onClick={() => handleSuggestionClick(field.key, suggestion.value)}
+                    onClick={() => handleSuggestionClick(suggestion.value)}
                 >
                     {suggestion.value}
                 </Button>
@@ -215,7 +226,7 @@ export function ConversationalForm({ formFlowData }: Props) {
     return (
       <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
         <div>
-          {renderSuggestions(currentField)}
+          {renderSuggestions()}
           {renderInput(currentField)}
         </div>
         <div className='flex items-center justify-between'>
@@ -232,7 +243,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   const progress = isCompleted ? 100 : (currentStep / formFlow.length) * 100;
 
   return (
-    <Card className="h-full w-full flex flex-col shadow-2xl bg-card">
+    <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
       <CardHeader className="border-b">
         <p className="font-semibold font-headline">{title}</p>
         <p className="text-sm text-muted-foreground">
@@ -256,7 +267,7 @@ export function ConversationalForm({ formFlowData }: Props) {
                 <CheckCircle size={20} />
                 <p>Submission Received!</p>
               </div>
-              <Button onClick={startForm} variant="outline" size="sm">
+              <Button onClick={() => startForm(true)} variant="outline" size="sm">
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Fill Again
               </Button>
@@ -264,7 +275,7 @@ export function ConversationalForm({ formFlowData }: Props) {
           )}
       </CardContent>
       {!isSubmitted && (
-        <CardFooter className="border-t p-4">
+        <CardFooter className="border-t p-4 bg-background/95 backdrop-blur-sm">
           {renderFooterContent()}
         </CardFooter>
       )}
