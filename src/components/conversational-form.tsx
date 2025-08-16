@@ -86,7 +86,20 @@ export function ConversationalForm({ formFlowData }: Props) {
       return;
     }
     setIsSubmitting(true);
-    const result = await saveSubmissionAction(formId, answers);
+    
+    // Sanitize answers before sending to server action
+    const answersToSend: FormAnswers = {};
+    for (const key in answers) {
+      const value = answers[key];
+      if (value instanceof File) {
+        // Replace File object with a placeholder string
+        answersToSend[key] = `placeholder/for/${value.name}`;
+      } else {
+        answersToSend[key] = value;
+      }
+    }
+
+    const result = await saveSubmissionAction(formId, answersToSend);
     setIsSubmitting(false);
 
     if ('error' in result) {
@@ -185,7 +198,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   }
 
   const renderInput = (field: FormField) => {
-    // Ensure value is always a string to prevent controlled/uncontrolled error
+    // Ensure value is always a string to prevent controlled/uncontrolled error for text-based inputs
     const value = (answers[field.key] as string) || '';
 
     switch (field.inputType) {
