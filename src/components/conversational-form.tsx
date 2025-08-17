@@ -89,19 +89,7 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
     setIsSubmitting(true);
     
-    // Sanitize answers before sending to server action
-    const answersToSend: FormAnswers = {};
-    for (const key in answers) {
-      const value = answers[key];
-      if (value instanceof File) {
-        // Replace File object with a placeholder string
-        answersToSend[key] = `placeholder/for/${value.name}`;
-      } else {
-        answersToSend[key] = value;
-      }
-    }
-
-    const result = await saveSubmissionAction(formId, answersToSend);
+    const result = await saveSubmissionAction(formId, answers);
     setIsSubmitting(false);
 
     if ('error' in result) {
@@ -141,6 +129,7 @@ export function ConversationalForm({ formFlowData }: Props) {
 
     if ('error' in validationResult) {
         toast({ variant: 'destructive', title: 'Validation Error', description: validationResult.error });
+        // Don't add the bot thinking message back, just remove user's wrong answer
         setMessages(prev => [...prev.slice(0, -1)]);
     } else if (validationResult.isValid) {
         if (currentStep < formFlow.length - 1) {
@@ -148,6 +137,7 @@ export function ConversationalForm({ formFlowData }: Props) {
         }
         proceedToNextStep(currentAnswers);
     } else {
+        // Remove user message, add feedback
         setMessages(prev => [...prev.slice(0,-1), { type: 'bot', content: validationResult.feedback }]);
     }
     setIsValidating(false);
@@ -176,6 +166,12 @@ export function ConversationalForm({ formFlowData }: Props) {
     const newAnswers = { ...answers, [currentField.key]: value };
     setAnswers(newAnswers);
   };
+  
+  const handleRadioSelect = (field: FormField, value: string) => {
+    if (isValidating) return;
+    setAnswers(prev => ({ ...prev, [field.key]: value }));
+    validateAndProceed(field, value, { [field.key]: value });
+  }
 
   const renderSuggestions = () => {
     if (!suggestedAnswers || suggestedAnswers.length === 0) {
@@ -206,20 +202,14 @@ export function ConversationalForm({ formFlowData }: Props) {
     // Ensure value is always a string to prevent controlled/uncontrolled error for text-based inputs
     const value = (answers[field.key] as string) || '';
 
+    // 'select' type is handled in renderFooterContent, so we don't render it here.
+    if (field.inputType === 'select') {
+      return null;
+    }
+    
     switch (field.inputType) {
       case 'textarea':
         return <Textarea value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
-      case 'select':
-        return (
-            <RadioGroup value={value} onValueChange={(val) => setAnswers({ ...answers, [field.key]: val })} className="flex flex-row flex-wrap gap-4">
-                {field.options?.map(opt => (
-                    <div key={opt} className="flex items-center space-x-2">
-                        <RadioGroupItem value={opt} id={`${field.key}-${opt}`} />
-                        <Label htmlFor={`${field.key}-${opt}`}>{opt}</Label>
-                    </div>
-                ))}
-            </RadioGroup>
-        );
       case 'file':
         // File inputs are uncontrolled, so we don't pass a value prop.
         return <Input type="file" onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.files?.[0] || null })} />;
@@ -244,6 +234,27 @@ export function ConversationalForm({ formFlowData }: Props) {
 
     const currentField = formFlow[currentStep];
 
+    // Handle 'select' type as quick replies in the footer
+    if (currentField.inputType === 'select') {
+      return (
+        <ScrollArea className="w-full whitespace-nowrap">
+          <div className="flex w-max space-x-2 pb-2">
+            {currentField.options?.map(opt => (
+              <Button
+                key={opt}
+                variant="outline"
+                disabled={isValidating}
+                onClick={() => handleRadioSelect(currentField, opt)}
+              >
+                {opt}
+              </Button>
+            ))}
+          </div>
+          <ScrollBar orientation="horizontal" />
+        </ScrollArea>
+      );
+    }
+
     return (
       <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
         <div>
@@ -260,8 +271,6 @@ export function ConversationalForm({ formFlowData }: Props) {
       </form>
     );
   }
-
-  const progress = isCompleted ? 100 : (currentStep / formFlow.length) * 100;
 
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
