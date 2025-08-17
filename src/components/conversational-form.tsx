@@ -211,7 +211,7 @@ export function ConversationalForm({ formFlowData }: Props) {
         return <Textarea value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
       case 'select':
         return (
-            <RadioGroup value={value} onValueChange={(val) => setAnswers({ ...answers, [field.key]: val })}>
+            <RadioGroup value={value} onValueChange={(val) => setAnswers({ ...answers, [field.key]: val })} className="flex flex-row flex-wrap gap-4">
                 {field.options?.map(opt => (
                     <div key={opt} className="flex items-center space-x-2">
                         <RadioGroupItem value={opt} id={`${field.key}-${opt}`} />
