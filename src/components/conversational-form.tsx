@@ -243,6 +243,7 @@ export function ConversationalForm({ formFlowData }: Props) {
               <Button
                 key={opt}
                 variant="outline"
+                size="sm"
                 disabled={isValidating}
                 onClick={() => handleRadioSelect(currentField, opt)}
               >
@@ -277,9 +278,9 @@ export function ConversationalForm({ formFlowData }: Props) {
       <ScrollArea ref={scrollRef} className="flex-1" type="auto">
         <CardContent className="p-4 space-y-4">
             {messages.map((msg, index) => (
-            <div key={index} className={cn('flex items-end gap-2', msg.type === 'user' ? 'justify-end' : 'justify-start')}>
+            <div key={index} className={cn('flex items-end gap-2 text-sm', msg.type === 'user' ? 'justify-end' : 'justify-start')}>
                 {msg.type === 'bot' && <Avatar className='h-8 w-8'><AvatarFallback className='bg-primary text-primary-foreground'><Bot size={20}/></AvatarFallback></Avatar>}
-                <div className={cn('max-w-[75%] rounded-lg px-4 py-2 text-sm', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted', msg.isThinking ? 'p-3' : '')}>
+                <div className={cn('max-w-[75%] rounded-lg px-4 py-2', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted', msg.isThinking ? 'p-3' : '')}>
                 {msg.content}
                 </div>
                 {msg.type === 'user' && <Avatar className='h-8 w-8'><AvatarFallback>U</AvatarFallback></Avatar>}
