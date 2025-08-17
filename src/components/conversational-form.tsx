@@ -16,6 +16,8 @@ import { DataParser } from './data-parser';
 import { saveSubmissionAction, validateAnswerAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Spinner } from './spinner';
+import { ScrollArea, ScrollBar } from './ui/scroll-area';
+
 
 interface Props {
   formFlowData: FormFlowData;
@@ -181,19 +183,22 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
     
     return (
-        <div className="flex flex-wrap gap-2 mb-2">
-            {suggestedAnswers.map((suggestion, index) => (
-                <Button 
-                    key={`${suggestion.key}-${index}`} 
-                    size="sm" 
-                    variant="outline"
-                    className="h-auto py-1 px-3 text-xs"
-                    onClick={() => handleSuggestionClick(suggestion.value)}
-                >
-                    {suggestion.value}
-                </Button>
-            ))}
-        </div>
+        <ScrollArea className="w-full whitespace-nowrap rounded-md mb-2">
+            <div className="flex w-max space-x-2 pb-2">
+                {suggestedAnswers.map((suggestion, index) => (
+                    <Button 
+                        key={`${suggestion.key}-${index}`} 
+                        size="sm" 
+                        variant="outline"
+                        className="h-auto py-1 px-3 text-xs"
+                        onClick={() => handleSuggestionClick(suggestion.value)}
+                    >
+                        {suggestion.value}
+                    </Button>
+                ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+        </ScrollArea>
     )
   }
 
