@@ -1,7 +1,7 @@
 import { Logo } from '@/components/icons/logo';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { List, Link as LinkIcon, BarChart, Settings, LayoutDashboard } from 'lucide-react';
+import { List, Link as LinkIcon, BarChart, Palette } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -41,6 +41,12 @@ export function Header() {
               Custom URL
             </Link>
           </Button>
+           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+            <Link href="/templates">
+              <Palette className="mr-2 h-4 w-4" />
+              Templates
+            </Link>
+          </Button>
         </div>
         {/* Mobile Navigation */}
         <div className="md:hidden">
@@ -68,6 +74,12 @@ export function Header() {
                          <Link href="/custom-url-domain">
                             <LinkIcon className="mr-2 h-4 w-4" />
                             <span>Custom URL</span>
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                         <Link href="/templates">
+                            <Palette className="mr-2 h-4 w-4" />
+                            <span>Templates</span>
                         </Link>
                     </DropdownMenuItem>
                 </DropdownMenuContent>
