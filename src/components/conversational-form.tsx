@@ -273,30 +273,32 @@ export function ConversationalForm({ formFlowData }: Props) {
   }
 
   return (
-    <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
-      <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, index) => (
-          <div key={index} className={cn('flex items-end gap-2', msg.type === 'user' ? 'justify-end' : 'justify-start')}>
-            {msg.type === 'bot' && <Avatar className='h-8 w-8'><AvatarFallback className='bg-primary text-primary-foreground'><Bot size={20}/></AvatarFallback></Avatar>}
-            <div className={cn('max-w-[75%] rounded-lg px-4 py-2', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted', msg.isThinking ? 'p-3' : '')}>
-              {msg.content}
+    <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none md:rounded-xl border-0">
+      <ScrollArea ref={scrollRef} className="flex-1" type="auto">
+        <CardContent className="p-4 space-y-4">
+            {messages.map((msg, index) => (
+            <div key={index} className={cn('flex items-end gap-2', msg.type === 'user' ? 'justify-end' : 'justify-start')}>
+                {msg.type === 'bot' && <Avatar className='h-8 w-8'><AvatarFallback className='bg-primary text-primary-foreground'><Bot size={20}/></AvatarFallback></Avatar>}
+                <div className={cn('max-w-[75%] rounded-lg px-4 py-2', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted', msg.isThinking ? 'p-3' : '')}>
+                {msg.content}
+                </div>
+                {msg.type === 'user' && <Avatar className='h-8 w-8'><AvatarFallback>U</AvatarFallback></Avatar>}
             </div>
-            {msg.type === 'user' && <Avatar className='h-8 w-8'><AvatarFallback>U</AvatarFallback></Avatar>}
-          </div>
-        ))}
-         {isSubmitted && (
-            <div className="text-center p-4 flex flex-col items-center justify-center gap-4">
-              <div className="flex items-center gap-2 text-green-600 font-semibold">
-                <CheckCircle size={20} />
-                <p>Submission Received!</p>
-              </div>
-              <Button onClick={() => startForm(true)} variant="outline" size="sm">
-                <RefreshCw className="mr-2 h-4 w-4" />
-                Fill Again
-              </Button>
-            </div>
-          )}
-      </CardContent>
+            ))}
+            {isSubmitted && (
+                <div className="text-center p-4 flex flex-col items-center justify-center gap-4">
+                <div className="flex items-center gap-2 text-green-600 font-semibold">
+                    <CheckCircle size={20} />
+                    <p>Submission Received!</p>
+                </div>
+                <Button onClick={() => startForm(true)} variant="outline" size="sm">
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Fill Again
+                </Button>
+                </div>
+            )}
+        </CardContent>
+      </ScrollArea>
       {!isSubmitted && (
         <CardFooter className="border-t p-4 bg-background/95 backdrop-blur-sm">
           {renderFooterContent()}

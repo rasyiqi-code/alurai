@@ -14,7 +14,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
   }
 
   return (
-     <div className="min-h-screen w-full bg-muted flex items-center justify-center p-4">
+     <div className="min-h-screen w-full bg-muted flex items-center justify-center p-0 md:p-4">
       <div className="grid grid-cols-1 lg:grid-cols-5 w-full max-w-7xl mx-auto gap-8">
         
         {/* Left Branding Panel */}
@@ -26,7 +26,7 @@ export default async function FormPage({ params }: { params: { id: string } }) {
 
         {/* Form Display Area */}
         <div className="w-full col-span-1 lg:col-span-3 flex flex-col items-center justify-center gap-4">
-          <div className="w-full max-w-lg overflow-x-auto">
+          <div className="w-full max-w-lg overflow-x-auto px-4 md:px-0">
             <h1 className="text-xl md:text-2xl font-bold font-headline text-center whitespace-nowrap p-1">
               {result.title}
             </h1>
