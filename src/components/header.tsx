@@ -1,19 +1,20 @@
 import { Logo } from '@/components/icons/logo';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { List, Link as LinkIcon, BarChart, Palette } from 'lucide-react';
+import { List, Link as LinkIcon, BarChart, Palette, LogIn } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from './ui/dropdown-menu';
 import { Menu } from 'lucide-react';
 
 
 export function Header() {
   return (
-    <header className="p-2.5 border-b bg-primary text-primary-foreground">
+    <header className="p-2.5 border-b bg-primary text-primary-foreground sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between gap-3">
         <Link href="/" className="flex items-center gap-3">
           <Logo className="text-primary-foreground" />
@@ -26,7 +27,7 @@ export function Header() {
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
             <Link href="/forms">
               <List className="mr-2 h-4 w-4" />
-              Saved Forms
+              Forms
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
@@ -45,6 +46,11 @@ export function Header() {
             <Link href="/templates">
               <Palette className="mr-2 h-4 w-4" />
               Templates
+            </Link>
+          </Button>
+          <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
+             <Link href="/login">
+                <LogIn className="mr-2 h-4 w-4" /> Login
             </Link>
           </Button>
         </div>
@@ -80,6 +86,13 @@ export function Header() {
                          <Link href="/templates">
                             <Palette className="mr-2 h-4 w-4" />
                             <span>Templates</span>
+                        </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                     <DropdownMenuItem asChild>
+                         <Link href="/login">
+                            <LogIn className="mr-2 h-4 w-4" />
+                            <span>Login</span>
                         </Link>
                     </DropdownMenuItem>
                 </DropdownMenuContent>

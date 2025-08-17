@@ -35,7 +35,7 @@ export default async function FormsPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold font-headline">Your Forms</h1>
           <Button asChild>
-            <Link href="/">
+            <Link href="/create">
               <Plus className="mr-2 h-4 w-4" /> Create New Form
             </Link>
           </Button>
@@ -74,7 +74,7 @@ export default async function FormsPage() {
                           </Link>
                         </Button>
                         <Button asChild variant="outline" size="sm">
-                          <Link href={`/?formId=${form.id}`}>
+                          <Link href={`/create?formId=${form.id}`}>
                             <Pencil className="mr-2 h-4 w-4" />
                             Edit
                           </Link>
@@ -114,7 +114,7 @@ export default async function FormsPage() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" size="sm">
-                    <Link href={`/?formId=${form.id}`}>
+                    <Link href={`/create?formId=${form.id}`}>
                       <Pencil className="mr-2 h-4 w-4" />
                       Edit
                     </Link>
