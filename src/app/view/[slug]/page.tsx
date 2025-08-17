@@ -23,7 +23,11 @@ export default async function ViewFormPage({ params }: { params: { slug: string 
 
         {/* Form Display Area */}
         <div className="w-full col-span-1 lg:col-span-3 flex flex-col items-center justify-center gap-4">
-          <h1 className="text-xl md:text-2xl font-bold font-headline text-center">{result.title}</h1>
+          <div className="w-full max-w-lg overflow-x-auto">
+            <h1 className="text-xl md:text-2xl font-bold font-headline text-center whitespace-nowrap p-1">
+              {result.title}
+            </h1>
+          </div>
           <main className="h-screen w-full md:h-[85vh] md:max-w-lg md:rounded-xl md:shadow-2xl overflow-hidden">
             <FormDisplay formFlowData={result} />
           </main>
