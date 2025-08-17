@@ -36,7 +36,7 @@ export function Header() {
             </Link>
           </Button>
           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
-            <Link href="/settings">
+            <Link href="/custom-url-domain">
               <LinkIcon className="mr-2 h-4 w-4" />
               Custom URL
             </Link>
@@ -65,7 +65,7 @@ export function Header() {
                         </Link>
                     </DropdownMenuItem>
                     <DropdownMenuItem asChild>
-                         <Link href="/settings">
+                         <Link href="/custom-url-domain">
                             <LinkIcon className="mr-2 h-4 w-4" />
                             <span>Custom URL</span>
                         </Link>
