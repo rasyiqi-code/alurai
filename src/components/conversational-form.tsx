@@ -265,15 +265,6 @@ export function ConversationalForm({ formFlowData }: Props) {
 
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none border-0">
-      <CardHeader className="border-b p-0">
-        <div className="px-4 py-2 overflow-x-auto whitespace-nowrap">
-          <p className="font-semibold font-headline leading-tight mb-0">{title}</p>
-          <p className="text-sm text-muted-foreground">
-            by AlurAI
-          </p>
-        </div>
-        <Progress value={progress} />
-      </CardHeader>
       <CardContent ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, index) => (
           <div key={index} className={cn('flex items-end gap-2', msg.type === 'user' ? 'justify-end' : 'justify-start')}>
