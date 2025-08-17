@@ -1,6 +1,6 @@
 'use client';
 import { useState } from 'react';
-import { Bot, Upload, ClipboardPaste, Wand2 } from 'lucide-react';
+import { Bot, Upload, ClipboardPaste, Wand2, File as FileIcon, X } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -67,6 +67,15 @@ export function DataParser({ formFlow, onDataParsed }: Props) {
     }
   };
   
+  const clearFile = () => {
+    setFile(null);
+    // This is a common way to reset a file input, though it's a bit of a hack.
+    const fileInput = document.getElementById('file-upload') as HTMLInputElement;
+    if (fileInput) {
+        fileInput.value = '';
+    }
+  }
+
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
@@ -96,6 +105,17 @@ export function DataParser({ formFlow, onDataParsed }: Props) {
           <div className="space-y-2">
             <Label htmlFor="file-upload"><Upload className="inline-block h-4 w-4 mr-2" /> Upload File</Label>
             <Input id="file-upload" type="file" onChange={e => setFile(e.target.files?.[0] || null)} />
+             {file && (
+              <div className="text-sm text-muted-foreground flex items-center justify-between p-2 bg-muted rounded-md">
+                <div className="flex items-center gap-2 truncate">
+                    <FileIcon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">{file.name}</span>
+                </div>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={clearFile}>
+                    <X className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
           </div>
         </div>
         <DialogFooter>
