@@ -11,7 +11,7 @@ export default async function ViewFormPage({ params }: { params: { slug: string 
   }
 
   return (
-     <div className="min-h-screen w-full bg-muted flex items-center justify-center p-4">
+     <div className="min-h-screen w-full bg-muted flex items-center justify-center p-2 md:p-4">
       <div className="grid grid-cols-1 lg:grid-cols-5 w-full max-w-7xl mx-auto gap-8">
         
         {/* Left Branding Panel */}
@@ -28,7 +28,7 @@ export default async function ViewFormPage({ params }: { params: { slug: string 
               {result.title}
             </h1>
           </div>
-          <main className="h-[85vh] w-full max-w-lg rounded-xl shadow-2xl overflow-hidden ring-1 ring-inset ring-gray-900/5">
+          <main className="h-[85vh] w-full md:max-w-lg rounded-xl shadow-2xl overflow-hidden ring-1 ring-inset ring-gray-900/5">
             <FormDisplay formFlowData={result} />
           </main>
         </div>
