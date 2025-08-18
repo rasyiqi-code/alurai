@@ -13,6 +13,10 @@ import { Menu } from 'lucide-react';
 
 
 export function Header() {
+  // Placeholder for authentication state. 
+  // In a real app, this would come from a session or context.
+  const isLoggedIn = false; 
+
   return (
     <header className="p-2.5 border-b bg-primary text-primary-foreground sticky top-0 z-50">
       <div className="container mx-auto flex items-center justify-between gap-3">
@@ -22,38 +26,45 @@ export function Header() {
             AlurAI
           </h1>
         </Link>
+        
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-2">
-          <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
-            <Link href="/forms">
-              <List className="mr-2 h-4 w-4" />
-              Forms
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
-            <Link href="/analytics">
-              <BarChart className="mr-2 h-4 w-4" />
-              Analytics
-            </Link>
-          </Button>
-          <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
-            <Link href="/custom-url-domain">
-              <LinkIcon className="mr-2 h-4 w-4" />
-              Custom URL
-            </Link>
-          </Button>
-           <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
-            <Link href="/templates">
-              <Palette className="mr-2 h-4 w-4" />
-              Templates
-            </Link>
-          </Button>
-          <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
-             <Link href="/login">
-                <LogIn className="mr-2 h-4 w-4" /> Login
-            </Link>
-          </Button>
+          {isLoggedIn ? (
+            <>
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+                <Link href="/forms">
+                  <List className="mr-2 h-4 w-4" />
+                  Forms
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+                <Link href="/analytics">
+                  <BarChart className="mr-2 h-4 w-4" />
+                  Analytics
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+                <Link href="/custom-url-domain">
+                  <LinkIcon className="mr-2 h-4 w-4" />
+                  Custom URL
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+                <Link href="/templates">
+                  <Palette className="mr-2 h-4 w-4" />
+                  Templates
+                </Link>
+              </Button>
+            </>
+          ) : (
+            <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
+              <Link href="/login">
+                  <LogIn className="mr-2 h-4 w-4" /> Login
+              </Link>
+            </Button>
+          )}
         </div>
+
         {/* Mobile Navigation */}
         <div className="md:hidden">
             <DropdownMenu>
@@ -64,37 +75,41 @@ export function Header() {
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                        <Link href="/forms">
-                            <List className="mr-2 h-4 w-4" />
-                            <span>Saved Forms</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                         <Link href="/analytics">
-                            <BarChart className="mr-2 h-4 w-4" />
-                            <span>Analytics</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                         <Link href="/custom-url-domain">
-                            <LinkIcon className="mr-2 h-4 w-4" />
-                            <span>Custom URL</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                         <Link href="/templates">
-                            <Palette className="mr-2 h-4 w-4" />
-                            <span>Templates</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
+                  {isLoggedIn ? (
+                    <>
+                      <DropdownMenuItem asChild>
+                          <Link href="/forms">
+                              <List className="mr-2 h-4 w-4" />
+                              <span>Saved Forms</span>
+                          </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                          <Link href="/analytics">
+                              <BarChart className="mr-2 h-4 w-4" />
+                              <span>Analytics</span>
+                          </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                          <Link href="/custom-url-domain">
+                              <LinkIcon className="mr-2 h-4 w-4" />
+                              <span>Custom URL</span>
+                          </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                          <Link href="/templates">
+                              <Palette className="mr-2 h-4 w-4" />
+                              <span>Templates</span>
+                          </Link>
+                      </DropdownMenuItem>
+                    </>
+                  ) : (
                      <DropdownMenuItem asChild>
                          <Link href="/login">
                             <LogIn className="mr-2 h-4 w-4" />
                             <span>Login</span>
                         </Link>
                     </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
             </DropdownMenu>
         </div>
