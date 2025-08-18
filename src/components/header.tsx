@@ -1,7 +1,9 @@
+'use client';
+
 import { Logo } from '@/components/icons/logo';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { List, Link as LinkIcon, BarChart, Palette, LogIn } from 'lucide-react';
+import { List, Link as LinkIcon, BarChart, Palette, LogIn, LogOut, User as UserIcon } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,12 +12,16 @@ import {
   DropdownMenuSeparator,
 } from './ui/dropdown-menu';
 import { Menu } from 'lucide-react';
-
+import { useAuth } from './auth-provider';
+import { auth } from '@/lib/firebase';
 
 export function Header() {
-  // Placeholder for authentication state. 
-  // In a real app, this would come from a session or context.
-  const isLoggedIn = false; 
+  const { user, loading } = useAuth();
+  const isLoggedIn = !loading && !!user;
+
+  const handleLogout = async () => {
+    await auth.signOut();
+  };
 
   return (
     <header className="p-2.5 border-b bg-primary text-primary-foreground sticky top-0 z-50">
@@ -54,6 +60,10 @@ export function Header() {
                   <Palette className="mr-2 h-4 w-4" />
                   Templates
                 </Link>
+              </Button>
+              <Button onClick={handleLogout} variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
+                <LogOut className="mr-2 h-4 w-4" />
+                Logout
               </Button>
             </>
           ) : (
@@ -100,6 +110,11 @@ export function Header() {
                               <Palette className="mr-2 h-4 w-4" />
                               <span>Templates</span>
                           </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout}>
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
                       </DropdownMenuItem>
                     </>
                   ) : (
