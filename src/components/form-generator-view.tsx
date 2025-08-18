@@ -69,14 +69,6 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
 
   return (
     <div className="flex flex-col items-center justify-center w-full h-full pt-8 md:pt-12">
-      <div className="flex justify-end w-full max-w-2xl mb-4">
-        <Button variant="outline" asChild>
-            <Link href="/forms">
-                <List className="mr-2 h-4 w-4" />
-                Lihat Formulir Tersimpan
-            </Link>
-        </Button>
-      </div>
       <Card className="w-full max-w-2xl shadow-lg bg-card rounded-lg">
         <CardHeader>
           <CardTitle className="text-3xl font-bold text-center font-headline">Buat Formulir Percakapan Baru</CardTitle>
