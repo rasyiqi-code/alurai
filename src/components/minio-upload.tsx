@@ -15,9 +15,6 @@ export interface MinioUploadedFile {
   uploadedAt: string;
 }
 
-// Backward compatibility alias
-export type S3UploadedFile = MinioUploadedFile;
-
 interface MinioUploadProps {
   formId: string;
   onFilesUploaded: (files: MinioUploadedFile[]) => void;
@@ -26,9 +23,6 @@ interface MinioUploadProps {
   acceptedFileTypes?: string[];
   className?: string;
 }
-
-// Backward compatibility alias
-type S3UploadProps = MinioUploadProps;
 
 interface UploadProgress {
   [key: string]: {
@@ -79,7 +73,7 @@ export default function MinioUpload({
 
       const { uploadUrl, fileKey } = await response.json();
 
-      // Upload file to S3
+      // Upload file to MinIO
       const uploadResponse = await fetch(uploadUrl, {
         method: 'PUT',
         body: file,
@@ -279,5 +273,4 @@ export default function MinioUpload({
   );
 }
 
-// Backward compatibility alias
-export { MinioUpload as S3Upload };
+export { MinioUpload };

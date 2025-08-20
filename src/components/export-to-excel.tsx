@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { format } from 'date-fns';
-import { S3UploadedFile } from '@/components/s3-upload';
-import { MinioUploadedFile } from '@/lib/minio';
+import { MinioUploadedFile } from '@/components/minio-upload';
 
 interface ExportToExcelProps {
   data: any[];
@@ -28,10 +27,10 @@ const formatValueForExport = async (value: any): Promise<string> => {
       return value.replace('placeholder/for/', '');
     }
     
-    // Check if value is S3 file data (JSON string)
+    // Check if value is MinIO file data (JSON string)
     if (typeof value === 'string' && value.startsWith('[{') && value.includes('"key"')) {
       try {
-        const files = JSON.parse(value) as S3UploadedFile[];
+        const files = JSON.parse(value) as MinioUploadedFile[];
         const downloadUrls = await Promise.all(
           files.map(async (file) => {
             try {
@@ -56,7 +55,7 @@ const formatValueForExport = async (value: any): Promise<string> => {
         );
         return downloadUrls.join('\n');
       } catch (error) {
-        console.error('Error parsing S3 file data:', error);
+        console.error('Error parsing MinIO file data:', error);
         return String(value);
       }
     }

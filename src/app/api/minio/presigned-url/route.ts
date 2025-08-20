@@ -52,7 +52,7 @@ export async function POST(request: NextRequest) {
 
     console.log('Generated MinIO presigned URL:', uploadUrl);
     console.log('File key:', fileKey);
-    console.log('Bucket name:', process.env.NEXT_PUBLIC_S3_BUCKET_NAME);
+    console.log('Bucket name:', process.env.NEXT_PUBLIC_MINIO_BUCKET_NAME);
     console.log('MinIO Endpoint:', process.env.NEXT_PUBLIC_MINIO_ENDPOINT);
 
     return NextResponse.json({

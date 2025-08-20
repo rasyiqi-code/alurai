@@ -1,10 +1,10 @@
 'use client';
 
 import { Download } from 'lucide-react';
-import { S3UploadedFile } from '@/components/s3-upload';
+import { MinioUploadedFile } from '@/components/minio-upload';
 
 interface FileDownloadLinkProps {
-  file: S3UploadedFile;
+  file: MinioUploadedFile;
 }
 
 export const FileDownloadLink = ({ file }: FileDownloadLinkProps) => {

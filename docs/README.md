@@ -5,9 +5,7 @@ Selamat datang di dokumentasi AlurAI. Folder ini berisi semua panduan setup, int
 ## 📋 Daftar Dokumentasi
 
 ### Setup & Integrasi
-- **[AWS S3 Setup](./aws-s3-setup.md)** - Panduan setup integrasi AWS S3 untuk penyimpanan file
-- **[MinIO Setup](./minio-setup.md)** - Panduan setup MinIO sebagai alternatif object storage
-- **[Google Drive Setup](./google-drive-setup.md)** - Panduan integrasi Google Drive untuk penyimpanan file
+- **[MinIO Setup](./minio-setup.md)** - Panduan setup MinIO untuk penyimpanan file
 - **[Paddle Integration](./paddle-integration.md)** - Panduan integrasi Paddle untuk sistem pembayaran
 
 ### Pengembangan
@@ -17,9 +15,7 @@ Selamat datang di dokumentasi AlurAI. Folder ini berisi semua panduan setup, int
 ## 🚀 Quick Start
 
 1. Mulai dengan membaca [Blueprint](./blueprint.md) untuk memahami arsitektur aplikasi
-2. Pilih metode penyimpanan file:
-   - Untuk production: [AWS S3 Setup](./aws-s3-setup.md)
-   - Untuk development/self-hosted: [MinIO Setup](./minio-setup.md)
+2. Setup penyimpanan file dengan [MinIO Setup](./minio-setup.md)
 3. Setup sistem pembayaran dengan [Paddle Integration](./paddle-integration.md)
 
 ## 📝 Kontribusi

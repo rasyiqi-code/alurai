@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { ExportToExcel } from '@/components/export-to-excel';
-import { S3UploadedFile } from '@/components/s3-upload';
+import { MinioUploadedFile } from '@/components/minio-upload';
 import { FileDownloadLink } from '@/components/file-download-link';
 import React from 'react';
 
@@ -43,10 +43,10 @@ export default async function FormAnalyticsPage({ params }: { params: Promise<{ 
       return value.replace('placeholder/for/', '');
     }
     
-    // Check if value is S3 file data (JSON string)
+    // Check if value is MinIO file data (JSON string)
     if (typeof value === 'string' && value.startsWith('[{') && value.includes('"key"')) {
       try {
-        const files = JSON.parse(value) as S3UploadedFile[];
+        const files = JSON.parse(value) as MinioUploadedFile[];
         return (
           <div className="space-y-1">
             {files.map((file, index) => (
@@ -55,7 +55,7 @@ export default async function FormAnalyticsPage({ params }: { params: Promise<{ 
           </div>
         );
       } catch (error) {
-        console.error('Error parsing S3 file data:', error);
+        console.error('Error parsing MinIO file data:', error);
         return String(value);
       }
     }

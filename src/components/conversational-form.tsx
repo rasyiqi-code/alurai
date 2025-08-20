@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import S3Upload, { S3UploadedFile } from './s3-upload';
+import { MinioUpload, MinioUploadedFile } from './minio-upload';
 import { Send, CheckCircle, Bot, RefreshCw, RotateCcw, Info, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
@@ -38,7 +38,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [isValidating, setIsValidating] = useState(false);
   const [suggestedAnswers, setSuggestedAnswers] = useState<ExtractedPair[] | null>(null);
 
-  const [s3Files, setS3Files] = useState<S3UploadedFile[]>([]);
+  const [minioFiles, setMinioFiles] = useState<MinioUploadedFile[]>([]);
   const [isStateLoaded, setIsStateLoaded] = useState(false);
   const [isStateRestored, setIsStateRestored] = useState(false);
   
@@ -63,7 +63,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       isCompleted,
       isSubmitted,
       suggestedAnswers,
-      s3Files,
+      minioFiles,
       timestamp: Date.now()
     };
     
@@ -97,7 +97,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       setIsCompleted(parsedState.isCompleted || false);
       setIsSubmitted(parsedState.isSubmitted || false);
       setSuggestedAnswers(parsedState.suggestedAnswers || null);
-      setS3Files(parsedState.s3Files || []);
+      setMinioFiles(parsedState.minioFiles || []);
       setIsStateRestored(true);
       
       // Show toast notification
@@ -123,14 +123,14 @@ export function ConversationalForm({ formFlowData }: Props) {
     localStorage.removeItem(getStorageKey());
   };
 
-  // Handle S3 file upload
-  const handleS3Upload = (files: S3UploadedFile[]) => {
-    setS3Files(files);
+  // Handle MinIO file upload
+  const handleMinioUpload = (files: MinioUploadedFile[]) => {
+    setMinioFiles(files);
     
     const currentField = formFlow[currentStep];
     if (!currentField) return;
     
-    // Update answers with S3 file data (JSON string)
+    // Update answers with MinIO file data (JSON string)
     const answerValue = files.length > 0 ? JSON.stringify(files) : '';
     
     setAnswers(prev => ({
@@ -170,7 +170,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   // Save state whenever important state changes
   useEffect(() => {
     saveFormState();
-  }, [currentStep, answers, messages, isCompleted, isSubmitted, suggestedAnswers, s3Files, isStateLoaded]);
+  }, [currentStep, answers, messages, isCompleted, isSubmitted, suggestedAnswers, minioFiles, isStateLoaded]);
 
   const startForm = (isRestart = false) => {
     setCurrentStep(0);
@@ -178,7 +178,7 @@ export function ConversationalForm({ formFlowData }: Props) {
     setIsCompleted(false);
     setIsSubmitted(false);
     setIsSubmitting(false);
-    setS3Files([]);
+    setMinioFiles([]);
     if (!isRestart) {
        setSuggestedAnswers(null);
     }
@@ -285,14 +285,14 @@ export function ConversationalForm({ formFlowData }: Props) {
 
     // For file inputs, check if files are uploaded
     if (currentField.inputType === 'file') {
-      if (s3Files.length === 0 && currentField.validationRules.includes('required')) {
+      if (minioFiles.length === 0 && currentField.validationRules.includes('required')) {
         toast({
           variant: 'destructive',
           title: 'Please upload at least one file.',
         });
         return;
       }
-      // File upload already handled by handleS3Upload, no need to proceed here
+      // File upload already handled by handleMinioUpload, no need to proceed here
       return;
     }
 
@@ -360,9 +360,9 @@ export function ConversationalForm({ formFlowData }: Props) {
         return <Textarea value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
       case 'file':
         return (
-          <S3Upload 
+          <MinioUpload 
             formId={formFlowData.id || ''}
-            onFilesUploaded={handleS3Upload}
+            onFilesUploaded={handleMinioUpload}
             maxFiles={5}
             maxFileSize={10 * 1024 * 1024}
           />

@@ -1,10 +1,10 @@
 import * as Minio from 'minio';
 
 // MinIO Configuration
-const BUCKET_NAME = process.env.NEXT_PUBLIC_S3_BUCKET_NAME!;
+const BUCKET_NAME = process.env.NEXT_PUBLIC_MINIO_BUCKET_NAME!;
 const MINIO_ENDPOINT = process.env.NEXT_PUBLIC_MINIO_ENDPOINT!;
-const ACCESS_KEY = process.env.AWS_ACCESS_KEY_ID!;
-const SECRET_KEY = process.env.AWS_SECRET_ACCESS_KEY!;
+const ACCESS_KEY = process.env.MINIO_ACCESS_KEY!;
+const SECRET_KEY = process.env.MINIO_SECRET_KEY!;
 
 // Extract hostname and port from endpoint URL
 const endpointUrl = new URL(MINIO_ENDPOINT);
@@ -92,11 +92,7 @@ export function getPublicFileUrl(fileKey: string): string {
 
 // Validate MinIO configuration
 export function validateMinioConfig(): boolean {
-  return !!
-    BUCKET_NAME &&
-    MINIO_ENDPOINT &&
-    ACCESS_KEY &&
-    SECRET_KEY;
+  return !!(BUCKET_NAME && MINIO_ENDPOINT && ACCESS_KEY && SECRET_KEY);
 }
 
 // List files in a specific form directory

@@ -1,21 +1,21 @@
 'use client';
 
 import React, { useState } from 'react';
-import S3Upload, { S3UploadedFile } from '@/components/s3-upload';
+import { MinioUpload, MinioUploadedFile } from '@/components/minio-upload';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, FileText, Download, Trash2 } from 'lucide-react';
 
 export default function TestUploadPage() {
-  const [uploadedFiles, setUploadedFiles] = useState<S3UploadedFile[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<MinioUploadedFile[]>([]);
   const [testResults, setTestResults] = useState<{
     success: boolean;
     message: string;
     timestamp: string;
   } | null>(null);
 
-  const handleFilesUploaded = (files: S3UploadedFile[]) => {
+  const handleFilesUploaded = (files: MinioUploadedFile[]) => {
     setUploadedFiles(prev => [...prev, ...files]);
     setTestResults({
       success: true,
@@ -65,11 +65,11 @@ export default function TestUploadPage() {
             </div>
             <div>
               <p className="text-sm font-medium">Bucket:</p>
-              <p className="text-sm text-muted-foreground">{process.env.NEXT_PUBLIC_S3_BUCKET_NAME || 'Not configured'}</p>
-            </div>
-            <div>
-              <p className="text-sm font-medium">Region:</p>
-              <p className="text-sm text-muted-foreground">{process.env.NEXT_PUBLIC_AWS_REGION || 'Not configured'}</p>
+              <p className="text-sm text-muted-foreground">{process.env.NEXT_PUBLIC_MINIO_BUCKET_NAME || 'Not configured'}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">MinIO Endpoint:</p>
+            <p className="text-sm text-muted-foreground">{process.env.NEXT_PUBLIC_MINIO_ENDPOINT || 'Not configured'}</p>
             </div>
             <div>
               <p className="text-sm font-medium">Status:</p>
@@ -90,7 +90,7 @@ export default function TestUploadPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <S3Upload
+          <MinioUpload
             formId="test-upload"
             onFilesUploaded={handleFilesUploaded}
             maxFiles={10}
