@@ -9,7 +9,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "docker:build": "docker build -t alurai-forms .",
+    "docker:run": "docker run -d --name alurai-forms-app -p 3000:3000 --env-file .env alurai-forms",
+    "docker:stop": "docker stop alurai-forms-app && docker rm alurai-forms-app",
+    "docker:logs": "docker logs -f alurai-forms-app",
+    "docker:compose:up": "docker-compose up --build",
+    "docker:compose:down": "docker-compose down"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
