@@ -42,7 +42,7 @@ export default function TestUploadPage() {
       <div className="mb-8">
         <h1 className="text-3xl font-bold mb-2">MinIO Upload Test</h1>
         <p className="text-muted-foreground">
-          Test halaman untuk menguji konfigurasi upload file ke MinIO server.
+          Test page to verify file upload configuration to MinIO server.
         </p>
       </div>
 
@@ -51,10 +51,10 @@ export default function TestUploadPage() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <CheckCircle className="h-5 w-5 text-green-500" />
-            Konfigurasi MinIO
+            MinIO Configuration
           </CardTitle>
           <CardDescription>
-            Informasi konfigurasi MinIO yang sedang digunakan
+            Information about the MinIO configuration currently in use
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -73,9 +73,11 @@ export default function TestUploadPage() {
             </div>
             <div>
               <p className="text-sm font-medium">Status:</p>
-              <Badge variant="outline" className="text-green-600 border-green-600">
-                Ready for Testing
-              </Badge>
+              <div>
+                <Badge variant="outline" className="text-green-600 border-green-600">
+                  Ready for Testing
+                </Badge>
+              </div>
             </div>
           </div>
         </CardContent>
@@ -86,7 +88,7 @@ export default function TestUploadPage() {
         <CardHeader>
           <CardTitle>Upload File Test</CardTitle>
           <CardDescription>
-            Pilih file untuk menguji upload ke MinIO server
+            Select files to test upload to MinIO server
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -146,7 +148,7 @@ export default function TestUploadPage() {
               <div>
                 <CardTitle>Uploaded Files ({uploadedFiles.length})</CardTitle>
                 <CardDescription>
-                  Daftar file yang berhasil diupload ke MinIO
+                  List of files successfully uploaded to MinIO
                 </CardDescription>
               </div>
               <Button

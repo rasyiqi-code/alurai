@@ -59,7 +59,7 @@ export default async function AnalyticsDashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">{totalForms}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-green-600">+2</span> dari bulan lalu
+                            <span className="text-green-600">+2</span> from last month
                         </p>
                     </CardContent>
                 </Card>
@@ -71,7 +71,7 @@ export default async function AnalyticsDashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">{totalSubmissions}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-green-600">+12%</span> dari minggu lalu
+                            <span className="text-green-600">+12%</span> from last week
                         </p>
                     </CardContent>
                 </Card>
@@ -83,7 +83,7 @@ export default async function AnalyticsDashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">{totalForms > 0 ? Math.round((totalSubmissions / (totalForms * 10)) * 100) : 0}%</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-green-600">+5.2%</span> dari rata-rata
+                            <span className="text-green-600">+5.2%</span> from average
                         </p>
                     </CardContent>
                 </Card>
@@ -95,7 +95,7 @@ export default async function AnalyticsDashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">2.4m</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-red-600">+0.3m</span> dari minggu lalu
+                            <span className="text-red-600">+0.3m</span> from last week
                         </p>
                     </CardContent>
                 </Card>
@@ -110,12 +110,12 @@ export default async function AnalyticsDashboardPage() {
                             Submission Trends
                         </CardTitle>
                         <CardDescription>
-                            Aktivitas submission dalam 7 hari terakhir
+                            Submission activity in the last 7 days
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'].map((day, index) => {
+                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, index) => {
                                 const value = Math.floor(Math.random() * 10) + 1;
                                 const percentage = (value / 10) * 100;
                                 return (
@@ -142,7 +142,7 @@ export default async function AnalyticsDashboardPage() {
                             Form Performance
                         </CardTitle>
                         <CardDescription>
-                            Analisis performa berdasarkan engagement
+                            Performance analysis based on engagement
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -150,21 +150,21 @@ export default async function AnalyticsDashboardPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium">Completion Rate</p>
-                                    <p className="text-xs text-muted-foreground">Persentase form yang diselesaikan</p>
+                                    <p className="text-xs text-muted-foreground">Percentage of forms completed</p>
                                 </div>
                                 <div className="text-2xl font-bold text-green-600">87%</div>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium">Bounce Rate</p>
-                                    <p className="text-xs text-muted-foreground">Pengunjung yang langsung keluar</p>
+                                    <p className="text-xs text-muted-foreground">Visitors who leave immediately</p>
                                 </div>
                                 <div className="text-2xl font-bold text-red-600">13%</div>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium">Avg. Fields Completed</p>
-                                    <p className="text-xs text-muted-foreground">Rata-rata field yang diisi</p>
+                                    <p className="text-xs text-muted-foreground">Average fields completed</p>
                                 </div>
                                 <div className="text-2xl font-bold text-blue-600">8.2</div>
                             </div>
@@ -200,7 +200,7 @@ export default async function AnalyticsDashboardPage() {
                         Form Analytics Detail
                     </CardTitle>
                     <CardDescription>
-                        Analisis mendalam untuk setiap formulir
+                        In-depth analysis for each form
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -270,14 +270,14 @@ export default async function AnalyticsDashboardPage() {
                                         <div className="mt-4 pt-4 border-t border-border/30">
                                             <div className="flex items-center gap-2 text-xs bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 px-3 py-2 rounded-lg border border-green-200/30 dark:border-green-800/30">
                                                 <Calendar className="h-3 w-3 text-green-600 dark:text-green-400" />
-                                                <span className="text-green-700 dark:text-green-300 font-medium">Submission terakhir: {Math.floor(Math.random() * 7) + 1} hari yang lalu</span>
+                                                <span className="text-green-700 dark:text-green-300 font-medium">Last submission: {Math.floor(Math.random() * 7) + 1} days ago</span>
                                             </div>
                                         </div>
                                     ) : (
                                         <div className="mt-4 pt-4 border-t border-border/30">
                                             <div className="flex items-center gap-2 text-xs bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-950/30 dark:to-slate-950/30 px-3 py-2 rounded-lg border border-gray-200/30 dark:border-gray-800/30">
                                                 <MessageSquare className="h-3 w-3 text-gray-500 dark:text-gray-400" />
-                                                <span className="text-gray-600 dark:text-gray-400 font-medium">Belum ada submission</span>
+                                                <span className="text-gray-600 dark:text-gray-400 font-medium">No submissions yet</span>
                                             </div>
                                         </div>
                                     )}

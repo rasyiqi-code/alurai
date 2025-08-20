@@ -71,9 +71,9 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
     <div className="flex flex-col items-center justify-center w-full h-full pt-8 md:pt-12">
       <Card className="w-full max-w-2xl shadow-lg bg-card rounded-lg">
         <CardHeader>
-          <CardTitle className="text-3xl font-bold text-center font-headline">Buat Formulir Percakapan Baru</CardTitle>
+          <CardTitle className="text-3xl font-bold text-center font-headline">Create New Conversational Form</CardTitle>
           <CardDescription className="text-center pt-2 text-muted-foreground">
-            Jelaskan formulir yang Anda inginkan, dan biarkan AI yang bekerja.
+            Describe the form you want, and let AI do the work.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -87,7 +87,7 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
                     <FormLabel className="sr-only">Form Description</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Contoh: 'Formulir kontak dengan nama, email, dan pesan.'"
+                        placeholder="Example: 'Contact form with name, email, and message.'"
                         className="min-h-[150px] text-base bg-background text-foreground placeholder:text-muted-foreground border-border focus-visible:ring-ring"
                         {...field}
                       />
@@ -98,16 +98,16 @@ export function FormGeneratorView({ setFormFlowData, setIsLoading, isLoading }: 
               />
               <div className="flex flex-col-reverse sm:flex-row sm:justify-between sm:items-center gap-4">
                 <Button type="button" variant="link" onClick={setExample} className="p-0 h-auto self-start text-primary hover:text-primary/90">
-                  Gunakan contoh
+                  Use example
                 </Button>
                 <Button type="submit" disabled={isLoading} size="lg" className="w-full sm:w-auto">
                   {isLoading ? (
                     <>
-                      <Spinner className="mr-2 h-4 w-4" /> Menghasilkan...
+                      <Spinner className="mr-2 h-4 w-4" /> Generating...
                     </>
                   ) : (
                     <>
-                      <Wand2 className="mr-2 h-4 w-4" /> Buat Formulir
+                      <Wand2 className="mr-2 h-4 w-4" /> Create Form
                     </>
                   )}
                 </Button>

@@ -23,7 +23,7 @@ export default async function SubmissionsPage() {
                   ? formsResult.error 
                   : 'error' in overviewResult 
                   ? overviewResult.error 
-                  : 'Terjadi kesalahan yang tidak diketahui'
+                  : 'An unknown error occurred'
                 }
               </p>
             </CardContent>

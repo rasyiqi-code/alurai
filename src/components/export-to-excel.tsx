@@ -66,7 +66,7 @@ const formatValueForExport = async (value: any): Promise<string> => {
 export function ExportToExcel({ data, headers, formTitle, formFlow }: ExportToExcelProps) {
   const handleExport = async () => {
     if (data.length === 0) {
-      alert('Tidak ada data untuk diekspor');
+      alert('No data to export');
       return;
     }
 

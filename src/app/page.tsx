@@ -37,7 +37,7 @@ export default function LandingPage() {
               {/* Description */}
               <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
                 Build intelligent forms that adapt to your users, powered by AI. 
-                <span className="text-blue-600 dark:text-blue-400 font-medium">No coding required.</span>
+                <span className="text-blue-600 dark:text-blue-400 font-medium"> No coding required.</span>
               </p>
 
               {/* CTA Buttons */}
@@ -147,7 +147,7 @@ export default function LandingPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="bg-card p-6 rounded-lg border">
                   <p className="text-muted-foreground mb-4">
-                    "AlurAI sangat membantu dalam membuat form dengan cepat. Interface-nya mudah dipahami."
+                    "AlurAI is very helpful for creating forms quickly. The interface is easy to understand."
                   </p>
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold mr-3">
@@ -162,7 +162,7 @@ export default function LandingPage() {
                 
                 <div className="bg-card p-6 rounded-lg border">
                   <p className="text-muted-foreground mb-4">
-                    "Fitur AI-nya benar-benar membantu menghemat waktu. Recommended!"
+                    "The AI features really help save time. Recommended!"
                   </p>
                   <div className="flex items-center">
                     <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold mr-3">

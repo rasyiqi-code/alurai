@@ -23,7 +23,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
           Data Submission
         </h2>
         <p className="text-muted-foreground">
-          Kelola dan lihat semua data submission dari form yang telah dibuat.
+          Manage and view all submission data from created forms.
         </p>
       </div>
 
@@ -62,7 +62,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
             </div>
             <div>
               <p className="text-2xl font-bold">{formsWithSubmissions.length}</p>
-              <p className="text-sm text-muted-foreground">Form Aktif</p>
+              <p className="text-sm text-muted-foreground">Active Forms</p>
             </div>
           </CardContent>
         </Card>
@@ -72,7 +72,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
       {formsWithSubmissions.length > 0 && (
         <div className="space-y-4">
           <div className="flex items-center gap-2">
-            <h3 className="text-xl font-semibold font-headline">Form dengan Data Submission</h3>
+            <h3 className="text-xl font-semibold font-headline">Forms with Submission Data</h3>
             <Badge variant="secondary">{formsWithSubmissions.length}</Badge>
           </div>
           
@@ -101,14 +101,14 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
                 <CardContent className="space-y-4">
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <MessageSquare className="h-4 w-4" />
-                    <span>{form.submissionCount} submission terkumpul</span>
+                    <span>{form.submissionCount} submissions collected</span>
                   </div>
                   
                   <div className="flex gap-2">
                     <Button asChild className="flex-1">
                       <Link href={`/analytics/${form.id}`}>
                         <Eye className="mr-2 h-4 w-4" />
-                        Lihat Data
+                        View Data
                       </Link>
                     </Button>
                   </div>
@@ -124,7 +124,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <h3 className="text-xl font-semibold font-headline text-muted-foreground">
-              Form Tanpa Submission
+              Forms Without Submissions
             </h3>
             <Badge variant="outline">{formsWithoutSubmissions.length}</Badge>
           </div>
@@ -147,13 +147,13 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
                 <CardContent>
                   <div className="flex items-center gap-2 text-sm text-muted-foreground mb-3">
                     <MessageSquare className="h-4 w-4" />
-                    <span>Belum ada submission</span>
+                    <span>No submissions yet</span>
                   </div>
                   
                   <Button asChild variant="outline" size="sm" className="w-full">
                     <Link href={`/analytics/${form.id}`}>
                       <Eye className="mr-2 h-3 w-3" />
-                      Lihat Form
+                      View Form
                     </Link>
                   </Button>
                 </CardContent>
@@ -170,12 +170,12 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
             <div className="mx-auto bg-muted text-muted-foreground rounded-full h-16 w-16 flex items-center justify-center mb-4">
               <FileText className="h-8 w-8" />
             </div>
-            <CardTitle className="font-headline mb-2">Belum Ada Form</CardTitle>
+            <CardTitle className="font-headline mb-2">No Forms Yet</CardTitle>
             <CardDescription className="mb-4">
-              Anda belum membuat form apapun. Buat form pertama Anda untuk mulai mengumpulkan data submission.
+              You haven't created any forms yet. Create your first form to start collecting submission data.
             </CardDescription>
             <Button asChild>
-              <Link href="/">Buat Form Pertama</Link>
+              <Link href="/">Create First Form</Link>
             </Button>
           </CardContent>
         </Card>
