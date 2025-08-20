@@ -1,4 +1,4 @@
-# **App Name**: FormFlow AI
+# Alur AI
 
 ## Core Features:
 
