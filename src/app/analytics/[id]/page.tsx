@@ -7,9 +7,16 @@ import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
+import { ExportToExcel } from '@/components/export-to-excel';
+import { S3UploadedFile } from '@/components/s3-upload';
+import { FileDownloadLink } from '@/components/file-download-link';
+import React from 'react';
 
-export default async function FormAnalyticsPage({ params }: { params: { id: string } }) {
-  const formResult = await getFormAction(params.id);
+
+
+export default async function FormAnalyticsPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const formResult = await getFormAction(id);
 
   if (!formResult || 'error' in formResult) {
     return notFound();
@@ -17,21 +24,42 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
 
   const form = formResult;
   // Fetch submissions, but handle potential errors
-  const submissionsResult = await getSubmissionsAction(params.id);
+  const submissionsResult = await getSubmissionsAction(id);
   const submissions = 'error' in submissionsResult ? [] : submissionsResult;
 
   const tableHeaders = form.flow.map(field => field.key).filter(Boolean);
 
-  const formatValue = (value: any): string => {
-    if (value === null || typeof value === 'undefined') {
+  const formatValue = (value: any): React.ReactNode => {
+    if (value === null || value === undefined) {
       return 'N/A';
     }
-    if (typeof value === 'object' && value.toDate) { // Firestore Timestamp
+    
+    if (value && typeof value === 'object' && value.toDate) {
+      // Firestore Timestamp
       return format(value.toDate(), 'PPpp');
     }
+    
     if (typeof value === 'string' && value.startsWith('placeholder/for/')) {
-        return value.replace('placeholder/for/', '');
+      return value.replace('placeholder/for/', '');
     }
+    
+    // Check if value is S3 file data (JSON string)
+    if (typeof value === 'string' && value.startsWith('[{') && value.includes('"key"')) {
+      try {
+        const files = JSON.parse(value) as S3UploadedFile[];
+        return (
+          <div className="space-y-1">
+            {files.map((file, index) => (
+              <FileDownloadLink key={index} file={file} />
+            ))}
+          </div>
+        );
+      } catch (error) {
+        console.error('Error parsing S3 file data:', error);
+        return String(value);
+      }
+    }
+    
     return String(value);
   };
 
@@ -66,10 +94,25 @@ export default async function FormAnalyticsPage({ params }: { params: { id: stri
 
           <Card>
             <CardHeader>
-                <CardTitle>Submissions Data</CardTitle>
-              <CardDescription>
-                View all the entries submitted to your form.
-              </CardDescription>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Submissions Data</CardTitle>
+                  <CardDescription>
+                    View all the entries submitted to your form.
+                  </CardDescription>
+                </div>
+                {submissions.length > 0 && (
+                  <div className="flex gap-2">
+                    <ExportToExcel 
+                      data={submissions}
+                      headers={tableHeaders}
+                      formTitle={form.title}
+                      formFlow={form.flow}
+                    />
+
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent>
               <div className="border rounded-lg">

@@ -58,3 +58,109 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Stack Auth styling overrides */
+@layer components {
+  /* Target specific text color classes that Stack Auth uses */
+  .stack-scope.text-zinc-800,
+  .stack-scope .text-zinc-800 {
+    color: #1f2937 !important; /* Dark gray for light mode */
+  }
+  
+  .dark .stack-scope.text-zinc-300,
+  .dark .stack-scope .text-zinc-300 {
+    color: #d1d5db !important; /* Light gray for dark mode */
+  }
+  
+  .stack-scope.text-black,
+  .stack-scope .text-black {
+    color: #111827 !important; /* Very dark for light mode */
+  }
+  
+  .dark .stack-scope.text-white,
+  .dark .stack-scope .text-white {
+    color: #f9fafb !important; /* Very light for dark mode */
+  }
+  
+  .stack-scope.text-zinc-600,
+  .stack-scope .text-zinc-600 {
+    color: #4b5563 !important; /* Medium gray for light mode */
+  }
+  
+  .dark .stack-scope.text-zinc-400,
+  .dark .stack-scope .text-zinc-400 {
+    color: #9ca3af !important; /* Medium light gray for dark mode */
+  }
+  
+  .stack-scope.text-gray-500,
+  .stack-scope .text-gray-500 {
+    color: #6b7280 !important;
+  }
+  
+  .dark .stack-scope.text-gray-400,
+  .dark .stack-scope .text-gray-400 {
+    color: #9ca3af !important;
+  }
+  
+  /* Ensure buttons have proper contrast */
+  .stack-scope button {
+    color: #111827 !important;
+  }
+  
+  .dark .stack-scope button {
+    color: #f9fafb !important;
+  }
+  
+  /* Headers should be clearly visible */
+  .stack-scope h1,
+  .stack-scope h2,
+  .stack-scope h3,
+  .stack-scope h4,
+  .stack-scope h5,
+  .stack-scope h6 {
+    color: #111827 !important;
+  }
+  
+  .dark .stack-scope h1,
+  .dark .stack-scope h2,
+  .dark .stack-scope h3,
+  .dark .stack-scope h4,
+  .dark .stack-scope h5,
+  .dark .stack-scope h6 {
+    color: #f9fafb !important;
+  }
+}
+
+/* Utility for hiding scrollbars */
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;  /* Internet Explorer 10+ */
+    scrollbar-width: none;  /* Firefox */
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;  /* Safari and Chrome */
+  }
+}
+
+/* Remove bottom spacing from links in header */
+header a {
+  margin-bottom: 0 !important;
+  padding-bottom: 0 !important;
+}
+
+/* Remove spacing in mobile header area */
+@media (max-width: 768px) {
+  header {
+    padding-bottom: 0 !important;
+  }
+  
+  header .container {
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
+  }
+  
+  header div {
+    margin-bottom: 0 !important;
+    padding-bottom: 0 !important;
+  }
+}

@@ -4,9 +4,9 @@ import { notFound } from 'next/navigation';
 import Image from 'next/image';
 
 
-export default async function FormPage({ params }: { params: { id: string } }) {
-  const formId = params.id;
-  const result = await getFormAction(formId);
+export default async function FormPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const result = await getFormAction(id);
 
   if (!result || 'error' in result) {
     // In a real app, you might want to show a more specific error page

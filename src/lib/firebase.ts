@@ -1,19 +1,19 @@
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-  "projectId": "formflow-ai-966kl",
-  "appId": "1:584895579440:web:826a8d9f7fddea4756f4f5",
-  "storageBucket": "formflow-ai-966kl.appspot.com",
-  "apiKey": "AIzaSyBnjIkax1IaFr2YA5cCtmdDs4qySi0kMh0",
-  "authDomain": "formflow-ai-966kl.firebaseapp.com",
-  "messagingSenderId": "584895579440"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
-const auth = getAuth(app);
+const app = initializeApp(firebaseConfig);
 
-export { app, db, auth };
+// Initialize Firestore
+export const db = getFirestore(app);
+
+export default app;

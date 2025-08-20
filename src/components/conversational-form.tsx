@@ -5,12 +5,10 @@ import type { FormFlowData, FormField, FormAnswers, ExtractedPair } from '@/lib/
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
+import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Send, CheckCircle, Bot, RefreshCw } from 'lucide-react';
+import S3Upload, { S3UploadedFile } from './s3-upload';
+import { Send, CheckCircle, Bot, RefreshCw, RotateCcw, Info, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
 import { saveSubmissionAction, validateAnswerAction } from '@/app/actions';
@@ -39,17 +37,140 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [suggestedAnswers, setSuggestedAnswers] = useState<ExtractedPair[] | null>(null);
+
+  const [s3Files, setS3Files] = useState<S3UploadedFile[]>([]);
+  const [isStateLoaded, setIsStateLoaded] = useState(false);
+  const [isStateRestored, setIsStateRestored] = useState(false);
   
   const scrollRef = useRef<HTMLDivElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
 
+  // Generate storage key based on form ID
+  const getStorageKey = () => `form_state_${formId}`;
+
+  // Save state to localStorage
+  const saveFormState = () => {
+    if (!formId || !isStateLoaded) return;
+    
+    const stateToSave = {
+      currentStep,
+      answers,
+      messages: messages.map(msg => ({
+        ...msg,
+        content: typeof msg.content === 'string' ? msg.content : '[Complex Content]'
+      })),
+      isCompleted,
+      isSubmitted,
+      suggestedAnswers,
+      s3Files,
+      timestamp: Date.now()
+    };
+    
+    try {
+      localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave));
+    } catch (error) {
+      console.warn('Failed to save form state:', error);
+    }
+  };
+
+  // Load state from localStorage
+  const loadFormState = () => {
+    if (!formId) return false;
+    
+    try {
+      const savedState = localStorage.getItem(getStorageKey());
+      if (!savedState) return false;
+      
+      const parsedState = JSON.parse(savedState);
+      
+      // Check if saved state is not too old (24 hours)
+      const maxAge = 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+      if (Date.now() - parsedState.timestamp > maxAge) {
+        localStorage.removeItem(getStorageKey());
+        return false;
+      }
+      
+      setCurrentStep(parsedState.currentStep || 0);
+      setAnswers(parsedState.answers || {});
+      setMessages(parsedState.messages || []);
+      setIsCompleted(parsedState.isCompleted || false);
+      setIsSubmitted(parsedState.isSubmitted || false);
+      setSuggestedAnswers(parsedState.suggestedAnswers || null);
+      setS3Files(parsedState.s3Files || []);
+      setIsStateRestored(true);
+      
+      // Show toast notification
+      setTimeout(() => {
+        toast({
+          title: 'Form Progress Restored',
+          description: 'Your previous form progress has been restored.',
+          duration: 3000,
+        });
+      }, 500);
+      
+      return true;
+    } catch (error) {
+      console.warn('Failed to load form state:', error);
+      localStorage.removeItem(getStorageKey());
+      return false;
+    }
+  };
+
+  // Clear saved state
+  const clearFormState = () => {
+    if (!formId) return;
+    localStorage.removeItem(getStorageKey());
+  };
+
+  // Handle S3 file upload
+  const handleS3Upload = (files: S3UploadedFile[]) => {
+    setS3Files(files);
+    
+    const currentField = formFlow[currentStep];
+    if (!currentField) return;
+    
+    // Update answers with S3 file data (JSON string)
+    const answerValue = files.length > 0 ? JSON.stringify(files) : '';
+    
+    setAnswers(prev => ({
+      ...prev,
+      [currentField.key]: answerValue
+    }));
+    
+    // Auto proceed to next step if files are uploaded
+    if (files.length > 0) {
+      validateAndProceed(currentField, answerValue, { [currentField.key]: answerValue });
+    }
+  };
+
   useEffect(() => {
-    startForm();
+    // Load saved state first, then start form if no saved state
+    const hasLoadedState = loadFormState();
+    setIsStateLoaded(true);
+    
+    if (!hasLoadedState) {
+      startForm();
+    }
   }, [formFlow]);
 
   useEffect(() => {
-    scrollRef.current?.scrollTo(0, scrollRef.current.scrollHeight);
+    // Scroll to bottom when messages change
+    const scrollToBottom = () => {
+      if (messagesEndRef.current) {
+        messagesEndRef.current.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+    
+    // Use setTimeout to ensure DOM is updated
+    const timeoutId = setTimeout(scrollToBottom, 100);
+    return () => clearTimeout(timeoutId);
   }, [messages]);
+
+  // Save state whenever important state changes
+  useEffect(() => {
+    saveFormState();
+  }, [currentStep, answers, messages, isCompleted, isSubmitted, suggestedAnswers, s3Files, isStateLoaded]);
 
   const startForm = (isRestart = false) => {
     setCurrentStep(0);
@@ -57,6 +178,7 @@ export function ConversationalForm({ formFlowData }: Props) {
     setIsCompleted(false);
     setIsSubmitted(false);
     setIsSubmitting(false);
+    setS3Files([]);
     if (!isRestart) {
        setSuggestedAnswers(null);
     }
@@ -64,6 +186,12 @@ export function ConversationalForm({ formFlowData }: Props) {
       setMessages([{ type: 'bot', content: formFlow[0].question }]);
     } else {
       setMessages([]);
+    }
+    
+    // Clear saved state when restarting
+    if (isRestart) {
+      clearFormState();
+      setIsStateRestored(false);
     }
   };
   
@@ -98,6 +226,11 @@ export function ConversationalForm({ formFlowData }: Props) {
     } else {
       setIsSubmitted(true);
       setMessages(prev => [...prev, { type: 'user', content: 'Submit Form' }, { type: 'bot', content: 'Thank you for completing the form! Your submission has been received.'}]);
+      
+      // Clear saved state after successful submission
+      setTimeout(() => {
+        clearFormState();
+      }, 1000);
     }
   };
   
@@ -117,7 +250,7 @@ export function ConversationalForm({ formFlowData }: Props) {
   const validateAndProceed = async (field: FormField, answer: any, currentAnswers: FormAnswers) => {
      const answerContent =
       field.inputType === 'file'
-        ? (answer as File)?.name || 'File attached'
+        ? (answer?.fileName || (answer as File)?.name || 'File attached')
         : String(answer || '');
 
     setIsValidating(true);
@@ -149,6 +282,19 @@ export function ConversationalForm({ formFlowData }: Props) {
     
     const currentField = formFlow[currentStep];
     const answer = answers[currentField.key];
+
+    // For file inputs, check if files are uploaded
+    if (currentField.inputType === 'file') {
+      if (s3Files.length === 0 && currentField.validationRules.includes('required')) {
+        toast({
+          variant: 'destructive',
+          title: 'Please upload at least one file.',
+        });
+        return;
+      }
+      // File upload already handled by handleS3Upload, no need to proceed here
+      return;
+    }
 
     if (!answer && currentField.validationRules.includes('required')) {
         toast({
@@ -198,6 +344,8 @@ export function ConversationalForm({ formFlowData }: Props) {
     )
   }
 
+
+
   const renderInput = (field: FormField) => {
     // Ensure value is always a string to prevent controlled/uncontrolled error for text-based inputs
     const value = (answers[field.key] as string) || '';
@@ -211,8 +359,14 @@ export function ConversationalForm({ formFlowData }: Props) {
       case 'textarea':
         return <Textarea value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
       case 'file':
-        // File inputs are uncontrolled, so we don't pass a value prop.
-        return <Input type="file" onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.files?.[0] || null })} />;
+        return (
+          <S3Upload 
+            formId={formFlowData.id || ''}
+            onFilesUploaded={handleS3Upload}
+            maxFiles={5}
+            maxFileSize={10 * 1024 * 1024}
+          />
+        );
       default:
         return <Input type={field.inputType} value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
     }
@@ -264,10 +418,12 @@ export function ConversationalForm({ formFlowData }: Props) {
         </div>
         <div className='flex items-center justify-between'>
           <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
-          <Button type="submit" size="sm" disabled={isValidating}>
-            {isValidating ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
-            {isValidating ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
-          </Button>
+          {currentField.inputType !== 'file' && (
+            <Button type="submit" size="sm" disabled={isValidating}>
+              {isValidating ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
+              {isValidating ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
+            </Button>
+          )}
         </div>
       </form>
     );
@@ -275,6 +431,37 @@ export function ConversationalForm({ formFlowData }: Props) {
 
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none md:rounded-xl border-0">
+      {isStateRestored && (
+        <div className="border-b bg-blue-50 px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-blue-700 text-sm">
+            <Info size={16} />
+            <span>Form progress restored from previous session</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                clearFormState();
+                setIsStateRestored(false);
+                startForm(true);
+              }}
+              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+            >
+              <RotateCcw size={14} className="mr-1" />
+              Clear & Restart
+            </Button>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setIsStateRestored(false)}
+              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100 p-1"
+            >
+              <X size={16} />
+            </Button>
+          </div>
+        </div>
+      )}
       <ScrollArea ref={scrollRef} className="flex-1" type="auto">
         <CardContent className="p-4 space-y-4">
             {messages.map((msg, index) => (
@@ -298,6 +485,8 @@ export function ConversationalForm({ formFlowData }: Props) {
                 </Button>
                 </div>
             )}
+            {/* Invisible element to scroll to */}
+            <div ref={messagesEndRef} />
         </CardContent>
       </ScrollArea>
       {!isSubmitted && (

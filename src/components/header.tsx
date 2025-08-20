@@ -3,7 +3,7 @@
 import { Logo } from '@/components/icons/logo';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { List, Link as LinkIcon, BarChart, Palette, LogIn, LogOut, User as UserIcon } from 'lucide-react';
+import { List, Link as LinkIcon, BarChart, Palette, LogIn, LogOut, User as UserIcon, Menu, Database } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,21 +11,21 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from './ui/dropdown-menu';
-import { Menu } from 'lucide-react';
-import { useAuth } from './auth-provider';
-import { auth } from '@/lib/firebase';
+import { useUser, useStackApp } from '@stackframe/stack';
+import { ThemeToggle } from './theme-toggle';
 
 export function Header() {
-  const { user, loading } = useAuth();
-  const isLoggedIn = !loading && !!user;
+  const user = useUser();
+  const stackApp = useStackApp();
+  const isLoggedIn = !!user;
 
   const handleLogout = async () => {
-    await auth.signOut();
+    await user?.signOut();
   };
 
   return (
-    <header className="p-2.5 border-b bg-primary text-primary-foreground sticky top-0 z-50">
-      <div className="container mx-auto flex items-center justify-between gap-3">
+    <header className="py-2 px-2.5 border-b bg-primary text-primary-foreground sticky top-0 z-50 min-h-[60px]">
+      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between gap-3 h-full">
         <Link href="/" className="flex items-center gap-3">
           <Logo className="text-primary-foreground" />
           <h1 className="text-xl font-bold tracking-tight font-headline">
@@ -34,101 +34,190 @@ export function Header() {
         </Link>
         
         {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-1">
           {isLoggedIn ? (
             <>
-              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
                 <Link href="/forms">
                   <List className="mr-2 h-4 w-4" />
                   Forms
                 </Link>
               </Button>
-              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
                 <Link href="/analytics">
                   <BarChart className="mr-2 h-4 w-4" />
                   Analytics
                 </Link>
               </Button>
-              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
+                <Link href="/submissions">
+                  <Database className="mr-2 h-4 w-4" />
+                  Submissions
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
                 <Link href="/custom-url-domain">
                   <LinkIcon className="mr-2 h-4 w-4" />
                   Custom URL
                 </Link>
               </Button>
-              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
                 <Link href="/templates">
                   <Palette className="mr-2 h-4 w-4" />
                   Templates
                 </Link>
               </Button>
-              <Button onClick={handleLogout} variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
-                <LogOut className="mr-2 h-4 w-4" />
-                Logout
-              </Button>
+
+              
+              {/* Account Dropdown Menu */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground p-1 rounded-full">
+                    {user?.profileImageUrl ? (
+                      <img 
+                        src={user.profileImageUrl} 
+                        alt="Profile" 
+                        className="h-8 w-8 rounded-full object-cover"
+                        referrerPolicy="no-referrer"
+                        onError={(e) => {
+                          e.currentTarget.style.display = 'none';
+                          e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                        }}
+                      />
+                    ) : null}
+                     <div className={`h-8 w-8 rounded-full bg-white/20 flex items-center justify-center ${user?.profileImageUrl ? 'hidden' : ''}`}>
+                       <UserIcon className="h-4 w-4" />
+                     </div>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56 p-2 shadow-lg border border-border/50 bg-background/95 backdrop-blur-sm">
+                  <div className="px-2 py-1.5 text-sm font-medium text-muted-foreground">
+                    Account Menu
+                  </div>
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem asChild className="rounded-md px-3 py-2.5 cursor-pointer hover:bg-accent/80 transition-colors">
+                    <Link href="/handler/account-settings" className="flex items-center w-full">
+                      <UserIcon className="mr-3 h-4 w-4 text-blue-500" />
+                      <span className="font-medium">Account Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem className="flex items-center justify-between rounded-md px-3 py-2.5 cursor-pointer hover:bg-accent/80 transition-colors">
+                    <div className="flex items-center">
+                      <div className="mr-3 h-4 w-4 flex items-center justify-center">
+                        <div className="h-3 w-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                      </div>
+                      <span className="font-medium">Theme</span>
+                    </div>
+                    <ThemeToggle />
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem onClick={handleLogout} className="rounded-md px-3 py-2.5 cursor-pointer hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/50 dark:hover:text-red-400 transition-colors">
+                    <LogOut className="mr-3 h-4 w-4" />
+                    <span className="font-medium">Logout</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
-            <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
-              <Link href="/login">
-                  <LogIn className="mr-2 h-4 w-4" /> Login
-              </Link>
-            </Button>
+            <>
+              <ThemeToggle />
+              <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
+                <Link href="/login">
+                    <LogIn className="mr-2 h-4 w-4" /> Login
+                </Link>
+              </Button>
+            </>
           )}
         </div>
 
-        {/* Mobile Navigation */}
-        <div className="md:hidden">
-            <DropdownMenu>
+        {/* Mobile Navigation - Horizontal Scroll */}
+        <div className="md:hidden flex items-center gap-1">
+          {isLoggedIn ? (
+            <>
+              {/* Account Dropdown for mobile */}
+              <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground">
-                        <Menu className="h-6 w-6" />
-                        <span className="sr-only">Open Menu</span>
-                    </Button>
+                  <Button variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground px-2">
+                    <UserIcon className="h-4 w-4" />
+                  </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  {isLoggedIn ? (
-                    <>
-                      <DropdownMenuItem asChild>
-                          <Link href="/forms">
-                              <List className="mr-2 h-4 w-4" />
-                              <span>Saved Forms</span>
-                          </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                          <Link href="/analytics">
-                              <BarChart className="mr-2 h-4 w-4" />
-                              <span>Analytics</span>
-                          </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                          <Link href="/custom-url-domain">
-                              <LinkIcon className="mr-2 h-4 w-4" />
-                              <span>Custom URL</span>
-                          </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
-                          <Link href="/templates">
-                              <Palette className="mr-2 h-4 w-4" />
-                              <span>Templates</span>
-                          </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Logout</span>
-                      </DropdownMenuItem>
-                    </>
-                  ) : (
-                     <DropdownMenuItem asChild>
-                         <Link href="/login">
-                            <LogIn className="mr-2 h-4 w-4" />
-                            <span>Login</span>
-                        </Link>
-                    </DropdownMenuItem>
-                  )}
+                <DropdownMenuContent align="end" className="w-56 p-2 shadow-lg border border-border/50 bg-background/95 backdrop-blur-sm">
+                  <DropdownMenuItem asChild className="rounded-md px-3 py-2.5 cursor-pointer hover:bg-accent/80 transition-colors">
+                    <Link href="/handler/account-settings" className="flex items-center w-full">
+                      <UserIcon className="mr-3 h-4 w-4 text-blue-500" />
+                      <span className="font-medium">Account Settings</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="flex items-center justify-between rounded-md px-3 py-2.5 cursor-pointer hover:bg-accent/80 transition-colors">
+                    <div className="flex items-center">
+                      <div className="mr-3 h-4 w-4 flex items-center justify-center">
+                        <div className="h-3 w-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500"></div>
+                      </div>
+                      <span className="font-medium">Theme</span>
+                    </div>
+                    <ThemeToggle />
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator className="my-1" />
+                  <DropdownMenuItem onClick={handleLogout} className="rounded-md px-3 py-2.5 cursor-pointer hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/50 dark:hover:text-red-400 transition-colors">
+                    <LogOut className="mr-3 h-4 w-4" />
+                    <span className="font-medium">Logout</span>
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
-            </DropdownMenu>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <ThemeToggle />
+              <Button asChild variant="outline" size="sm" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground px-3">
+                <Link href="/login">
+                  <LogIn className="mr-1 h-4 w-4" /> Login
+                </Link>
+              </Button>
+            </>
+          )}
         </div>
       </div>
+      
+      {/* Mobile Horizontal Navigation Bar */}
+      {isLoggedIn && (
+        <div className="md:hidden border-t border-white/20 bg-primary/95 backdrop-blur-sm">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide py-2">
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+                <Link href="/forms">
+                  <List className="mr-1 h-4 w-4" />
+                  Forms
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+                <Link href="/analytics">
+                  <BarChart className="mr-1 h-4 w-4" />
+                  Analytics
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+                <Link href="/submissions">
+                  <Database className="mr-1 h-4 w-4" />
+                  Submissions
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+                <Link href="/custom-url-domain">
+                  <LinkIcon className="mr-1 h-4 w-4" />
+                  Custom URL
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+                <Link href="/templates">
+                  <Palette className="mr-1 h-4 w-4" />
+                  Templates
+                </Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   );
 }

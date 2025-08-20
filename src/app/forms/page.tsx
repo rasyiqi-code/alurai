@@ -1,3 +1,5 @@
+'use client';
+
 import { getFormsAction } from '@/app/actions';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
@@ -8,17 +10,42 @@ import { format } from 'date-fns';
 import { Plus, Pencil, Share2, Eye } from 'lucide-react';
 import Link from 'next/link';
 import { ShareButton } from '@/components/share-button';
+import { AuthGuard } from '@/components/auth-guard';
+import { useEffect, useState } from 'react';
+import { useUser } from '@stackframe/stack';
 
 
-export default async function FormsPage() {
-  const result = await getFormsAction();
+export default function FormsPage() {
+  const [forms, setForms] = useState<FormFlowData[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  let forms: FormFlowData[] = [];
-  if ('error' in result) {
-    // Handle error case, maybe show a message
-    console.error(result.error);
-  } else {
-    forms = result;
+  useEffect(() => {
+    async function loadForms() {
+      try {
+        const result = await getFormsAction();
+        if ('error' in result) {
+          console.error(result.error);
+        } else {
+          setForms(result);
+        }
+      } catch (error) {
+        console.error('Error loading forms:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadForms();
+  }, []);
+
+  if (loading) {
+    return (
+      <AuthGuard>
+        <div className="flex items-center justify-center h-screen">
+          <div className="text-lg">Loading forms...</div>
+        </div>
+      </AuthGuard>
+    );
   }
   
   const getFormViewLink = (form: FormFlowData) => {
@@ -29,8 +56,9 @@ export default async function FormsPage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
-      <Header />
+    <AuthGuard>
+      <div className="flex flex-col min-h-screen bg-background">
+        <Header />
       <main className="flex-1 container mx-auto px-4 py-6 md:p-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold font-headline">Your Forms</h1>
@@ -134,6 +162,7 @@ export default async function FormsPage() {
           )}
         </div>
       </main>
-    </div>
+      </div>
+    </AuthGuard>
   );
 }
