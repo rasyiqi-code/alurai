@@ -1,5 +1,4 @@
-import { config } from 'dotenv';
-config();
+// dotenv not needed in Next.js - environment variables are automatically loaded
 
 import '@/ai/flows/form-generator.ts';
 import '@/ai/flows/data-parsing-tool.ts';
