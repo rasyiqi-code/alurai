@@ -20,7 +20,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
       <div className="space-y-2">
         <h2 className="text-2xl font-bold font-headline flex items-center gap-2">
           <FileText className="h-6 w-6 text-primary" />
-          Data Submission
+          Submission Data
         </h2>
         <p className="text-muted-foreground">
           Manage and view all submission data from created forms.
@@ -36,7 +36,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
             </div>
             <div>
               <p className="text-2xl font-bold">{forms.length}</p>
-              <p className="text-sm text-muted-foreground">Total Form</p>
+              <p className="text-sm text-muted-foreground">Total Forms</p>
             </div>
           </CardContent>
         </Card>
@@ -50,7 +50,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
               <p className="text-2xl font-bold">
                 {forms.reduce((total, form) => total + (form.submissionCount ?? 0), 0)}
               </p>
-              <p className="text-sm text-muted-foreground">Total Submission</p>
+              <p className="text-sm text-muted-foreground">Total Submissions</p>
             </div>
           </CardContent>
         </Card>
@@ -93,7 +93,7 @@ export function SubmissionsMenu({ forms }: SubmissionsMenuProps) {
                       </div>
                     </div>
                     <Badge variant="default" className="ml-2">
-                      {form.submissionCount} data
+                      {form.submissionCount} submissions
                     </Badge>
                   </div>
                 </CardHeader>
