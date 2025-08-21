@@ -23,9 +23,9 @@ export default function FormsPage() {
     async function loadForms() {
       try {
         const result = await getFormsAction();
-        if ('error' in result) {
+        if (result && typeof result === 'object' && 'error' in result) {
           console.error(result.error);
-        } else {
+        } else if (Array.isArray(result)) {
           setForms(result);
         }
       } catch (error) {

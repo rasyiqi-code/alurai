@@ -8,6 +8,7 @@ import { FormFlowData, FormAnswers, FormField, ExtractedPair } from '@/lib/types
 import { toCamelCase } from '@/lib/utils';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit, collectionGroup,getCountFromServer } from 'firebase/firestore';
+import { stackServerApp } from '@/stack';
 
 
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
@@ -58,17 +59,38 @@ export async function parseDataForSuggestionsAction(inputData: string): Promise<
 
 export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: string } | { error: string }> {
   try {
+    // Get current user
+    const user = await stackServerApp.getUser();
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
     const { id, submissionCount, ...dataToSave } = formFlowData;
     
     if (id) {
-      // Update existing document
+      // Update existing document - verify ownership first
       const formRef = doc(db, 'forms', id);
+      const formDoc = await getDoc(formRef);
+      
+      if (!formDoc.exists()) {
+        return { error: 'Form not found' };
+      }
+      
+      const formData = formDoc.data();
+      if (formData.userId !== user.id) {
+        return { error: 'Unauthorized to update this form' };
+      }
+      
       const updateData = { ...dataToSave, updatedAt: new Date() };
       await setDoc(formRef, updateData, { merge: true });
       return { id };
     } else {
-      // Create new document
-      const createData = { ...dataToSave, createdAt: new Date() };
+      // Create new document with userId
+      const createData = { 
+        ...dataToSave, 
+        createdAt: new Date(),
+        userId: user.id
+      };
       createData.slug = ''; // Initialize slug for new forms
       createData.status = 'draft';
       const docRef = await addDoc(collection(db, 'forms'), createData);
@@ -91,8 +113,18 @@ const toISOString = (date: any): string | undefined => {
 
 export async function getFormsAction(): Promise<FormFlowData[] | { error: string }> {
   try {
+    // Get current user
+    const user = await stackServerApp.getUser();
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
     const formsCollection = collection(db, 'forms');
-    const q = query(formsCollection, orderBy('createdAt', 'desc'));
+    const q = query(
+      formsCollection, 
+      where('userId', '==', user.id),
+      orderBy('createdAt', 'desc')
+    );
     const formSnapshot = await getDocs(q);
     
     const formListPromises = formSnapshot.docs.map(async (doc) => {
@@ -124,6 +156,42 @@ export async function getFormsAction(): Promise<FormFlowData[] | { error: string
 
 export async function getFormAction(id: string): Promise<FormFlowData | null | { error: string }> {
   try {
+    // Get current user
+    const user = await stackServerApp.getUser();
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
+    const formRef = doc(db, 'forms', id);
+    const formSnap = await getDoc(formRef);
+
+    if (!formSnap.exists()) {
+      return null;
+    }
+
+    const data = formSnap.data();
+    
+    // Verify ownership
+    if (data.userId !== user.id) {
+      return { error: 'Unauthorized to access this form' };
+    }
+
+    return {
+      id: formSnap.id,
+      ...data,
+      createdAt: toISOString(data.createdAt),
+      updatedAt: toISOString(data.updatedAt),
+      publishStartTime: toISOString(data.publishStartTime),
+      publishEndTime: toISOString(data.publishEndTime),
+    } as FormFlowData;
+  } catch (error) {
+    console.error('Error fetching form:', error);
+    return { error: 'Failed to fetch form. Please try again later.' };
+  }
+}
+
+export async function getPublicFormAction(id: string): Promise<FormFlowData | null | { error: string }> {
+  try {
     const formRef = doc(db, 'forms', id);
     const formSnap = await getDoc(formRef);
 
@@ -141,10 +209,9 @@ export async function getFormAction(id: string): Promise<FormFlowData | null | {
       publishStartTime: toISOString(data.publishStartTime),
       publishEndTime: toISOString(data.publishEndTime),
     } as FormFlowData;
-  } catch (error)
- {
-    console.error('Error fetching form:', error);
-    return { error: 'Failed to fetch form. Please try again later.' };
+  } catch (error) {
+    console.error('Error getting public form:', error);
+    return { error: 'Failed to get form' };
   }
 }
 

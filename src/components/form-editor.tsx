@@ -116,17 +116,59 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
       if (!prevData) return null;
       return {
         ...prevData,
-        flow: prevData.flow.map((field) =>
-          field.id === id
-            ? {
-                ...field,
-                ...newField,
-                ...(newField.question
-                  ? { key: toCamelCase(newField.question) }
-                  : {}),
+        flow: prevData.flow.map((field) => {
+          if (field.id === id) {
+            const updatedField = {
+              ...field,
+              ...newField,
+              ...(newField.question
+                ? { key: toCamelCase(newField.question) }
+                : {}),
+            };
+            
+            // Auto-update validationRules when inputType changes
+            if (newField.inputType && newField.inputType !== field.inputType) {
+              const currentRules = field.validationRules || [];
+              let newRules = [...currentRules];
+              
+              // Remove old type-specific validation rules
+              const typeSpecificRules = ['email', 'number', 'date', 'file'];
+              newRules = newRules.filter(rule => !typeSpecificRules.includes(rule));
+              
+              // Add new type-specific validation rules based on inputType
+              switch (newField.inputType) {
+                case 'email':
+                  if (!newRules.includes('email')) {
+                    newRules.push('email');
+                  }
+                  break;
+                case 'number':
+                  if (!newRules.includes('number')) {
+                    newRules.push('number');
+                  }
+                  break;
+                case 'date':
+                  if (!newRules.includes('date')) {
+                    newRules.push('date');
+                  }
+                  break;
+                case 'file':
+                  if (!newRules.includes('file')) {
+                    newRules.push('file');
+                  }
+                  break;
+                // text, textarea, select don't need specific validation rules by default
+                default:
+                  break;
               }
-            : field
-        ),
+              
+              updatedField.validationRules = newRules;
+            }
+            
+            return updatedField;
+          }
+          return field;
+        }),
       };
     });
   };

@@ -1,10 +1,11 @@
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Bot, BarChart, Palette, Sparkles, Zap, Shield, MessageSquare } from 'lucide-react';
+import { ArrowRight, Bot, BarChart, Palette, Sparkles, Zap, Shield } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { FeedbackSection } from '@/components/feedback-section';
 
 export default function LandingPage() {
   return (
@@ -122,68 +123,7 @@ export default function LandingPage() {
         </section>
           
         {/* User Feedback Section */}
-        <section className="py-16 bg-muted/30">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center mb-12">
-              <h2 className="text-2xl md:text-3xl font-bold mb-4">
-                Share Your Experience
-              </h2>
-              <p className="text-muted-foreground mb-8">
-                Help us improve by sharing your feedback about AlurAI
-              </p>
-              
-              <Button asChild size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 hover:-translate-y-1">
-                <Link href="http://localhost:9003/form/PTgncXn9EhZT80IIFRWR" target="_blank">
-                  <MessageSquare className="mr-2 h-5 w-5" />
-                  Give Feedback
-                </Link>
-              </Button>
-            </div>
-            
-            <div className="max-w-4xl mx-auto">
-              <h3 className="text-xl font-semibold text-center mb-8">Recent User Feedback</h3>
-              
-              {/* Placeholder for dynamic testimonials from form submissions */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-card p-6 rounded-lg border">
-                  <p className="text-muted-foreground mb-4">
-                    "AlurAI is very helpful for creating forms quickly. The interface is easy to understand."
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold mr-3">
-                      AH
-                    </div>
-                    <div>
-                      <p className="font-medium">Ahmad H.</p>
-                      <p className="text-sm text-muted-foreground">Developer</p>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-card p-6 rounded-lg border">
-                  <p className="text-muted-foreground mb-4">
-                    "The AI features really help save time. Recommended!"
-                  </p>
-                  <div className="flex items-center">
-                    <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold mr-3">
-                      SR
-                    </div>
-                    <div>
-                      <p className="font-medium">Sari R.</p>
-                      <p className="text-sm text-muted-foreground">Product Manager</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="text-center mt-8">
-                <Link href="http://localhost:9003/form/PTgncXn9EhZT80IIFRWR" target="_blank" className="text-blue-600 hover:text-blue-700 font-medium">
-                  View all feedback submissions →
-                </Link>
-              </div>
-            </div>
-          </div>
-        </section>
+        <FeedbackSection />
 
         {/* Simple Value Proposition */}
         <section className="relative w-full py-16 md:py-20 overflow-hidden">
@@ -253,7 +193,7 @@ export default function LandingPage() {
               </h2>
               
               <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
-                Join <span className="font-semibold text-yellow-300">10,000+</span> users who have experienced the convenience of AlurAI
+                Experience the future of form creation with <span className="font-semibold text-yellow-300">AlurAI</span> - now in early access
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">

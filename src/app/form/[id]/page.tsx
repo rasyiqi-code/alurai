@@ -1,4 +1,4 @@
-import { getFormAction } from '@/app/actions';
+import { getPublicFormAction } from '@/app/actions';
 import { FormDisplay } from '@/components/form-display';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -6,7 +6,7 @@ import Image from 'next/image';
 
 export default async function FormPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const result = await getFormAction(id);
+  const result = await getPublicFormAction(id);
 
   if (!result || 'error' in result) {
     // In a real app, you might want to show a more specific error page

@@ -38,7 +38,7 @@ export default async function AnalyticsDashboardPage() {
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-3xl font-bold font-headline">Analytics & Insights</h1>
           <div className="text-sm text-muted-foreground">
-            Last updated: {new Date().toLocaleDateString('id-ID', { 
+            Last updated: {new Date().toLocaleDateString('en-US', { 
               weekday: 'long', 
               year: 'numeric', 
               month: 'long', 

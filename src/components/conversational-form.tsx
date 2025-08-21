@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MinioUpload, MinioUploadedFile } from './minio-upload';
-import { Send, CheckCircle, Bot, RefreshCw, RotateCcw, Info, X } from 'lucide-react';
+import { Send, Bot, CheckCircle, RefreshCw } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DataParser } from './data-parser';
 import { saveSubmissionAction, validateAnswerAction } from '@/app/actions';
@@ -40,7 +40,7 @@ export function ConversationalForm({ formFlowData }: Props) {
 
   const [minioFiles, setMinioFiles] = useState<MinioUploadedFile[]>([]);
   const [isStateLoaded, setIsStateLoaded] = useState(false);
-  const [isStateRestored, setIsStateRestored] = useState(false);
+
   
   const scrollRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -98,16 +98,7 @@ export function ConversationalForm({ formFlowData }: Props) {
       setIsSubmitted(parsedState.isSubmitted || false);
       setSuggestedAnswers(parsedState.suggestedAnswers || null);
       setMinioFiles(parsedState.minioFiles || []);
-      setIsStateRestored(true);
-      
-      // Show toast notification
-      setTimeout(() => {
-        toast({
-          title: 'Form Progress Restored',
-          description: 'Your previous form progress has been restored.',
-          duration: 3000,
-        });
-      }, 500);
+
       
       return true;
     } catch (error) {
@@ -191,7 +182,6 @@ export function ConversationalForm({ formFlowData }: Props) {
     // Clear saved state when restarting
     if (isRestart) {
       clearFormState();
-      setIsStateRestored(false);
     }
   };
   
@@ -431,37 +421,7 @@ export function ConversationalForm({ formFlowData }: Props) {
 
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none md:rounded-xl border-0">
-      {isStateRestored && (
-        <div className="border-b bg-blue-50 px-4 py-2 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-blue-700 text-sm">
-            <Info size={16} />
-            <span>Form progress restored from previous session</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                clearFormState();
-                setIsStateRestored(false);
-                startForm(true);
-              }}
-              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100"
-            >
-              <RotateCcw size={14} className="mr-1" />
-              Clear & Restart
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setIsStateRestored(false)}
-              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100 p-1"
-            >
-              <X size={16} />
-            </Button>
-          </div>
-        </div>
-      )}
+
       <ScrollArea ref={scrollRef} className="flex-1" type="auto">
         <CardContent className="p-4 space-y-4">
             {messages.map((msg, index) => (
