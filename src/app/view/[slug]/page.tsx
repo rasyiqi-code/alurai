@@ -3,8 +3,9 @@ import { FormDisplay } from '@/components/form-display';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 
-export default async function ViewFormPage({ params }: { params: { slug: string } }) {
-  const result = await getFormBySlugAction(params.slug);
+export default async function ViewFormPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+  const result = await getFormBySlugAction(slug);
 
   if (!result || 'error' in result) {
     return notFound();
