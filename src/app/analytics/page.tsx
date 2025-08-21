@@ -6,6 +6,8 @@ import type { FormFlowData } from '@/lib/types';
 import { BarChart, Eye, MessageSquare, FileText, Star, TrendingUp, Clock, Users, Target, Activity, Calendar } from 'lucide-react';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function AnalyticsDashboardPage() {
   const formsResult = await getFormsAction();
   const overviewResult = await getAnalyticsOverviewAction();

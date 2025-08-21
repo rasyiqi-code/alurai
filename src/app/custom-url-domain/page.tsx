@@ -8,6 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Globe } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SettingsPage() {
   const result = await getFormsAction();
   let forms: FormFlowData[] = [];
