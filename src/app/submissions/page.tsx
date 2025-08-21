@@ -4,6 +4,8 @@ import { SubmissionsMenu } from '@/components/submissions-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { FormFlowData } from '@/lib/types';
 
+export const dynamic = 'force-dynamic';
+
 export default async function SubmissionsPage() {
   const formsResult = await getFormsAction();
   const overviewResult = await getAnalyticsOverviewAction();
