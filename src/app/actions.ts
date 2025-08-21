@@ -2,12 +2,10 @@
 
 import { generateFormFlowFromDescription } from '@/ai/flows/form-generator';
 import { suggestImprovementsToFormFlow } from '@/ai/flows/form-flow-optimization';
-import { intelligentlyParseDataToFillForm } from '@/ai/flows/data-parsing-tool';
 import { validateAnswer } from '@/ai/flows/answer-validator';
 import { extractKeyValuePairs } from '@/ai/flows/extract-key-value-pairs';
-import { FormFlow, FormFlowData, FormAnswers, FormField, ExtractedPair } from '@/lib/types';
+import { FormFlowData, FormAnswers, FormField, ExtractedPair } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
-import { z } from 'zod';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit, collectionGroup,getCountFromServer } from 'firebase/firestore';
 
@@ -60,22 +58,20 @@ export async function parseDataForSuggestionsAction(inputData: string): Promise<
 
 export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: string } | { error: string }> {
   try {
-    const dataToSave: Omit<FormFlowData, 'id' | 'submissionCount'> & { createdAt?: any, updatedAt?: any } = { ...formFlowData };
-    delete dataToSave.id;
-    delete dataToSave.submissionCount; // Ensure submissionCount isn't saved directly
-
-    if (formFlowData.id) {
+    const { id, submissionCount, ...dataToSave } = formFlowData;
+    
+    if (id) {
       // Update existing document
-      const formRef = doc(db, 'forms', formFlowData.id);
-      dataToSave.updatedAt = new Date();
-      await setDoc(formRef, dataToSave, { merge: true });
-      return { id: formFlowData.id };
+      const formRef = doc(db, 'forms', id);
+      const updateData = { ...dataToSave, updatedAt: new Date() };
+      await setDoc(formRef, updateData, { merge: true });
+      return { id };
     } else {
       // Create new document
-      dataToSave.createdAt = new Date();
-      dataToSave.slug = ''; // Initialize slug for new forms
-      dataToSave.status = 'draft';
-      const docRef = await addDoc(collection(db, 'forms'), dataToSave);
+      const createData = { ...dataToSave, createdAt: new Date() };
+      createData.slug = ''; // Initialize slug for new forms
+      createData.status = 'draft';
+      const docRef = await addDoc(collection(db, 'forms'), createData);
       return { id: docRef.id };
     }
   } catch (error) {
