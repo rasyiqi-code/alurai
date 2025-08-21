@@ -12,8 +12,6 @@ import { MinioUploadedFile } from '@/components/minio-upload';
 import { FileDownloadLink } from '@/components/file-download-link';
 import React from 'react';
 
-export const dynamic = 'force-dynamic';
-
 
 
 export default async function FormAnalyticsPage({ params }: { params: Promise<{ id: string }> }) {
