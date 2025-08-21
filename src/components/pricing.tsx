@@ -1,15 +1,61 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Check, Star } from 'lucide-react'
-import { 
-  subscriptionPlans, 
-  SubscriptionPlan,
-  initializePaddle,
-  openPaddleCheckout,
-  checkSubscriptionStatus
-} from '@/lib/paddle'
+
+interface SubscriptionPlan {
+  id: string;
+  name: string;
+  description: string;
+  price: string;
+  features: string[];
+  popular?: boolean;
+}
+
+const subscriptionPlans: SubscriptionPlan[] = [
+  {
+    id: 'basic',
+    name: 'Basic',
+    description: 'Perfect for individuals',
+    price: '$9.99/month',
+    features: [
+      'Up to 10 forms',
+      'Basic analytics',
+      'Email support',
+      '1,000 responses/month'
+    ]
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    description: 'Best for growing businesses',
+    price: '$29.99/month',
+    features: [
+      'Unlimited forms',
+      'Advanced analytics',
+      'Priority support',
+      '10,000 responses/month',
+      'Custom branding',
+      'API access'
+    ],
+    popular: true
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    description: 'For large organizations',
+    price: '$99.99/month',
+    features: [
+      'Everything in Pro',
+      'Unlimited responses',
+      'Dedicated support',
+      'Custom integrations',
+      'SSO authentication',
+      'Advanced security'
+    ]
+  }
+];
 
 interface PricingProps {
   userId?: string;
@@ -17,63 +63,18 @@ interface PricingProps {
 
 export function Pricing({ userId }: PricingProps) {
   const [loading, setLoading] = useState(false);
-  const [hasSubscription, setHasSubscription] = useState(false);
-  const [purchasingPlan, setPurchasingPlan] = useState<string | null>(null);
-  const [paddleError, setPaddleError] = useState<string | null>(null);
-  const [paddleReady, setPaddleReady] = useState(false);
-
-  useEffect(() => {
-    const initPaddle = async () => {
-      try {
-        const paddle = await initializePaddle();
-        if (paddle) {
-          setPaddleReady(true);
-          setPaddleError(null);
-          
-          // Check subscription status if userId is provided
-          if (userId) {
-            const subscriptionStatus = await checkSubscriptionStatus(userId);
-            setHasSubscription(subscriptionStatus);
-          }
-        } else {
-          setPaddleError('Failed to initialize Paddle. Please check your configuration.');
-        }
-      } catch (error: any) {
-        console.error('Paddle initialization failed:', error);
-        setPaddleError('Paddle initialization failed. Please try again later.');
-      }
-    };
-
-    initPaddle();
-  }, [userId]);
 
   const handlePurchase = async (plan: SubscriptionPlan) => {
-    if (!paddleReady) {
-      alert('Payment system is not ready. Please try again in a moment.');
-      return;
-    }
-
-    setPurchasingPlan(plan.id);
     setLoading(true);
-
+    
     try {
-      const customData = {
-        userId: userId || 'anonymous',
-        planId: plan.id,
-        planName: plan.name
-      };
-
-      await openPaddleCheckout(plan.paddlePriceId, customData);
-      
-      // Note: Actual subscription status will be updated via webhook
-      // This is just for immediate UI feedback
-      console.log(`Checkout opened for ${plan.name} plan`);
-      
+      // Placeholder untuk implementasi pembayaran di masa depan
+      alert(`Fitur pembayaran untuk paket ${plan.name} akan segera tersedia!`);
+      console.log(`Selected plan: ${plan.name}`);
     } catch (error) {
-      console.error('Purchase failed:', error);
-      alert('Purchase failed. Please try again.');
+      console.error('Error:', error);
+      alert('Terjadi kesalahan. Silakan coba lagi.');
     } finally {
-      setPurchasingPlan(null);
       setLoading(false);
     }
   };
@@ -88,28 +89,10 @@ export function Pricing({ userId }: PricingProps) {
           <p className="text-xl text-gray-300 max-w-2xl mx-auto">
             Unlock the full potential of AI-powered forms with our flexible pricing plans
           </p>
-          {paddleError && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-yellow-500/20 text-yellow-400 px-4 py-2 rounded-full text-sm">
-              ⚠️ {paddleError}
-            </div>
-          )}
-          {!paddleReady && !paddleError && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-blue-500/20 text-blue-400 px-4 py-2 rounded-full text-sm">
-              <div className="w-4 h-4 border-2 border-blue-400/30 border-t-blue-400 rounded-full animate-spin" />
-              Loading payment system...
-            </div>
-          )}
-          {hasSubscription && (
-            <div className="mt-4 inline-flex items-center gap-2 bg-green-500/20 text-green-400 px-4 py-2 rounded-full">
-              <Check className="w-4 h-4" />
-              You have an active subscription
-            </div>
-          )}
         </div>
 
         <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
           {subscriptionPlans.map((plan) => {
-            const isPurchasing = purchasingPlan === plan.id;
             
             return (
               <div
@@ -149,22 +132,18 @@ export function Pricing({ userId }: PricingProps) {
 
                 <Button
                   onClick={() => handlePurchase(plan)}
-                  disabled={loading || hasSubscription || !paddleReady}
+                  disabled={loading}
                   className={`w-full py-3 text-lg font-semibold transition-all duration-300 ${
                     plan.popular
                       ? 'bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white'
                       : 'bg-white/10 hover:bg-white/20 text-white border border-white/30'
-                  } ${isPurchasing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  } ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                  {isPurchasing ? (
+                  {loading ? (
                     <div className="flex items-center gap-2">
                       <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                      Opening checkout...
+                      Processing...
                     </div>
-                  ) : hasSubscription ? (
-                    'Current Plan'
-                  ) : !paddleReady ? (
-                    'Loading...'
                   ) : (
                     `Get ${plan.name}`
                   )}

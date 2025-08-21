@@ -6,7 +6,7 @@ Selamat datang di dokumentasi AlurAI. Folder ini berisi semua panduan setup, int
 
 ### Setup & Integrasi
 - **[MinIO Setup](./minio-setup.md)** - Panduan setup MinIO untuk penyimpanan file
-- **[Paddle Integration](./paddle-integration.md)** - Panduan integrasi Paddle untuk sistem pembayaran
+
 
 ### Pengembangan
 - **[Blueprint](./blueprint.md)** - Arsitektur dan blueprint aplikasi
@@ -16,7 +16,7 @@ Selamat datang di dokumentasi AlurAI. Folder ini berisi semua panduan setup, int
 
 1. Mulai dengan membaca [Blueprint](./blueprint.md) untuk memahami arsitektur aplikasi
 2. Setup penyimpanan file dengan [MinIO Setup](./minio-setup.md)
-3. Setup sistem pembayaran dengan [Paddle Integration](./paddle-integration.md)
+
 
 ## 📝 Kontribusi
 

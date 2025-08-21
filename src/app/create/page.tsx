@@ -22,7 +22,7 @@ export default function CreatePage() {
       setIsLoadingForm(true);
       const loadForm = async () => {
         const result = await getFormAction(formId);
-        if ('error' in result) {
+        if (result && 'error' in result) {
           console.error(result.error);
         } else if (result) {
           setFormFlowData(result);
