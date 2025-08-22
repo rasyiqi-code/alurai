@@ -1,33 +1,43 @@
 import { MetadataRoute } from 'next'
+import { headers } from 'next/headers'
 
 export async function GET(): Promise<Response> {
+  const headersList = await headers()
+  const host = headersList.get('host') || 'localhost:3000'
+  const protocol = headersList.get('x-forwarded-proto') || 
+                   headersList.get('x-forwarded-protocol') || 
+                   (headersList.get('host')?.includes('localhost') ? 'http' : 'https')
+  
+  // Bangun URL dinamis berdasarkan request header
+  const baseUrl = `${protocol}://${host}`
+
   const sitemap: MetadataRoute.Sitemap = [
     {
-      url: 'https://alurai.com',
+      url: baseUrl,
       lastModified: new Date(),
       changeFrequency: 'weekly',
       priority: 1,
     },
     {
-      url: 'https://alurai.com/dashboard',
+      url: `${baseUrl}/dashboard`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.8,
     },
     {
-      url: 'https://alurai.com/analytics',
+      url: `${baseUrl}/analytics`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.7,
     },
     {
-      url: 'https://alurai.com/submissions',
+      url: `${baseUrl}/submissions`,
       lastModified: new Date(),
       changeFrequency: 'daily',
       priority: 0.7,
     },
     {
-      url: 'https://alurai.com/custom-url-domain',
+      url: `${baseUrl}/custom-url-domain`,
       lastModified: new Date(),
       changeFrequency: 'monthly',
       priority: 0.6,
