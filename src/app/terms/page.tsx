@@ -1,4 +1,15 @@
 import { Header } from '@/components/header'
+import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Terms of Service',
+  description: metaDescriptions.terms,
+  keywords: metaKeywords.terms,
+  path: '/terms',
+  ogImage: '/og-terms.png',
+  twitterImage: '/twitter-terms.png',
+});
 
 export default function TermsPage() {
   return (

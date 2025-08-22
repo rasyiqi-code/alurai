@@ -5,8 +5,19 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import type { FormFlowData } from '@/lib/types';
 import { BarChart, Eye, MessageSquare, FileText, Star, TrendingUp, Clock, Users, Target, Activity, Calendar } from 'lucide-react';
 import Link from 'next/link';
+import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Analytics Dashboard',
+  description: metaDescriptions.analytics,
+  keywords: metaKeywords.analytics,
+  path: '/analytics',
+  ogImage: '/og-analytics.png',
+  twitterImage: '/twitter-analytics.png',
+});
 
 export default async function AnalyticsDashboardPage() {
   const formsResult = await getFormsAction();

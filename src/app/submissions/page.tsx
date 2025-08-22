@@ -3,8 +3,20 @@ import { Header } from '@/components/header';
 import { SubmissionsMenu } from '@/components/submissions-menu';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import type { FormFlowData } from '@/lib/types';
+import Link from 'next/link';
+import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils';
+import type { Metadata } from 'next';
 
 export const dynamic = 'force-dynamic';
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Form Submissions',
+  description: metaDescriptions.submissions,
+  keywords: metaKeywords.submissions,
+  path: '/submissions',
+  ogImage: '/og-submissions.png',
+  twitterImage: '/twitter-submissions.png',
+});
 
 export default async function SubmissionsPage() {
   const formsResult = await getFormsAction();

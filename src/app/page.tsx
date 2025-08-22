@@ -6,6 +6,18 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FeedbackSection } from '@/components/feedback-section';
+import { StructuredData, websiteStructuredData, softwareApplicationStructuredData, organizationStructuredData } from '@/components/structured-data';
+import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Home',
+  description: metaDescriptions.home,
+  keywords: metaKeywords.home,
+  path: '/',
+  ogImage: '/og-home.png',
+  twitterImage: '/twitter-home.png',
+});
 
 export default function LandingPage() {
   return (
@@ -241,6 +253,11 @@ export default function LandingPage() {
           </div>
         </div>
       </footer>
+      
+      {/* Structured Data */}
+      <StructuredData data={websiteStructuredData} />
+      <StructuredData data={softwareApplicationStructuredData} />
+      <StructuredData data={organizationStructuredData} />
     </div>
   );
 }

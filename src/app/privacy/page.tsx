@@ -1,4 +1,15 @@
 import { Header } from '@/components/header'
+import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Privacy Policy',
+  description: metaDescriptions.privacy,
+  keywords: metaKeywords.privacy,
+  path: '/privacy',
+  ogImage: '/og-privacy.png',
+  twitterImage: '/twitter-privacy.png',
+});
 
 export default function PrivacyPage() {
   return (

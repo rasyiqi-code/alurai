@@ -5,6 +5,17 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Paintbrush, Type, LayoutTemplate, Upload } from 'lucide-react';
 import { Label } from '@/components/ui/label';
+import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Form Templates & Branding',
+  description: metaDescriptions.templates,
+  keywords: metaKeywords.templates,
+  path: '/templates',
+  ogImage: '/og-templates.png',
+  twitterImage: '/twitter-templates.png',
+});
 
 export default function TemplatesPage() {
 

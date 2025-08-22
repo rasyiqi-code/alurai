@@ -1,5 +1,16 @@
 import { Header } from '@/components/header'
 import { Pricing } from '@/components/pricing'
+import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils'
+import type { Metadata } from 'next'
+
+export const metadata: Metadata = generateSEOMetadata({
+  title: 'Pricing Plans',
+  description: metaDescriptions.pricing,
+  keywords: metaKeywords.pricing,
+  path: '/pricing',
+  ogImage: '/og-pricing.png',
+  twitterImage: '/twitter-pricing.png',
+});
 
 export default function PricingPage() {
   return (
