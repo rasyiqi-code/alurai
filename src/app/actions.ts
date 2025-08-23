@@ -249,7 +249,7 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
       const value = answers[key];
       
       if (value instanceof File) {
-        // In a real app, you would upload the file to a storage service (like Firebase Storage)
+        // In a real app, you would upload the file to a storage service (like MinIO or Vercel Blob)
         // and save the URL. For now, we'll just save the file name as a placeholder.
         sanitizedAnswers[key] = `placeholder/for/${value.name}`;
         continue;

@@ -1,7 +1,7 @@
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Bot, BarChart, Palette, Sparkles, Zap, Shield } from 'lucide-react';
+import { ArrowRight, Bot, BarChart, Palette, Sparkles, Zap, Shield, Check, X, FileText, Settings, Link as LinkIcon, Target, Users } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,7 +11,7 @@ import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: 'Home',
+  title: 'AI-Powered Form Builder - Create Smart Conversational Forms',
   description: metaDescriptions.home,
   keywords: metaKeywords.home,
   path: '/',
@@ -130,6 +130,186 @@ export default function LandingPage() {
                   </p>
                 </CardContent>
               </Card>
+            </div>
+          </div>
+        </section>
+
+        {/* Comparison Section */}
+        <section className="relative w-full py-16 md:py-24 overflow-hidden">
+          {/* Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white via-gray-50 to-indigo-50 dark:from-gray-900 dark:via-gray-950 dark:to-indigo-950/50"></div>
+          <div className="absolute inset-0">
+            <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/5 to-purple-400/5 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/5 to-cyan-400/5 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="relative container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-200/50 dark:border-blue-800/50 mb-4">
+                <BarChart className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Perbandingan</span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4 bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                Mengapa Memilih AlurAI?
+              </h2>
+              <p className="max-w-3xl mx-auto text-muted-foreground text-lg">
+                Bandingkan AlurAI dengan pembuat formulir lainnya dan lihat perbedaannya
+              </p>
+            </div>
+
+            {/* Comparison Table */}
+            <div className="max-w-6xl mx-auto">
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* AlurAI Column */}
+                <div className="lg:col-span-1">
+                  <Card className="h-full border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 shadow-xl">
+                    <CardContent className="p-8">
+                      <div className="text-center mb-8">
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
+                          <Sparkles className="h-8 w-8 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">AlurAI</h3>
+                        <p className="text-sm text-muted-foreground">AI-Powered Form Builder</p>
+                      </div>
+                      
+                      <div className="space-y-4">
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">AI generates forms from natural language</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">Conversational form experience</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">Smart conditional logic</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">Real-time analytics & insights</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">No coding required</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">Custom branding & themes</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">Mobile-first responsive design</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">Advanced data export options</span>
+                        </div>
+                        <div className="flex items-start gap-3">
+                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
+                          <span className="text-sm">Setup in under 2 minutes</span>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-8 pt-6 border-t border-blue-200 dark:border-blue-800">
+                        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" asChild>
+                          <Link href="/create">
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Try AlurAI Free
+                          </Link>
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                {/* Traditional Form Builders Column */}
+                 <div className="lg:col-span-2">
+                   <Card className="border border-gray-200 dark:border-gray-800 bg-white/50 dark:bg-gray-900/50 h-full">
+                     <CardContent className="p-8">
+                       <div className="text-center mb-8">
+                         <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center shadow-inner">
+                           <FileText className="h-8 w-8 text-gray-500 dark:text-gray-400" />
+                         </div>
+                         <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">Other Platforms</h3>
+                         <p className="text-sm text-muted-foreground">Traditional Form Builders</p>
+                       </div>
+                       
+                       <div className="space-y-6">
+                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
+                           <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
+                             <Settings className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                           </div>
+                           <div>
+                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Form Creation</h4>
+                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Usually template-based or manual drag-and-drop that requires more time for setup and configuration</p>
+                           </div>
+                         </div>
+                         
+                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
+                           <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                             <BarChart className="h-5 w-5 text-red-600 dark:text-red-400" />
+                           </div>
+                           <div>
+                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Data Analysis</h4>
+                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Basic summaries or advanced analytics as premium features with significant additional costs</p>
+                           </div>
+                         </div>
+                         
+                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
+                            <div className="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
+                              <LinkIcon className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
+                            </div>
+                            <div>
+                              <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">URL Customization</h4>
+                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">No custom URL support or available only on paid plans with premium pricing</p>
+                            </div>
+                          </div>
+                         
+                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
+                           <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
+                             <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                           </div>
+                           <div>
+                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">User Experience</h4>
+                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Forms are usually static with more traditional and less interactive experiences</p>
+                           </div>
+                         </div>
+                         
+                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
+                           <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                             <Target className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                           </div>
+                           <div>
+                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Common Usage</h4>
+                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">More often used for general surveys, simple questionnaires, or basic registrations</p>
+                           </div>
+                         </div>
+                       </div>
+                     </CardContent>
+                   </Card>
+                 </div>
+              </div>
+
+              {/* Bottom CTA */}
+              <div className="text-center mt-12">
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-200/50 dark:border-green-800/50 mb-4">
+                  <Sparkles className="h-4 w-4 text-green-500" />
+                  <span className="text-sm font-medium text-green-700 dark:text-green-300">The Clear Winner</span>
+                </div>
+                <h3 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
+                  Experience the Future of Form Building
+                </h3>
+                <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
+                  Join thousands of businesses who've already made the switch to AI-powered forms
+                </p>
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" asChild>
+                  <Link href="/create">
+                    <Sparkles className="mr-2 h-5 w-5" />
+                    Start Building with AI
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>

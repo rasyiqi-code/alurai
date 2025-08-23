@@ -4,7 +4,7 @@ Dokumen ini melacak fitur-fitur utama yang direncanakan untuk implementasi di ma
 
 ### 1. Fungsionalitas Unggah File Penuh
 - **Status:** Saat ini, aplikasi hanya menyimpan nama file sebagai placeholder di Firestore.
-- **Rencana:** Mengimplementasikan unggahan file yang sebenarnya ke layanan penyimpanan cloud (seperti Firebase Storage). Ini akan menyimpan file secara aman dan menghasilkan URL yang dapat diakses yang akan disimpan di Firestore, memungkinkan pengguna untuk mengunduh kembali file yang dikirimkan.
+- **Rencana:** Mengimplementasikan unggahan file yang sebenarnya ke layanan penyimpanan cloud (menggunakan MinIO atau Vercel Blob). Ini akan menyimpan file secara aman dan menghasilkan URL yang dapat diakses yang akan disimpan di Firestore, memungkinkan pengguna untuk mengunduh kembali file yang dikirimkan.
 
 ### 2. Tampilan Data Submission
 - **Status:** Halaman detail analytics untuk setiap formulir saat ini menampilkan pesan "Coming Soon".
