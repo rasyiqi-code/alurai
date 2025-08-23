@@ -28,9 +28,14 @@ export function Header() {
       <div className="container mx-auto px-4 md:px-6 flex items-center justify-between gap-3 h-full">
         <Link href="/" className="flex items-center gap-3">
           <Logo className="text-primary-foreground" />
-          <h1 className="text-xl font-bold tracking-tight font-headline">
-            AlurAI
-          </h1>
+          <div className="flex items-center gap-2">
+            <h1 className="text-xl font-bold tracking-tight font-headline">
+              AlurAI
+            </h1>
+            <span className="text-xs font-medium bg-white/20 text-primary-foreground px-2 py-1 rounded-full border border-white/30">
+              BETA
+            </span>
+          </div>
         </Link>
         
         {/* Desktop Navigation */}
