@@ -71,6 +71,53 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Product Hunt Badges Section */}
+        <section className="w-full py-12 bg-white dark:bg-gray-900">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="text-center">
+              <h3 className="text-lg font-semibold mb-6 text-muted-foreground">Featured on Product Hunt</h3>
+              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+                {/* Large Badge */}
+                <a href="https://www.producthunt.com/products/alurai?utm_source=badge-follow&utm_medium=badge&utm_source=badge-alurai" target="_blank" rel="noopener noreferrer">
+                  <img 
+                    src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1101032&theme=neutral" 
+                    alt="Alurai - Powered form builder - create smart conversational forms | Product Hunt" 
+                    style={{width: '250px', height: '54px'}} 
+                    width="250" 
+                    height="54" 
+                    className="hover:opacity-80 transition-opacity"
+                  />
+                </a>
+                {/* Small Badge */}
+                <a href="https://www.producthunt.com/products/alurai?utm_source=badge-follow&utm_medium=badge&utm_source=badge-alurai" target="_blank" rel="noopener noreferrer">
+                  <img 
+                    src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1101032&theme=neutral&size=small" 
+                    alt="Alurai - Powered form builder - create smart conversational forms | Product Hunt" 
+                    style={{width: '86px', height: '32px'}} 
+                    width="86" 
+                    height="32" 
+                    className="hover:opacity-80 transition-opacity"
+                  />
+                </a>
+               </div>
+               
+               {/* Product Hunt Card */}
+               <div className="mt-8 flex justify-center">
+                 <iframe 
+                   style={{border: 'none'}} 
+                   src="https://cards.producthunt.com/cards/products/1101032" 
+                   width="500" 
+                   height="405" 
+                   frameBorder="0" 
+                   scrolling="no" 
+                   allowFullScreen
+                   className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
+                 ></iframe>
+               </div>
+             </div>
+           </div>
+         </section>
+
         {/* Features Section */}
         <section className="relative w-full py-16 md:py-24 overflow-hidden">
           {/* Background */}
