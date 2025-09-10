@@ -18,6 +18,7 @@ import {
   Hash,
   Save,
   Send,
+  GripVertical,
 } from 'lucide-react';
 import type { FormFlowData, FormField } from '@/lib/types';
 import { toCamelCase } from '@/lib/utils';
@@ -57,10 +58,237 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Calendar } from './ui/calendar';
 import { Label } from './ui/label';
 import { format } from 'date-fns';
-
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import {
+  useSortable,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import { useFieldTracking } from '@/components/analytics/FormTracker';
+    
 interface Props {
   formFlowData: FormFlowData;
   setFormFlowData: Dispatch<SetStateAction<FormFlowData | null>>;
+}
+
+interface SortableFieldItemProps {
+  field: FormField;
+  isActive: boolean;
+  onFieldClick: (id: string) => void;
+  onFieldUpdate: (id: string, updates: Partial<FormField>) => void;
+  onFieldRemove: (id: string) => void;
+  onFieldDuplicate: (id: string) => void;
+  onOptionAdd: (fieldId: string) => void;
+  onOptionUpdate: (fieldId: string, optionIndex: number, value: string) => void;
+  onOptionRemove: (fieldId: string, optionIndex: number) => void;
+}
+
+function SortableFieldItem({
+  field,
+  isActive,
+  onFieldClick,
+  onFieldUpdate,
+  onFieldRemove,
+  onFieldDuplicate,
+  onOptionAdd,
+  onOptionUpdate,
+  onOptionRemove,
+}: SortableFieldItemProps) {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: field.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const Icon = inputTypeIcons[field.inputType];
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className={cn(
+        'rounded-lg bg-background border transition-all relative',
+        isActive && 'border-primary shadow-md',
+        isDragging && 'shadow-lg z-50'
+      )}
+      onClick={() => onFieldClick(field.id)}
+    >
+      {isActive && (
+        <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
+      )}
+      <div className="p-3 md:p-4">
+        {isActive ? (
+          <div className="flex-1 space-y-4">
+            <div className="flex justify-between items-start gap-1">
+              <div className="flex items-center gap-2 flex-1">
+                <div
+                  {...attributes}
+                  {...listeners}
+                  className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+                >
+                  <GripVertical className="h-4 w-4 text-muted-foreground" />
+                </div>
+                <Input
+                  id={`question-${field.id}`}
+                  value={field.question}
+                  onChange={(e) =>
+                    onFieldUpdate(field.id, { question: e.target.value })
+                  }
+                  className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
+                  placeholder="Question"
+                />
+              </div>
+              <div className="flex items-center gap-1">
+                <Select
+                  value={field.inputType}
+                  onValueChange={(value) =>
+                    onFieldUpdate(field.id, {
+                      inputType: value as FormField['inputType'],
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-9 h-9 p-0 justify-center border-0 shadow-none focus-visible:ring-0">
+                    <SelectValue asChild>
+                      <Icon className="h-4 w-4" />
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Object.entries(inputTypeIcons).map(
+                      ([key, IconComponent]) => (
+                        <SelectItem key={key} value={key}>
+                          <div className="flex items-center gap-2">
+                            <IconComponent className="h-4 w-4" />
+                            <span>
+                              {key.charAt(0).toUpperCase() + key.slice(1)}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectContent>
+                </Select>
+                <AlertDialog>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-9 w-9 shrink-0"
+                      >
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent>
+                      <DropdownMenuItem
+                        onClick={() => onFieldDuplicate(field.id)}
+                      >
+                        <Copy className="mr-2 h-4 w-4" />
+                        <span>Duplicate</span>
+                      </DropdownMenuItem>
+                      <AlertDialogTrigger asChild>
+                        <DropdownMenuItem className="text-destructive focus:text-destructive">
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          <span>Delete</span>
+                        </DropdownMenuItem>
+                      </AlertDialogTrigger>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="font-headline">
+                        Are you sure?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will
+                        permanently delete this form field.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onFieldRemove(field.id)}
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
+            </div>
+            {field.inputType === 'select' && (
+              <div className="space-y-2 pl-2">
+                {field.options?.map((option, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <Input
+                      value={option}
+                      onChange={(e) =>
+                        onOptionUpdate(field.id, i, e.target.value)
+                      }
+                      placeholder={`Option ${i + 1}`}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-9 w-9 shrink-0"
+                      onClick={() => onOptionRemove(field.id, i)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onOptionAdd(field.id)}
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Add Option
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2">
+            <div
+              {...attributes}
+              {...listeners}
+              className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded"
+            >
+              <GripVertical className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="flex-1">
+              <p className="font-medium">{field.question}</p>
+              <p className="text-sm text-muted-foreground mt-2 border-b border-dashed">
+                {inputTypePlaceholders[field.inputType]}
+              </p>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
 }
 
 const inputTypePlaceholders: Record<FormField['inputType'], string> = {
@@ -93,6 +321,26 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
     null
   );
   const { toast } = useToast();
+
+  // Analytics tracking
+  const tracking = useFieldTracking(formFlowData.id || '', undefined);
+
+  // Enhanced field click handler with tracking
+  const handleFieldClick = (fieldId: string) => {
+    setActiveFieldId(fieldId);
+    const field = formFlow.find(f => f.id === fieldId);
+    if (field) {
+      tracking.trackFieldFocus(fieldId, field.inputType);
+    }
+  };
+
+  // Drag and drop sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
   
   React.useEffect(() => {
     if (formFlow.length > 0 && !activeFieldId) {
@@ -352,6 +600,25 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
     });
   }
 
+  // Handle drag end event
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setFormFlowData((prevData) => {
+        if (!prevData) return null;
+        
+        const oldIndex = prevData.flow.findIndex((field) => field.id === active.id);
+        const newIndex = prevData.flow.findIndex((field) => field.id === over.id);
+
+        return {
+          ...prevData,
+          flow: arrayMove(prevData.flow, oldIndex, newIndex),
+        };
+      });
+    }
+  };
+
   return (
     <Card className="h-full overflow-hidden flex flex-col bg-card border-0 shadow-none">
       <CardHeader className="p-4 border-b">
@@ -501,154 +768,31 @@ export function FormEditor({ formFlowData, setFormFlowData }: Props) {
           />
         </div>
 
-        {formFlow.map((field) => {
-          const Icon = inputTypeIcons[field.inputType];
-          return (
-            <div
-              key={field.id}
-              className={cn(
-                'rounded-lg bg-background border transition-all relative',
-                activeFieldId === field.id && 'border-primary shadow-md'
-              )}
-              onClick={() => setActiveFieldId(field.id)}
-            >
-              {activeFieldId === field.id && (
-                <div className="absolute left-0 top-0 bottom-0 w-1 bg-primary rounded-l-lg"></div>
-              )}
-              <div className="p-3 md:p-4">
-                {activeFieldId === field.id ? (
-                  <div className="flex-1 space-y-4">
-                    <div className="flex justify-between items-start gap-1">
-                      <Input
-                        id={`question-${field.id}`}
-                        value={field.question}
-                        onChange={(e) =>
-                          updateField(field.id, { question: e.target.value })
-                        }
-                        className="text-base font-medium flex-grow border-0 shadow-none focus-visible:ring-0 p-0"
-                        placeholder="Question"
-                      />
-                      <div className="flex items-center gap-1">
-                        <Select
-                          value={field.inputType}
-                          onValueChange={(value) =>
-                            updateField(field.id, {
-                              inputType: value as FormField['inputType'],
-                            })
-                          }
-                        >
-                          <SelectTrigger className="w-9 h-9 p-0 justify-center border-0 shadow-none focus-visible:ring-0">
-                            <SelectValue asChild>
-                              <Icon className="h-4 w-4" />
-                            </SelectValue>
-                          </SelectTrigger>
-                          <SelectContent>
-                            {Object.entries(inputTypeIcons).map(
-                              ([key, IconComponent]) => (
-                                <SelectItem key={key} value={key}>
-                                  <div className="flex items-center gap-2">
-                                    <IconComponent className="h-4 w-4" />
-                                    <span>
-                                      {key.charAt(0).toUpperCase() + key.slice(1)}
-                                    </span>
-                                  </div>
-                                </SelectItem>
-                              )
-                            )}
-                          </SelectContent>
-                        </Select>
-                        <AlertDialog>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-9 w-9 shrink-0"
-                              >
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              <DropdownMenuItem
-                                onClick={() => duplicateField(field.id)}
-                              >
-                                <Copy className="mr-2 h-4 w-4" />
-                                <span>Duplicate</span>
-                              </DropdownMenuItem>
-                              <AlertDialogTrigger asChild>
-                                <DropdownMenuItem className="text-destructive focus:text-destructive">
-                                  <Trash2 className="mr-2 h-4 w-4" />
-                                  <span>Delete</span>
-                                </DropdownMenuItem>
-                              </AlertDialogTrigger>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle className="font-headline">
-                                Are you sure?
-                              </AlertDialogTitle>
-                              <AlertDialogDescription>
-                                This action cannot be undone. This will
-                                permanently delete this form field.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => removeField(field.id)}
-                              >
-                                Delete
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
-                    </div>
-                    {field.inputType === 'select' && (
-                      <div className="space-y-2 pl-2">
-                        {field.options?.map((option, i) => (
-                          <div key={i} className="flex items-center gap-2">
-                            <Input
-                              value={option}
-                              onChange={(e) =>
-                                updateOption(field.id, i, e.target.value)
-                              }
-                              placeholder={`Option ${i + 1}`}
-                            />
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              className="h-9 w-9 shrink-0"
-                              onClick={() => removeOption(field.id, i)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </div>
-                        ))}
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => addOption(field.id)}
-                        >
-                          <Plus className="mr-2 h-4 w-4" /> Add Option
-                        </Button>
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div>
-                    <p className="font-medium">{field.question}</p>
-                    <p className="text-sm text-muted-foreground mt-2 border-b border-dashed">
-                      {inputTypePlaceholders[field.inputType]}
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleDragEnd}
+        >
+          <SortableContext
+            items={formFlow.map(field => field.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {formFlow.map((field) => (
+              <SortableFieldItem
+                key={field.id}
+                field={field}
+                isActive={activeFieldId === field.id}
+                onFieldClick={handleFieldClick}
+                onFieldUpdate={updateField}
+                onFieldRemove={removeField}
+                onFieldDuplicate={duplicateField}
+                onOptionAdd={addOption}
+                onOptionUpdate={updateOption}
+                onOptionRemove={removeOption}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
         <Button onClick={addField} variant="secondary" className="w-full">
           <Plus className="mr-2 h-4 w-4" /> Add Question
         </Button>

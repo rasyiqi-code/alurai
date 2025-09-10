@@ -1,0 +1,79 @@
+# Creem
+
+## Docs
+
+- [Api Keys](https://docs.creem.io/api-keys.md): Learn how to generate and use your API key
+- [Activate License Key](https://docs.creem.io/api-reference/endpoint/activate-license.md)
+- [Cancel Subscription](https://docs.creem.io/api-reference/endpoint/cancel-subscription.md)
+- [Create Checkout Session](https://docs.creem.io/api-reference/endpoint/create-checkout.md)
+- [Create Discount Code](https://docs.creem.io/api-reference/endpoint/create-discount-code.md)
+- [Create Product](https://docs.creem.io/api-reference/endpoint/create-product.md)
+- [Deactivate License Key](https://docs.creem.io/api-reference/endpoint/deactivate-license.md)
+- [Delete Discount Code](https://docs.creem.io/api-reference/endpoint/delete-discount-code.md)
+- [Get Checkout Session](https://docs.creem.io/api-reference/endpoint/get-checkout.md)
+- [Get Customer](https://docs.creem.io/api-reference/endpoint/get-customer.md)
+- [Get Discount Code](https://docs.creem.io/api-reference/endpoint/get-discount-code.md)
+- [Get Product](https://docs.creem.io/api-reference/endpoint/get-product.md)
+- [Get Subscription](https://docs.creem.io/api-reference/endpoint/get-subscription.md)
+- [List Transactions](https://docs.creem.io/api-reference/endpoint/get-transactions.md)
+- [List Products](https://docs.creem.io/api-reference/endpoint/search-products.md)
+- [Update Subscription](https://docs.creem.io/api-reference/endpoint/update-subscription.md)
+- [Upgrade Subscription](https://docs.creem.io/api-reference/endpoint/upgrade-subscription.md)
+- [Validate License Key](https://docs.creem.io/api-reference/endpoint/validate-license.md)
+- [Introduction](https://docs.creem.io/api-reference/introduction.md): Understand general concepts, response codes, and authentication strategies.
+- [Standard Integration](https://docs.creem.io/checkout-flow.md): Learn how to receive payments on your application
+- [Account Reviews](https://docs.creem.io/faq/account-reviews/account-reviews.md): Learn how account reviews work on Creem.
+- [AI Wrapper Compliance](https://docs.creem.io/faq/account-reviews/ai-wrapper-compliance.md): Understand the compliance requirements for building AI wrapper products on Creem.
+- [Prohibited Products](https://docs.creem.io/faq/prohibited-products.md): Learn what products are prohibited on Creem.
+- [Supported Countries](https://docs.creem.io/faq/supported-countries.md): Creem supports merchants and affiliates in hundreds of countries. Find out if your country is supported for payouts and purchases.
+- [Overview](https://docs.creem.io/features/custom-fields/overview.md): Enable custom fields on product checkout sessions.
+- [Overview](https://docs.creem.io/features/downloads/overview.md): Allow customers to download protected files after product purchase."
+
+- [Introduction](https://docs.creem.io/features/introduction.md): Understand what are, and how to use product features.
+- [Activate License](https://docs.creem.io/features/licenses/activate.md): Activate a license key from your customer."
+
+- [Deactivate License](https://docs.creem.io/features/licenses/deactivate.md): Deactivate a license key instance from your customer."
+
+- [Introduction](https://docs.creem.io/features/licenses/introduction.md): Use the license key feature to enable access to your products."
+
+- [Validate License](https://docs.creem.io/features/licenses/validate.md): Validate a license key from your customer."
+
+- [Overview](https://docs.creem.io/features/private-notes/overview.md): Display private notes for users after they complete a purchase of your product."
+
+- [Merchant of Record](https://docs.creem.io/finance/merchant-of-record.md): A quick overview of the Merchant of Record framework.
+- [Payments](https://docs.creem.io/finance/payments.md): What happens when a payment is processed through Creem
+- [Payouts](https://docs.creem.io/finance/payouts.md): How payouts from Creem work.
+- [Refunds and Chargebacks](https://docs.creem.io/finance/refunds.md): How Creem handles refunds and chargebacks.
+- [How to cancel a subscription](https://docs.creem.io/for-customers/how-to-cancel-subscription.md): Learn how to easily manage your orders.
+- [How to update payment method](https://docs.creem.io/for-customers/how-to-update-payment-method.md): Learn how to easily manage your active subscription.
+- [Why did Creem charge me](https://docs.creem.io/for-customers/why-creem-charged-me.md): Why do I have a charge from CREEM.IO* STORE?.
+- [Affilliates](https://docs.creem.io/integrations/affiliates.md): Create affiliate programs while processing transactions through Creem.
+- [AI Negotiation bot](https://docs.creem.io/integrations/ai-negotiation.md): Let your customers negotiate with an AI bot and increase your conversions.
+- [Introduction](https://docs.creem.io/introduction.md): Creem is the payment partner you always deserved, we strive for simplicity and straightforwardness on our APIs.
+- [One Time Payments](https://docs.creem.io/learn/billing/one-time-payment.md): One Time Payments in Creem allow you to accept single, non-recurring payments for your products and services. This documentation will guide you through the key concepts and implementation details of the one-time payment system.
+- [Seat Based Billing](https://docs.creem.io/learn/billing/seat-based-billing.md): Seat Based Billing in Creem enables you to charge customers based on the number of seats or users they need, supporting both one-time payments and subscription models. This documentation explains how to implement and manage seat-based billing for your products.
+- [Product Bundles](https://docs.creem.io/learn/billing/subscriptions/bundles.md): Learn how to create and manage Product Bundles to organize your offerings in Creem
+- [Introduction](https://docs.creem.io/learn/billing/subscriptions/introduction.md): Subscriptions in Creem allow you to create recurring payment plans for your products and services. This documentation will guide you through the key concepts and implementation details of the subscription system.
+- [Subscription Upgrades](https://docs.creem.io/learn/billing/subscriptions/upgrades.md): Learn how to manage subscription upgrades and downgrades using Product Bundles in Creem
+- [null](https://docs.creem.io/learn/billing/upsells.md)
+- [Introduction](https://docs.creem.io/learn/checkout-session/introduction.md): Create checkout sessions for each payment and user independently.
+- [Return URLs](https://docs.creem.io/learn/checkout-session/return-url.md): Understand how to redirect users back to your website after a successful payment.
+- [Customer Portal](https://docs.creem.io/learn/customers/customer-portal.md): Customers can cancel and refund subscriptions by themselves.
+- [Introduction](https://docs.creem.io/learn/customers/introduction.md): Customers can be queried by your application to refresh statuses and can do actions by themselves using the Customer Portal.
+- [Branding Customization](https://docs.creem.io/learn/customization/branding.md): Customize your checkout and email receipts with your brand logo, colors, and theme for a seamless customer experience.
+- [Payment Links Customization](https://docs.creem.io/learn/customization/payment-links.md): Learn how to use and customize Payment Links in Creem for no-code, flexible payment flows.
+- [Introduction](https://docs.creem.io/learn/splits/introduction.md): Revenue Splits in Creem allow you to automatically distribute payments between multiple recipients. This documentation will guide you through the key concepts and answer most common questions.
+- [Event Types](https://docs.creem.io/learn/webhooks/event-types.md): List of supported event types and their payloads.
+- [Introduction](https://docs.creem.io/learn/webhooks/introduction.md): Use webhooks to notify your application about payment events."
+
+- [Verify Webhook Requests](https://docs.creem.io/learn/webhooks/verify-webhook-requests.md): How to verify Creem signature on webhook objects.
+- [Quickstart](https://docs.creem.io/quickstart.md): Learn how to receive your first payment in under 10 minutes
+- [Creem Next.js Template](https://docs.creem.io/sdk/nextjs-template.md): A modern Next.js App Router template for integrating Creem subscriptions and payments with Prisma, Shadcn UI, Radix UI, and Tailwind.
+- [Typescript SDK](https://docs.creem.io/sdk/typescript-sdk.md): Type-safe SDK for the Creem API – manage SaaS subscriptions, products, and revenue in TypeScript/Node.js environments.
+- [Test Mode](https://docs.creem.io/test-mode.md): Simulate payments and any functionality in a test environment
+
+
+## Optional
+
+- [Community](https://discord.gg/q3GKZs92Av)
+- [Blog](https://creem.io/blog)

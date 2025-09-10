@@ -1,0 +1,36 @@
+# Gemini AI Configuration
+GEMINI_API_KEY=AIzaSyDDUogjwHufFtORzzE-ftPQhxJuSw2ZVe4
+
+NEXT_PUBLIC_STACK_PROJECT_ID=8f78ef0b-1b4b-419e-862c-501ee10902bb
+NEXT_PUBLIC_STACK_PUBLISHABLE_CLIENT_KEY=pck_bkm9rcteyxwjrbp9qz6210mdj79c9zdg6vg5840x5ast0
+STACK_SECRET_SERVER_KEY=ssk_dne8ktjq82jmx842q3ff4nbxfnxyerkh646pkxjqpds10
+
+# Firebase Configuration (for Firestore database only)
+NEXT_PUBLIC_FIREBASE_API_KEY=AIzaSyBvOiM2Q3J4K5L6M7N8O9P0Q1R2S3T4U5V
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=formflow-ai-966kl.firebaseapp.com
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=formflow-ai-966kl
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=formflow-ai-966kl.appspot.com
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=123456789012
+NEXT_PUBLIC_FIREBASE_APP_ID=1:123456789012:web:abcdef123456789012345
+
+# App Configuration
+NEXT_PUBLIC_APP_URL=https://alurai.breaktool.com/
+
+# Creem Payment Gateway Configuration
+STORE_ID=sto_3Bamugm5yFPwT8qxyktOPr
+CREEM_API_KEY=creem_6HllPLe5Ak9ZBcJR1uQzGq
+CREEM_BASE_URL=https://api.creem.io
+CREEM_PRO_PRODUCT_ID=prod_6y3sGZbUwClx24DbQVBYwj
+CREEM_CHECKOUT_URL=https://www.creem.io/payment/prod_6y3sGZbUwClx24DbQVBYwj
+
+#webhook_creem = http://localhost:9003/api/webhooks/creem
+#Return_URL = https://localhost:9003/dashboard?payment=success&plan=pro
+
+
+# MinIO Configuration (Pure MinIO - No AWS)
+# Kredensial MinIO dari VPS
+MINIO_ACCESS_KEY=4LoFSoxPUWh7CFR0otBd
+MINIO_SECRET_KEY=B2lg1xWuWvkq7vzx0dgfDUuRIt0INvzOfZjdo0S2
+NEXT_PUBLIC_AWS_REGION=us-east-1
+NEXT_PUBLIC_MINIO_BUCKET_NAME=alur-ai
+NEXT_PUBLIC_MINIO_ENDPOINT=https://storage-api.crediblemark.com

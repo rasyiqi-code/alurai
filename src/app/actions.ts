@@ -9,12 +9,30 @@ import { toCamelCase } from '@/lib/utils';
 import { db } from '@/lib/firebase';
 import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit, collectionGroup,getCountFromServer } from 'firebase/firestore';
 import { stackServerApp } from '@/stack';
+import { SubscriptionService } from '@/lib/subscription-service';
 
 
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
   try {
     const result = await generateFormFlowFromDescription({ description });
-    const parsedResult = JSON.parse(result.formFlow);
+    console.log('AI Generator result:', result);
+    
+    if (!result.formFlow) {
+      return { error: 'AI generator returned empty result' };
+    }
+    
+    let parsedResult;
+    try {
+      parsedResult = JSON.parse(result.formFlow);
+    } catch (parseError) {
+      console.error('JSON parse error:', parseError);
+      console.error('Raw formFlow:', result.formFlow);
+      return { error: 'Invalid JSON format from AI generator' };
+    }
+
+    if (!parsedResult.title || !parsedResult.flow || !Array.isArray(parsedResult.flow)) {
+      return { error: 'Invalid form structure from AI generator' };
+    }
 
     // Add id and key to each field
     const flowWithIds = parsedResult.flow.map((field: any, index: number) => ({
@@ -31,7 +49,7 @@ export async function generateFormAction(description: string): Promise<string | 
     
     return JSON.stringify(finalData);
   } catch (error) {
-    console.error(error);
+    console.error('Form generation error:', error);
     return { error: 'Failed to generate form. Please try again.' };
   }
 }
@@ -85,6 +103,12 @@ export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: 
       await setDoc(formRef, updateData, { merge: true });
       return { id };
     } else {
+      // Check if user can create a new form
+      const canCreate = await SubscriptionService.canPerformAction(user.id, 'create_form', 1);
+      if (!canCreate.allowed) {
+        return { error: canCreate.reason || 'Form limit exceeded' };
+      }
+
       // Create new document with userId
       const createData = { 
         ...dataToSave, 
@@ -94,6 +118,10 @@ export async function saveFormAction(formFlowData: FormFlowData): Promise<{ id: 
       createData.slug = ''; // Initialize slug for new forms
       createData.status = 'draft';
       const docRef = await addDoc(collection(db, 'forms'), createData);
+      
+      // Track form creation usage
+      await SubscriptionService.updateUsage(user.id, { formsCreated: 1 });
+      
       return { id: docRef.id };
     }
   } catch (error) {
@@ -244,6 +272,23 @@ export async function getFormBySlugAction(slug: string): Promise<FormFlowData | 
 
 export async function saveSubmissionAction(formId: string, answers: FormAnswers): Promise<{ id: string } | { error: string }> {
   try {
+    // Get the form to find the owner
+    const formRef = doc(db, 'forms', formId);
+    const formDoc = await getDoc(formRef);
+    
+    if (!formDoc.exists()) {
+      return { error: 'Form not found' };
+    }
+    
+    const formData = formDoc.data();
+    const formOwnerId = formData.userId;
+    
+    // Check if form owner can receive a response
+    const canReceive = await SubscriptionService.canPerformAction(formOwnerId, 'receive_response', 1);
+    if (!canReceive.allowed) {
+      return { error: canReceive.reason || 'Response limit exceeded' };
+    }
+
     const sanitizedAnswers: Record<string, any> = {};
     for (const key in answers) {
       const value = answers[key];
@@ -269,6 +314,10 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
     };
     
     const submissionRef = await addDoc(collection(db, 'forms', formId, 'submissions'), submissionData);
+    
+    // Track response usage for the form owner
+    await SubscriptionService.updateUsage(formOwnerId, { responsesReceived: 1 });
+    
     return { id: submissionRef.id };
 
   } catch (error) {
@@ -346,44 +395,184 @@ export async function validateAnswerAction(
 export async function getAnalyticsOverviewAction(): Promise<{
   totalForms: number;
   totalSubmissions: number;
+  totalViews: number;
+  totalCompletions: number;
+  avgConversionRate: number;
+  avgCompletionRate: number;
+  avgBounceRate: number;
   mostSubmittedForm: { title: string; count: number; id: string; } | null;
+  trends: {
+    views: { current: number; previous: number; change: number };
+    submissions: { current: number; previous: number; change: number };
+    conversion: { current: number; previous: number; change: number };
+  };
+  deviceBreakdown: {
+    desktop: number;
+    mobile: number;
+    tablet: number;
+  };
+  countryBreakdown: Record<string, number>;
+  hourlyActivity: Record<string, number>;
 } | { error: string }> {
   try {
-    // 1. Get all forms
-    const formsCollection = collection(db, 'forms');
-    const formsSnapshot = await getDocs(formsCollection);
-    const totalForms = formsSnapshot.size;
+    // Get current user
+    const user = await stackServerApp.getUser();
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
 
-    // 2. Iterate and sum up submissions
-    let totalSubmissions = 0;
-    let mostSubmittedForm: { title: string; count: number; id: string } | null = null;
-    let maxSubmissions = -1;
+    // Use the new AnalyticsService for real data
+    const { AnalyticsService } = await import('@/lib/analytics-service');
+    const overview = await AnalyticsService.getAnalyticsOverview(user.id, 30);
+    
+    if (!overview) {
+      // Fallback to basic data if no analytics available
+      const formsCollection = collection(db, 'forms');
+      const q = query(formsCollection, where('userId', '==', user.id));
+      const formsSnapshot = await getDocs(q);
+      const totalForms = formsSnapshot.size;
 
-    for (const formDoc of formsSnapshot.docs) {
-      const submissionsCollection = collection(db, 'forms', formDoc.id, 'submissions');
-      const snapshot = await getCountFromServer(submissionsCollection);
-      const submissionCount = snapshot.data().count;
-      
-      totalSubmissions += submissionCount;
+      let totalSubmissions = 0;
+      let mostSubmittedForm: { title: string; count: number; id: string } | null = null;
+      let maxSubmissions = -1;
 
-      if (submissionCount > maxSubmissions) {
-        maxSubmissions = submissionCount;
-        mostSubmittedForm = { 
-          id: formDoc.id,
-          title: formDoc.data().title, 
-          count: submissionCount 
-        };
+      for (const formDoc of formsSnapshot.docs) {
+        const submissionsCollection = collection(db, 'forms', formDoc.id, 'submissions');
+        const snapshot = await getCountFromServer(submissionsCollection);
+        const submissionCount = snapshot.data().count;
+        
+        totalSubmissions += submissionCount;
+
+        if (submissionCount > maxSubmissions) {
+          maxSubmissions = submissionCount;
+          mostSubmittedForm = { 
+            id: formDoc.id,
+            title: formDoc.data().title, 
+            count: submissionCount 
+          };
+        }
       }
+
+      return {
+        totalForms,
+        totalSubmissions,
+        totalViews: 0,
+        totalCompletions: 0,
+        avgConversionRate: 0,
+        avgCompletionRate: 0,
+        avgBounceRate: 0,
+        mostSubmittedForm,
+        trends: {
+          views: { current: 0, previous: 0, change: 0 },
+          submissions: { current: 0, previous: 0, change: 0 },
+          conversion: { current: 0, previous: 0, change: 0 }
+        },
+        deviceBreakdown: { desktop: 0, mobile: 0, tablet: 0 },
+        countryBreakdown: {},
+        hourlyActivity: {}
+      };
     }
 
     return {
-      totalForms,
-      totalSubmissions,
-      mostSubmittedForm,
+      totalForms: overview.totalForms,
+      totalSubmissions: overview.totalSubmissions,
+      totalViews: overview.totalViews,
+      totalCompletions: overview.totalCompletions,
+      avgConversionRate: overview.avgConversionRate,
+      avgCompletionRate: overview.avgCompletionRate,
+      avgBounceRate: overview.avgBounceRate,
+      mostSubmittedForm: overview.mostPopularForm ? {
+        id: overview.mostPopularForm.id,
+        title: overview.mostPopularForm.title,
+        count: overview.mostPopularForm.submissions
+      } : null,
+      trends: overview.trends,
+      deviceBreakdown: overview.deviceBreakdown,
+      countryBreakdown: overview.countryBreakdown,
+      hourlyActivity: overview.hourlyActivity
     };
 
   } catch (error) {
     console.error('Error fetching analytics overview:', error);
     return { error: 'Failed to fetch analytics overview data.' };
+  }
+}
+
+export async function getFormAnalyticsAction(formId: string, days: number = 30): Promise<{
+  formId: string;
+  totalViews: number;
+  totalSubmissions: number;
+  totalCompletions: number;
+  conversionRate: number;
+  completionRate: number;
+  avgCompletionTime: number;
+  avgFieldsCompleted: number;
+  bounceRate: number;
+  lastUpdated: Date;
+  dailyData: Array<{
+    id: string;
+    formId: string;
+    date: string;
+    views: number;
+    submissions: number;
+    completions: number;
+    abandonmentRate: number;
+    avgCompletionTime: number;
+    avgFieldsCompleted: number;
+    deviceBreakdown: {
+      desktop: number;
+      mobile: number;
+      tablet: number;
+    };
+    countryBreakdown: Record<string, number>;
+    hourlyBreakdown: Record<string, number>;
+  }>;
+} | { error: string }> {
+  try {
+    // Get current user
+    const user = await stackServerApp.getUser();
+    if (!user) {
+      return { error: 'User not authenticated' };
+    }
+
+    // Verify form ownership
+    const formRef = doc(db, 'forms', formId);
+    const formDoc = await getDoc(formRef);
+    
+    if (!formDoc.exists()) {
+      return { error: 'Form not found' };
+    }
+    
+    const formData = formDoc.data();
+    if (formData.userId !== user.id) {
+      return { error: 'Unauthorized to view this form analytics' };
+    }
+
+    // Use the new AnalyticsService for real data
+    const { AnalyticsService } = await import('@/lib/analytics-service');
+    const formAnalytics = await AnalyticsService.getFormAnalytics(formId, days);
+    
+    // If AnalyticsService returns null, return empty data structure
+    if (!formAnalytics) {
+      return {
+        formId,
+        totalViews: 0,
+        totalSubmissions: 0,
+        totalCompletions: 0,
+        conversionRate: 0,
+        completionRate: 0,
+        avgCompletionTime: 0,
+        avgFieldsCompleted: 0,
+        bounceRate: 0,
+        lastUpdated: new Date(),
+        dailyData: []
+      };
+    }
+    
+    return formAnalytics;
+
+  } catch (error) {
+    console.error('Error fetching form analytics:', error);
+    return { error: 'Failed to fetch form analytics data.' };
   }
 }

@@ -1,4 +1,4 @@
-import { getFormsAction, getAnalyticsOverviewAction } from '@/app/actions';
+import { getFormsAction, getAnalyticsOverviewAction, getFormAnalyticsAction } from '@/app/actions';
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -7,6 +7,11 @@ import { BarChart, Eye, MessageSquare, FileText, Star, TrendingUp, Clock, Users,
 import Link from 'next/link';
 import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils';
 import type { Metadata } from 'next';
+import { stackServerApp } from '@/stack';
+import { redirect } from 'next/navigation';
+import { SubscriptionService } from '@/lib/subscription-service';
+import { AnalyticsWrapper } from '@/components/analytics/AnalyticsWrapper';
+import { FormAnalyticsCard } from '@/components/analytics/FormAnalyticsCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,6 +25,15 @@ export const metadata: Metadata = generateSEOMetadata({
 });
 
 export default async function AnalyticsDashboardPage() {
+  const user = await stackServerApp.getUser();
+  
+  if (!user) {
+    redirect('/login');
+  }
+
+  // Get user subscription for premium features
+  const subscription = await SubscriptionService.getUserSubscription(user.id);
+  
   const formsResult = await getFormsAction();
   const overviewResult = await getAnalyticsOverviewAction();
 
@@ -42,7 +56,20 @@ export default async function AnalyticsDashboardPage() {
   }
 
   const forms: FormFlowData[] = formsResult;
-  const { totalForms, totalSubmissions, mostSubmittedForm } = overviewResult;
+  const { 
+    totalForms, 
+    totalSubmissions, 
+    totalViews,
+    totalCompletions,
+    avgConversionRate,
+    avgCompletionRate,
+    avgBounceRate,
+    mostSubmittedForm,
+    trends,
+    deviceBreakdown,
+    countryBreakdown,
+    hourlyActivity
+  } = overviewResult;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -72,7 +99,9 @@ export default async function AnalyticsDashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">{totalForms}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-green-600">+2</span> from last month
+                            <span className={trends.views.change >= 0 ? "text-green-600" : "text-red-600"}>
+                                {trends.views.change >= 0 ? "+" : ""}{trends.views.change.toFixed(1)}%
+                            </span> from last period
                         </p>
                     </CardContent>
                 </Card>
@@ -84,7 +113,9 @@ export default async function AnalyticsDashboardPage() {
                     <CardContent>
                         <div className="text-2xl font-bold">{totalSubmissions}</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-green-600">+12%</span> from last week
+                            <span className={trends.submissions.change >= 0 ? "text-green-600" : "text-red-600"}>
+                                {trends.submissions.change >= 0 ? "+" : ""}{trends.submissions.change.toFixed(1)}%
+                            </span> from last period
                         </p>
                     </CardContent>
                 </Card>
@@ -94,9 +125,11 @@ export default async function AnalyticsDashboardPage() {
                         <Target className="h-4 w-4 text-muted-foreground" />
                     </CardHeader>
                     <CardContent>
-                        <div className="text-2xl font-bold">{totalForms > 0 ? Math.round((totalSubmissions / (totalForms * 10)) * 100) : 0}%</div>
+                        <div className="text-2xl font-bold">{avgConversionRate.toFixed(1)}%</div>
                         <p className="text-xs text-muted-foreground">
-                            <span className="text-green-600">+5.2%</span> from average
+                            <span className={trends.conversion.change >= 0 ? "text-green-600" : "text-red-600"}>
+                                {trends.conversion.change >= 0 ? "+" : ""}{trends.conversion.change.toFixed(1)}%
+                            </span> from last period
                         </p>
                     </CardContent>
                 </Card>
@@ -128,22 +161,33 @@ export default async function AnalyticsDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-3">
-                            {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day, index) => {
-                                const value = Math.floor(Math.random() * 10) + 1;
-                                const percentage = (value / 10) * 100;
-                                return (
-                                    <div key={day} className="flex items-center gap-3">
-                                        <div className="w-16 text-sm text-muted-foreground">{day}</div>
-                                        <div className="flex-1 bg-secondary rounded-full h-2">
-                                            <div 
-                                                className="bg-primary h-2 rounded-full transition-all" 
-                                                style={{ width: `${percentage}%` }}
-                                            />
-                                        </div>
-                                        <div className="w-8 text-sm font-medium">{value}</div>
-                                    </div>
-                                );
-                            })}
+                            {Object.entries(hourlyActivity).length > 0 ? (
+                                Object.entries(hourlyActivity)
+                                    .sort(([a], [b]) => parseInt(a) - parseInt(b))
+                                    .slice(0, 7)
+                                    .map(([hour, count]) => {
+                                        const maxCount = Math.max(...Object.values(hourlyActivity));
+                                        const percentage = maxCount > 0 ? (count / maxCount) * 100 : 0;
+                                        const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+                                        const dayIndex = parseInt(hour) % 7;
+                                        return (
+                                            <div key={hour} className="flex items-center gap-3">
+                                                <div className="w-16 text-sm text-muted-foreground">{dayNames[dayIndex]}</div>
+                                                <div className="flex-1 bg-secondary rounded-full h-2">
+                                                    <div 
+                                                        className="bg-primary h-2 rounded-full transition-all" 
+                                                        style={{ width: `${percentage}%` }}
+                                                    />
+                                                </div>
+                                                <div className="w-8 text-sm font-medium">{count}</div>
+                                            </div>
+                                        );
+                                    })
+                            ) : (
+                                <div className="text-center text-muted-foreground py-4">
+                                    No activity data available yet
+                                </div>
+                            )}
                         </div>
                     </CardContent>
                 </Card>
@@ -165,21 +209,21 @@ export default async function AnalyticsDashboardPage() {
                                     <p className="text-sm font-medium">Completion Rate</p>
                                     <p className="text-xs text-muted-foreground">Percentage of forms completed</p>
                                 </div>
-                                <div className="text-2xl font-bold text-green-600">87%</div>
+                                <div className="text-2xl font-bold text-green-600">{avgCompletionRate.toFixed(1)}%</div>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="text-sm font-medium">Bounce Rate</p>
                                     <p className="text-xs text-muted-foreground">Visitors who leave immediately</p>
                                 </div>
-                                <div className="text-2xl font-bold text-red-600">13%</div>
+                                <div className="text-2xl font-bold text-red-600">{avgBounceRate.toFixed(1)}%</div>
                             </div>
                             <div className="flex items-center justify-between">
                                 <div>
-                                    <p className="text-sm font-medium">Avg. Fields Completed</p>
-                                    <p className="text-xs text-muted-foreground">Average fields completed</p>
+                                    <p className="text-sm font-medium">Total Views</p>
+                                    <p className="text-xs text-muted-foreground">Total form views</p>
                                 </div>
-                                <div className="text-2xl font-bold text-blue-600">8.2</div>
+                                <div className="text-2xl font-bold text-blue-600">{totalViews}</div>
                             </div>
                         </div>
                     </CardContent>
@@ -218,85 +262,9 @@ export default async function AnalyticsDashboardPage() {
                 </CardHeader>
                 <CardContent>
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
-                        {forms.map(form => {
-                            const submissionCount = form.submissionCount ?? 0;
-                            const conversionRate = submissionCount > 0 ? Math.floor(Math.random() * 30) + 60 : 0;
-                            const avgTime = `${Math.floor(Math.random() * 3) + 1}.${Math.floor(Math.random() * 9)}m`;
-                            
-                            return (
-                                <div key={form.id} className="relative group border border-border/50 rounded-xl p-6 bg-gradient-to-br from-card to-card/80 hover:from-accent/20 hover:to-accent/10 hover:border-primary/20 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-1">
-                                    <div className="flex items-center justify-between mb-4">
-                                        <div className="space-y-1">
-                                            <h3 className="font-semibold text-lg font-headline bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">{form.title}</h3>
-                                            <p className="text-xs text-muted-foreground font-mono bg-muted/50 px-2 py-1 rounded-md inline-block">ID: {form.id?.slice(0, 8)}...</p>
-                                        </div>
-                                        <Button asChild size="sm" className="group-hover:shadow-md transition-shadow">
-                                            <Link href={`/analytics/${form.id}`}>
-                                                <Eye className="mr-2 h-4 w-4" /> Detail
-                                            </Link>
-                                        </Button>
-                                    </div>
-                                    
-                                    <div className="grid grid-cols-2 gap-3 text-sm">
-                                        <div className="flex flex-col sm:flex-row items-center sm:gap-3 gap-2 p-3 rounded-lg bg-blue-50/50 dark:bg-blue-950/20 border border-blue-200/30 dark:border-blue-800/30">
-                                            <div className="flex-shrink-0 p-2 rounded-md bg-blue-100 dark:bg-blue-900/50">
-                                                <MessageSquare className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                                            </div>
-                                            <div className="min-w-0 flex-1 text-center sm:text-left">
-                                                <p className="font-semibold text-blue-900 dark:text-blue-100 text-sm sm:text-base">{submissionCount}</p>
-                                                <p className="text-xs text-blue-600/70 dark:text-blue-400/70">Submissions</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="flex flex-col sm:flex-row items-center sm:gap-3 gap-2 p-3 rounded-lg bg-green-50/50 dark:bg-green-950/20 border border-green-200/30 dark:border-green-800/30">
-                                            <div className="flex-shrink-0 p-2 rounded-md bg-green-100 dark:bg-green-900/50">
-                                                <Target className="h-4 w-4 text-green-600 dark:text-green-400" />
-                                            </div>
-                                            <div className="min-w-0 flex-1 text-center sm:text-left">
-                                                <p className="font-semibold text-green-900 dark:text-green-100 text-sm sm:text-base">{conversionRate}%</p>
-                                                <p className="text-xs text-green-600/70 dark:text-green-400/70">Conversion</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="flex flex-col sm:flex-row items-center sm:gap-3 gap-2 p-3 rounded-lg bg-orange-50/50 dark:bg-orange-950/20 border border-orange-200/30 dark:border-orange-800/30">
-                                            <div className="flex-shrink-0 p-2 rounded-md bg-orange-100 dark:bg-orange-900/50">
-                                                <Clock className="h-4 w-4 text-orange-600 dark:text-orange-400" />
-                                            </div>
-                                            <div className="min-w-0 flex-1 text-center sm:text-left">
-                                                <p className="font-semibold text-orange-900 dark:text-orange-100 text-sm sm:text-base">{avgTime}</p>
-                                                <p className="text-xs text-orange-600/70 dark:text-orange-400/70">Avg. Time</p>
-                                            </div>
-                                        </div>
-                                        
-                                        <div className="flex flex-col sm:flex-row items-center sm:gap-3 gap-2 p-3 rounded-lg bg-purple-50/50 dark:bg-purple-950/20 border border-purple-200/30 dark:border-purple-800/30">
-                                            <div className="flex-shrink-0 p-2 rounded-md bg-purple-100 dark:bg-purple-900/50">
-                                                <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                                            </div>
-                                            <div className="min-w-0 flex-1 text-center sm:text-left">
-                                                <p className="font-semibold text-purple-900 dark:text-purple-100 text-sm sm:text-base">{Math.floor(Math.random() * 50) + 10}</p>
-                                                <p className="text-xs text-purple-600/70 dark:text-purple-400/70">Views</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {submissionCount > 0 ? (
-                                        <div className="mt-4 pt-4 border-t border-border/30">
-                                            <div className="flex items-center gap-2 text-xs bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/30 dark:to-emerald-950/30 px-3 py-2 rounded-lg border border-green-200/30 dark:border-green-800/30">
-                                                <Calendar className="h-3 w-3 text-green-600 dark:text-green-400" />
-                                                <span className="text-green-700 dark:text-green-300 font-medium">Last submission: {Math.floor(Math.random() * 7) + 1} days ago</span>
-                                            </div>
-                                        </div>
-                                    ) : (
-                                        <div className="mt-4 pt-4 border-t border-border/30">
-                                            <div className="flex items-center gap-2 text-xs bg-gradient-to-r from-gray-50 to-slate-50 dark:from-gray-950/30 dark:to-slate-950/30 px-3 py-2 rounded-lg border border-gray-200/30 dark:border-gray-800/30">
-                                                <MessageSquare className="h-3 w-3 text-gray-500 dark:text-gray-400" />
-                                                <span className="text-gray-600 dark:text-gray-400 font-medium">No submissions yet</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-                            );
-                        })}
+                        {forms.map(form => (
+                            <FormAnalyticsCard key={form.id} form={form} />
+                        ))}
                     </div>
                 </CardContent>
             </Card>
@@ -319,6 +287,13 @@ export default async function AnalyticsDashboardPage() {
             </CardContent>
           </Card>
         )}
+        
+        {/* Advanced Analytics Section - TEMPORARILY UNLOCKED FOR TESTING */}
+        <div className="mt-8">
+          <AnalyticsWrapper 
+            isPremium={true} // TEMPORARILY UNLOCKED FOR TESTING - Change back to subscription check when done
+          />
+        </div>
       </main>
     </div>
   );

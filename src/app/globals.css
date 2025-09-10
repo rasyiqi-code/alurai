@@ -2,7 +2,97 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Accessibility and Performance Enhancements */
 @layer base {
+  /* Focus management */
+  *:focus-visible {
+    outline: 2px solid theme('colors.primary.DEFAULT');
+    outline-offset: 2px;
+  }
+
+  /* High contrast mode support */
+  @media (prefers-contrast: high) {
+    .high-contrast {
+      --background: 0 0% 100%;
+      --foreground: 0 0% 0%;
+      --primary: 0 0% 0%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 0 0% 90%;
+      --secondary-foreground: 0 0% 0%;
+      --muted: 0 0% 95%;
+      --muted-foreground: 0 0% 0%;
+      --border: 0 0% 0%;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    .reduce-motion *,
+    .reduce-motion *::before,
+    .reduce-motion *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+    
+    body {
+      font-size: 12pt;
+      line-height: 1.4;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      page-break-after: avoid;
+    }
+    
+    img {
+      max-width: 100% !important;
+      page-break-inside: avoid;
+    }
+  }
+
+  /* Screen reader only content */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .sr-only:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+  }
+}
+
+@layer base {
+  /* Font fallbacks for better loading */
+  body {
+    font-family: var(--font-body), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading), system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
   :root {
     --background: 228 12.5% 97.8%; /* #F9FAFB */
     --foreground: 224 39% 11%; /* #111827 */

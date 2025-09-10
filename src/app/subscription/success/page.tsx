@@ -2,46 +2,83 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
+import { useUser } from '@stackframe/stack'
 import { Button } from '@/components/ui/button'
-import { Check, ArrowRight, Home } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Check, ArrowRight, Home, CheckCircle, Loader2 } from 'lucide-react'
+import { useSubscription } from '@/hooks/use-subscription'
 
 export default function SubscriptionSuccess() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const user = useUser()
+  const { refetch: fetchSubscriptionData } = useSubscription()
   const [loading, setLoading] = useState(true)
   const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    // Check if this is demo mode
-    const isDemo = searchParams.get('demo') === 'true'
-    const planName = searchParams.get('plan')
-    const priceId = searchParams.get('priceId')
-    
-    if (isDemo) {
-      setSubscriptionDetails({
-        isDemo: true,
-        planName: planName || 'Pro Plan',
-        priceId: priceId || 'demo_price_id',
-        transactionId: 'demo_txn_' + Date.now(),
-        message: 'Demo transaction - no actual payment processed'
-      })
-    } else {
-      // Get subscription details from URL parameters
-      const transactionId = searchParams.get('_ptxn')
-      const subscriptionId = searchParams.get('_psubscription')
-      const checkoutId = searchParams.get('_pcheckout')
+    const verifyPayment = async () => {
+      // Check if this is demo mode
+      const isDemo = searchParams.get('demo') === 'true'
+      const planName = searchParams.get('plan')
+      const priceId = searchParams.get('priceId')
       
-      if (transactionId || subscriptionId) {
+      if (isDemo) {
         setSubscriptionDetails({
-          transactionId,
-          subscriptionId,
-          checkoutId
+          isDemo: true,
+          planName: planName || 'Pro Plan',
+          priceId: priceId || 'demo_price_id',
+          transactionId: 'demo_txn_' + Date.now(),
+          message: 'Demo transaction - no actual payment processed'
         })
+        setLoading(false)
+        return
       }
+
+      // Handle Creem payment success
+      const sessionId = searchParams.get('session_id')
+      const checkoutId = searchParams.get('checkout_id')
+      
+      if (sessionId || checkoutId) {
+        if (!user) {
+          setError('Pengguna tidak terautentikasi')
+          setLoading(false)
+          return
+        }
+
+        try {
+          // Refresh subscription data untuk memastikan status terbaru
+          await fetchSubscriptionData()
+          setSubscriptionDetails({
+            sessionId,
+            checkoutId,
+            planName: planName || 'Premium Plan'
+          })
+        } catch (error) {
+          console.error('Error verifying payment:', error)
+          setError('Gagal memverifikasi pembayaran')
+        }
+      } else {
+        // Legacy support untuk parameter lama
+        const transactionId = searchParams.get('_ptxn')
+        const subscriptionId = searchParams.get('_psubscription')
+        const legacyCheckoutId = searchParams.get('_pcheckout')
+        
+        if (transactionId || subscriptionId) {
+          setSubscriptionDetails({
+            transactionId,
+            subscriptionId,
+            checkoutId: legacyCheckoutId
+          })
+        }
+      }
+      
+      setLoading(false)
     }
-    
-    setLoading(false)
-  }, [searchParams])
+
+    verifyPayment()
+  }, [searchParams, user, fetchSubscriptionData])
 
   const handleContinue = () => {
     router.push('/dashboard')
@@ -53,11 +90,29 @@ export default function SubscriptionSuccess() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-blue-900 to-purple-900 flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-white/30 border-t-white rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-white text-lg">Processing your subscription...</p>
+          <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4" />
+          <p>Memverifikasi pembayaran...</p>
         </div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardHeader>
+            <CardTitle className="text-red-600">Terjadi Kesalahan</CardTitle>
+            <CardDescription>{error}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Button onClick={() => router.push('/pricing')} className="w-full">
+              Kembali ke Halaman Harga
+            </Button>
+          </CardContent>
+        </Card>
       </div>
     )
   }

@@ -27,6 +27,11 @@ export default function AdminFormDetailPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Helper function to get field title
+  const getFieldTitle = (field: any, index: number) => {
+    return field.question || `Field ${index + 1}`;
+  };
+
   useEffect(() => {
     async function fetchData() {
       try {
@@ -222,7 +227,7 @@ export default function AdminFormDetailPage() {
                 {form.flow.map((field, index) => (
                   <div key={field.id || index} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
-                      <h4 className="font-medium">{field.question || `Field ${index + 1}`}</h4>
+                      <h4 className="font-medium">{getFieldTitle(field, index)}</h4>
                       <Badge variant="outline">{field.inputType}</Badge>
                     </div>
                     <div className="text-xs text-muted-foreground">

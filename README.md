@@ -83,6 +83,15 @@ AlurAI is an innovative AI-powered form builder that creates smart conversationa
    MINIO_ENDPOINT=your_minio_endpoint
    MINIO_ACCESS_KEY=your_access_key
    MINIO_SECRET_KEY=your_secret_key
+
+   # Creem Payment Gateway Configuration
+   CREEM_API_KEY=your_creem_api_key
+   CREEM_BASE_URL=https://api.creem.io/v1
+   CREEM_PRO_PRODUCT_ID=your_creem_pro_product_id
+   CREEM_WEBHOOK_SECRET=your_creem_webhook_secret
+
+   # App Configuration
+   NEXT_PUBLIC_APP_URL=http://localhost:9003
    ```
 
 4. **Setup Services**
@@ -96,6 +105,12 @@ AlurAI is an innovative AI-powered form builder that creates smart conversationa
    - Create a Stack Auth project at [stack-auth.com](https://stack-auth.com)
    - Configure authentication providers
    - Update Stack Auth configuration in your `.env.local`
+   
+   **Creem Setup (Payment Gateway):**
+   - Create a Creem account at [creem.io](https://creem.io)
+   - Create products for your subscription plans
+   - Get your API key and product IDs
+   - Update Creem configuration in your `.env.local`
 
 5. **Run the development server**
    ```bash
@@ -107,7 +122,7 @@ AlurAI is an innovative AI-powered form builder that creates smart conversationa
    ```
 
 6. **Open your browser**
-   Navigate to [http://localhost:9002](http://localhost:9002)
+   Navigate to [http://localhost:9003](http://localhost:9003)
 
 ## 🚀 Deployment
 

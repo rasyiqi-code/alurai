@@ -103,7 +103,7 @@ export default async function AllFeedbackPage() {
     },
     {
       id: 'fallback-3',
-      pleaseShareYourConstructiveFeedbackToHelpUsImproveAluraiYourSuggestionsWhetherPositiveOrCriticalWillGuideUsInMakingThisPlatformEvenBetter: 'Great platform, but maybe more form templates could be added. Overall very satisfied with the results.',
+      pleaseShareYourConstructiveFeedbackToHelpUsImproveAluraiYourSuggestionsWhetherPositiveOrCriticalWillGuideUsInMakingThisPlatformEvenBetter: 'Great platform with excellent AI form generation. Overall very satisfied with the results.',
       whatIsYourName: 'Budi Santoso',
       whatIsYourJob: 'Marketing Specialist',
       submittedAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString() // 7 days ago

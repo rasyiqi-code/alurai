@@ -1,19 +1,20 @@
 import { Header } from '@/components/header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { ArrowRight, Bot, BarChart, Palette, Sparkles, Zap, Shield, Check, X, FileText, Settings, Link as LinkIcon, Target, Users } from 'lucide-react';
+import { ArrowRight, Bot, BarChart, Palette, Sparkles, Zap, Shield, Check, X, FileText, Settings, Link as LinkIcon, Target, Users, Send, ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { FeedbackSection } from '@/components/feedback-section';
-import { StructuredData, websiteStructuredData, softwareApplicationStructuredData, organizationStructuredData } from '@/components/structured-data';
+import { InteractiveChatDemo } from '@/components/interactive-chat-demo';
+import { StructuredData, websiteStructuredData, softwareApplicationStructuredData, organizationStructuredData, faqStructuredData, breadcrumbStructuredData, productStructuredData, howToStructuredData, articleStructuredData, videoStructuredData } from '@/components/structured-data';
 import { generateMetadata as generateSEOMetadata, metaDescriptions, metaKeywords } from '@/lib/seo-utils';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = generateSEOMetadata({
-  title: 'AI-Powered Form Builder - Create Smart Conversational Forms',
-  description: metaDescriptions.home,
-  keywords: metaKeywords.home,
+  title: 'Create Forms in 30 Seconds with AI - Lightning Fast Form Builder | AlurAI',
+  description: 'Stop wasting 30+ minutes creating forms manually. Our AI creates perfect forms in seconds from plain English descriptions. Users fill them out like a chat conversation with 3x higher completion rates.',
+  keywords: ['AI form builder', 'create forms fast', '30 seconds form creation', 'chat interface forms', 'conversational forms', 'lightning fast forms', 'AI form generator', 'form completion rates'],
   path: '/',
   ogImage: '/og-home.png',
   twitterImage: '/twitter-home.png',
@@ -23,7 +24,7 @@ export default function LandingPage() {
   return (
     <div className="flex flex-col min-h-screen bg-background text-foreground">
       <Header />
-      <main className="flex-1">
+      <main id="main-content" className="flex-1" tabIndex={-1}>
         {/* Hero Section */}
         <section className="relative w-full py-20 md:py-32 lg:py-40 overflow-hidden">
           {/* Background Gradient */}
@@ -33,37 +34,38 @@ export default function LandingPage() {
             <div className="max-w-4xl mx-auto space-y-8">
               {/* Badge */}
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-800/50">
-                <Sparkles className="h-4 w-4 text-blue-500" />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">AI-Powered Form Builder</span>
+                <Zap className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">AI-Powered Speed</span>
               </div>
 
               {/* Main Heading */}
               <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold font-headline leading-tight">
                 <span className="bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                  Create Smart Forms
+                  Create Forms Fast
                 </span>
                 <span className="block bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                  in Seconds
+                  Users Chat & Last ⚡
                 </span>
               </h1>
 
               {/* Description */}
               <p className="text-xl md:text-2xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Build intelligent forms that adapt to your users, powered by AI. 
-                <span className="text-blue-600 dark:text-blue-400 font-medium"> No coding required.</span>
+                Just describe what you need in plain language. 
+                <span className="text-blue-600 dark:text-blue-400 font-medium"> AI creates your form in seconds, and users fill it out like a chat conversation.</span>
               </p>
 
               {/* CTA Buttons */}
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
                 <Button asChild size="lg" className="text-lg px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 hover:scale-105">
                   <Link href="/create">
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Start Building Free
+                    <Zap className="mr-2 h-5 w-5" />
+                    Create Form in 30 Seconds
                   </Link>
                 </Button>
                 <Button asChild variant="outline" size="lg" className="text-lg px-8 py-4 border-2 hover:bg-muted/50">
                   <Link href="/login">
-                    Watch Demo
+                    <Bot className="mr-2 h-5 w-5" />
+                    See Chat Interface
                   </Link>
                 </Button>
               </div>
@@ -71,48 +73,247 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* Product Hunt Badges Section */}
-        <section className="w-full py-12 bg-white dark:bg-gray-900">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center">
-              <h3 className="text-lg font-semibold mb-6 text-muted-foreground">Featured on Product Hunt</h3>
-              <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-                {/* Large Badge */}
-                <a href="https://www.producthunt.com/products/alurai?utm_source=badge-follow&utm_medium=badge&utm_source=badge-alurai" target="_blank" rel="noopener noreferrer">
-                  <img 
-                    src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1101032&theme=neutral" 
-                    alt="Alurai - Powered form builder - create smart conversational forms | Product Hunt" 
-                    style={{width: '250px', height: '54px'}} 
-                    width="250" 
-                    height="54" 
-                    className="hover:opacity-80 transition-opacity"
-                  />
-                </a>
-                {/* Small Badge */}
-                <a href="https://www.producthunt.com/products/alurai?utm_source=badge-follow&utm_medium=badge&utm_source=badge-alurai" target="_blank" rel="noopener noreferrer">
-                  <img 
-                    src="https://api.producthunt.com/widgets/embed-image/v1/follow.svg?product_id=1101032&theme=neutral&size=small" 
-                    alt="Alurai - Powered form builder - create smart conversational forms | Product Hunt" 
-                    style={{width: '86px', height: '32px'}} 
-                    width="86" 
-                    height="32" 
-                    className="hover:opacity-80 transition-opacity"
-                  />
-                </a>
+
+        {/* AI Demo Section */}
+        <section className="relative w-full py-16 md:py-24 overflow-hidden">
+          {/* Background */}
+          <div className="absolute inset-0 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 dark:from-blue-950/20 dark:via-indigo-950/20 dark:to-purple-950/20"></div>
+          <div className="absolute inset-0">
+            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-gradient-to-br from-blue-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
+            <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-gradient-to-br from-indigo-400/10 to-cyan-400/10 rounded-full blur-3xl"></div>
+          </div>
+
+          <div className="relative container mx-auto px-4 md:px-6">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-800/50 mb-4">
+                <Bot className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">AI Magic in Action</span>
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4 bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
+                From Description to Form in Seconds
+              </h2>
+              <p className="max-w-3xl mx-auto text-muted-foreground text-lg">
+                Watch how our AI transforms your simple description into a beautiful, conversational form that users love to fill out.
+              </p>
+            </div>
+
+            <div className="max-w-2xl mx-auto">
+              {/* 4-Step Process - Vertical Layout */}
+              <div className="space-y-6 mb-16">
+                {/* Step 1: You Describe */}
+                <Card className="border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                        <span className="text-white font-bold text-base">1</span>
+                      </div>
+                      <h3 className="text-xl font-semibold text-blue-700 dark:text-blue-300">You Describe</h3>
+                    </div>
+                    <div className="bg-white dark:bg-gray-800 p-4 rounded-lg border border-blue-200 dark:border-blue-700 shadow-sm">
+                      <p className="text-gray-700 dark:text-gray-300 italic text-sm leading-relaxed">
+                        "I need a contact form for my website with name, email, phone number, and a message field. Also include a dropdown for inquiry type with options: General, Sales, Support."
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-3 mt-4">
+                      <Zap className="h-4 w-4 text-blue-500" />
+                      <span className="text-sm text-blue-600 dark:text-blue-400 font-medium">Just plain English - no technical knowledge needed</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Step 2: AI Creates */}
+                <Card className="border-2 border-green-200 dark:border-green-800 bg-gradient-to-br from-green-50/50 to-blue-50/50 dark:from-green-950/20 dark:to-blue-950/20">
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-10 h-10 bg-green-500 rounded-full flex items-center justify-center shadow-lg">
+                        <span className="text-white font-bold text-base">2</span>
+                      </div>
+                      <h3 className="text-xl font-semibold text-green-700 dark:text-green-300">AI Creates</h3>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span className="text-sm text-green-600 dark:text-green-400">Perfect form structure</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span className="text-sm text-green-600 dark:text-green-400">Chat-like flow</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span className="text-sm text-green-600 dark:text-green-400">Smart validation</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" />
+                        <span className="text-sm text-green-600 dark:text-green-400">Mobile optimized</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-3 mt-4">
+                      <Zap className="h-4 w-4 text-green-500" />
+                      <span className="text-sm text-green-600 dark:text-green-400 font-medium">Ready in 30 seconds</span>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                 {/* Step 3 & 4: Side by Side with Horizontal Scroll on Mobile */}
+                 <div className="lg:grid lg:grid-cols-2 lg:gap-6">
+                   {/* Mobile: Horizontal Scroll Container */}
+                   <div className="lg:hidden overflow-x-auto pb-4">
+                     <div className="flex gap-6 min-w-max px-1">
+                       {/* Step 3: Form Editor */}
+                       <div className="space-y-4 min-w-[280px]">
+                         <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                             <span className="text-white font-bold text-base">3</span>
+                           </div>
+                           <h3 className="text-xl font-semibold text-orange-700 dark:text-orange-300">Form Editor</h3>
+                         </div>
+                         <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm" style={{ aspectRatio: '4/5', height: '400px' }}>
+                           <div className="p-4 h-full flex flex-col">
+                             <h4 className="font-medium text-gray-800 dark:text-gray-200 text-sm mb-3">Contact Form</h4>
+                             <div className="space-y-3 flex-1">
+                               <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-700">
+                                 <div className="flex items-center gap-2 mb-1">
+                                   <span className="text-lg">#</span>
+                                   <span className="text-sm font-medium text-blue-700 dark:text-blue-300">What's your name?</span>
+                                 </div>
+                                 <p className="text-xs text-blue-600 dark:text-blue-400">Short answer</p>
+                               </div>
+                               <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                 <div className="flex items-center gap-2 mb-1">
+                                   <span className="text-lg">@</span>
+                                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">What's your email?</span>
+                                 </div>
+                                 <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+                               </div>
+                               <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                 <div className="flex items-center gap-2 mb-1">
+                                   <span className="text-lg">📱</span>
+                                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">What's your phone?</span>
+                                 </div>
+                                 <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                               </div>
+                               <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                                 <div className="flex items-center gap-2 mb-1">
+                                   <span className="text-lg">💬</span>
+                                   <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tell us about your project</span>
+                                 </div>
+                                 <p className="text-xs text-gray-500 dark:text-gray-400">Long answer</p>
+                               </div>
+                             </div>
+                           </div>
+                         </div>
+                         <div className="flex items-center gap-3">
+                           <Settings className="h-4 w-4 text-orange-500" />
+                           <span className="text-sm text-orange-600 dark:text-orange-400 font-medium">Customize and optimize your form</span>
+                         </div>
+                       </div>
+
+                       {/* Step 4: Users Chat */}
+                       <div className="space-y-4 min-w-[280px]">
+                         <div className="flex items-center gap-3">
+                           <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                             <span className="text-white font-bold text-base">4</span>
+                           </div>
+                           <h3 className="text-xl font-semibold text-purple-700 dark:text-purple-300">Users Chat</h3>
+                         </div>
+                         
+                         {/* Interactive Chat Interface */}
+                         <div style={{ aspectRatio: '4/5', height: '400px' }}>
+                           <InteractiveChatDemo />
+                         </div>
+                         
+                         <div className="flex items-center gap-3">
+                           <Bot className="h-4 w-4 text-purple-500" />
+                           <span className="text-sm text-purple-600 dark:text-purple-400 font-medium">Try it above - feels like chatting w friend!</span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+
+                   {/* Desktop: Grid Layout */}
+                   <div className="hidden lg:contents">
+                     {/* Step 3: Form Editor */}
+                     <div className="space-y-4">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center shadow-lg">
+                           <span className="text-white font-bold text-base">3</span>
+                         </div>
+                         <h3 className="text-xl font-semibold text-orange-700 dark:text-orange-300">Form Editor</h3>
+                       </div>
+                       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600 shadow-sm" style={{ aspectRatio: '4/5', height: '400px' }}>
+                         <div className="p-4 h-full flex flex-col">
+                           <h4 className="font-medium text-gray-800 dark:text-gray-200 text-sm mb-3">Contact Form</h4>
+                           <div className="space-y-3 flex-1">
+                             <div className="p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border-2 border-blue-200 dark:border-blue-700">
+                               <div className="flex items-center gap-2 mb-1">
+                                 <span className="text-lg">#</span>
+                                 <span className="text-sm font-medium text-blue-700 dark:text-blue-300">What's your name?</span>
+                               </div>
+                               <p className="text-xs text-blue-600 dark:text-blue-400">Short answer</p>
+                             </div>
+                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                               <div className="flex items-center gap-2 mb-1">
+                                 <span className="text-lg">@</span>
+                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">What's your email?</span>
+                               </div>
+                               <p className="text-xs text-gray-500 dark:text-gray-400">Email</p>
+                             </div>
+                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                               <div className="flex items-center gap-2 mb-1">
+                                 <span className="text-lg">📱</span>
+                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">What's your phone?</span>
+                               </div>
+                               <p className="text-xs text-gray-500 dark:text-gray-400">Phone</p>
+                             </div>
+                             <div className="p-3 bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-600">
+                               <div className="flex items-center gap-2 mb-1">
+                                 <span className="text-lg">💬</span>
+                                 <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Tell us about your project</span>
+                               </div>
+                               <p className="text-xs text-gray-500 dark:text-gray-400">Long answer</p>
+                             </div>
+                           </div>
+                         </div>
+                       </div>
+                       <div className="flex items-center gap-3">
+                         <Settings className="h-4 w-4 text-orange-500" />
+                         <span className="text-sm text-orange-600 dark:text-orange-400 font-medium">Customize and optimize your form</span>
+                       </div>
+                     </div>
+
+                     {/* Step 4: Users Chat */}
+                     <div className="space-y-4">
+                       <div className="flex items-center gap-3">
+                         <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center shadow-lg">
+                           <span className="text-white font-bold text-base">4</span>
+                         </div>
+                         <h3 className="text-xl font-semibold text-purple-700 dark:text-purple-300">Users Chat</h3>
+                       </div>
+                       
+                       {/* Interactive Chat Interface */}
+                       <div style={{ aspectRatio: '4/5', height: '400px' }}>
+                         <InteractiveChatDemo />
+                       </div>
+                       
+                       <div className="flex items-center gap-3">
+                         <Bot className="h-4 w-4 text-purple-500" />
+                         <span className="text-sm text-purple-600 dark:text-purple-400 font-medium">Try it above - feels like chatting w friend!</span>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
                </div>
                
-               {/* Product Hunt Card */}
-               <div className="mt-8 flex justify-center">
-                 <iframe 
-                   style={{border: 'none'}} 
-                   src="https://cards.producthunt.com/cards/products/1101032" 
-                   width="500" 
-                   height="405" 
-                   frameBorder="0" 
-                   scrolling="no" 
-                   allowFullScreen
-                   className="rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300"
-                 ></iframe>
+              
+              {/* Bottom CTA */}
+              <div className="text-center">
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" asChild>
+                  <Link href="/create">
+                    <Zap className="mr-2 h-5 w-5" />
+                    Create Your First Form
+                  </Link>
+                </Button>
                </div>
              </div>
            </div>
@@ -129,52 +330,60 @@ export default function LandingPage() {
 
           <div className="relative container mx-auto px-4 md:px-6">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-200/50 dark:border-purple-800/50 mb-4">
-                <Zap className="h-4 w-4 text-purple-500" />
-                <span className="text-sm font-medium text-purple-700 dark:text-purple-300">Key Features</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-800/50 mb-4">
+                <Zap className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Lightning Fast AI</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4 bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                Why Choose AlurAI?
+                Why AlurAI is Different
               </h2>
               <p className="max-w-2xl mx-auto text-muted-foreground text-lg">
-                Leading AI technology that transforms how you interact with forms
+                While others make you drag-and-drop for 30+ minutes, our AI creates perfect forms in seconds with chat-like user experience.
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {/* Feature 1: Lightning Fast AI Creation */}
               <Card className="group hover:shadow-2xl hover:shadow-blue-500/10 transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 backdrop-blur-sm">
                 <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Bot className="h-8 w-8 text-white" />
+                  <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                    <Zap className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-foreground">AI Form Builder</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Create complex forms just by describing your needs. Our AI will generate the perfect form in seconds.
+                  <h3 className="text-xl font-semibold mb-4 text-foreground">⚡ Lightning Fast AI Creation</h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    While others make you drag-and-drop for 30+ minutes, our AI creates perfect forms in seconds. Just describe what you need in plain English.
                   </p>
+                  <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg">
+                    <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">🚀 What You Get:</h4>
+                    <div className="space-y-1 text-sm text-blue-600 dark:text-blue-400">
+                      <p>• Perfect form structure in 30 seconds</p>
+                      <p>• Smart validation rules</p>
+                      <p>• Mobile-optimized design</p>
+                      <p>• No technical knowledge needed</p>
+                    </div>
+                  </div>
                 </CardContent>
               </Card>
 
+              {/* Feature 2: Chat-Like User Experience */}
               <Card className="group hover:shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-purple-50/50 to-pink-50/50 dark:from-purple-950/20 dark:to-pink-950/20 backdrop-blur-sm">
                 <CardContent className="p-8 text-center">
                   <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <Palette className="h-8 w-8 text-white" />
+                    <Bot className="h-8 w-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-foreground">Custom Branding</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Customize your form's appearance to match your brand. Colors, fonts, logos - everything can be customized to reflect your company identity.
+                  <h3 className="text-xl font-semibold mb-4 text-foreground">💬 Chat-Like User Experience</h3>
+                  <p className="text-muted-foreground leading-relaxed mb-4">
+                    Traditional forms are boring and overwhelming. Our conversational interface feels like chatting with a friend - users actually want to complete them.
                   </p>
-                </CardContent>
-              </Card>
-
-              <Card className="group hover:shadow-2xl hover:shadow-green-500/10 transition-all duration-500 hover:-translate-y-2 border-0 bg-gradient-to-br from-green-50/50 to-emerald-50/50 dark:from-green-950/20 dark:to-emerald-950/20 backdrop-blur-sm">
-                <CardContent className="p-8 text-center">
-                  <div className="w-16 h-16 mx-auto mb-6 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                    <BarChart className="h-8 w-8 text-white" />
+                  <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg">
+                    <h4 className="font-semibold text-purple-700 dark:text-purple-300 mb-2">🎯 What Users Love:</h4>
+                    <div className="space-y-1 text-sm text-purple-600 dark:text-purple-400">
+                      <p>• One question at a time</p>
+                      <p>• Natural conversation flow</p>
+                      <p>• 3x higher completion rates</p>
+                      <p>• Feels like messaging a friend</p>
+                    </div>
                   </div>
-                  <h3 className="text-xl font-semibold mb-4 text-foreground">Deep Analytics</h3>
-                  <p className="text-muted-foreground leading-relaxed">
-                    Get deep insights into your form performance. Real-time analytics help optimize conversion rates.
-                  </p>
                 </CardContent>
               </Card>
             </div>
@@ -192,15 +401,15 @@ export default function LandingPage() {
 
           <div className="relative container mx-auto px-4 md:px-6">
             <div className="text-center mb-16">
-              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-indigo-500/10 border border-blue-200/50 dark:border-blue-800/50 mb-4">
-                <BarChart className="h-4 w-4 text-blue-500" />
-                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Perbandingan</span>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-800/50 mb-4">
+                <Zap className="h-4 w-4 text-blue-500" />
+                <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Speed Comparison</span>
               </div>
               <h2 className="text-3xl md:text-5xl font-bold font-headline mb-4 bg-gradient-to-r from-gray-900 to-gray-600 dark:from-white dark:to-gray-300 bg-clip-text text-transparent">
-                Mengapa Memilih AlurAI?
+                30 Minutes vs 30 Seconds
               </h2>
               <p className="max-w-3xl mx-auto text-muted-foreground text-lg">
-                Bandingkan AlurAI dengan pembuat formulir lainnya dan lihat perbedaannya
+                See the dramatic difference between traditional form builders and our AI-powered approach.
               </p>
             </div>
 
@@ -209,60 +418,59 @@ export default function LandingPage() {
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* AlurAI Column */}
                 <div className="lg:col-span-1">
-                  <Card className="h-full border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/50 to-indigo-50/50 dark:from-blue-950/20 dark:to-indigo-950/20 shadow-xl">
+                  <Card className="h-full border-2 border-blue-200 dark:border-blue-800 bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-blue-950/20 dark:to-purple-950/20 shadow-xl">
                     <CardContent className="p-8">
                       <div className="text-center mb-8">
-                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center">
-                          <Sparkles className="h-8 w-8 text-white" />
+                        <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center">
+                          <Zap className="h-8 w-8 text-white" />
                         </div>
                         <h3 className="text-2xl font-bold text-blue-600 dark:text-blue-400 mb-2">AlurAI</h3>
-                        <p className="text-sm text-muted-foreground">AI-Powered Form Builder</p>
+                        <p className="text-sm text-muted-foreground">AI-Powered Speed</p>
                       </div>
                       
                       <div className="space-y-4">
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">AI generates forms from natural language</span>
+                        <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded-lg">
+                          <h4 className="font-semibold text-blue-700 dark:text-blue-300 text-sm mb-2">⚡ Lightning Fast Creation:</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs">30 seconds to create</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs">Just describe in English</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs">No drag-and-drop needed</span>
+                            </div>
+                          </div>
                         </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">Conversational form experience</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">Smart conditional logic</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">Real-time analytics & insights</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">No coding required</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">Custom branding & themes</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">Mobile-first responsive design</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">Advanced data export options</span>
-                        </div>
-                        <div className="flex items-start gap-3">
-                          <Check className="h-5 w-5 text-green-500 mt-0.5 flex-shrink-0" />
-                          <span className="text-sm">Setup in under 2 minutes</span>
+                        
+                        <div className="bg-purple-50 dark:bg-purple-950/20 p-3 rounded-lg">
+                          <h4 className="font-semibold text-purple-700 dark:text-purple-300 text-sm mb-2">💬 Chat Interface:</h4>
+                          <div className="space-y-2">
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs">3x higher completion</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs">Feels like messaging</span>
+                            </div>
+                            <div className="flex items-start gap-2">
+                              <Check className="h-4 w-4 text-purple-500 mt-0.5 flex-shrink-0" />
+                              <span className="text-xs">Users love it</span>
+                            </div>
+                          </div>
                         </div>
                       </div>
                       
                       <div className="mt-8 pt-6 border-t border-blue-200 dark:border-blue-800">
-                        <Button className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" asChild>
+                        <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" asChild>
                           <Link href="/create">
-                            <Sparkles className="mr-2 h-4 w-4" />
-                            Try AlurAI Free
+                            <Zap className="mr-2 h-4 w-4" />
+                            Create Form in 30 Seconds
                           </Link>
                         </Button>
                       </div>
@@ -276,60 +484,59 @@ export default function LandingPage() {
                      <CardContent className="p-8">
                        <div className="text-center mb-8">
                          <div className="w-16 h-16 mx-auto mb-4 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-700 rounded-2xl flex items-center justify-center shadow-inner">
-                           <FileText className="h-8 w-8 text-gray-500 dark:text-gray-400" />
+                           <Settings className="h-8 w-8 text-gray-500 dark:text-gray-400" />
                          </div>
-                         <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">Other Platforms</h3>
-                         <p className="text-sm text-muted-foreground">Traditional Form Builders</p>
+                         <h3 className="text-2xl font-bold text-gray-700 dark:text-gray-300 mb-2">Traditional Form Builders</h3>
+                         <p className="text-sm text-muted-foreground">Slow & Time-Consuming</p>
                        </div>
                        
                        <div className="space-y-6">
-                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
-                           <div className="w-10 h-10 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
-                             <Settings className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+                         {/* Problem 1: Slow Creation */}
+                         <div className="p-4 rounded-lg bg-red-50/50 dark:bg-red-900/20 border border-red-100 dark:border-red-800/50">
+                           <div className="flex items-start gap-3 mb-3">
+                             <div className="w-8 h-8 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
+                               <Settings className="h-4 w-4 text-red-600 dark:text-red-400" />
+                             </div>
+                             <h4 className="font-semibold text-red-700 dark:text-red-300">30+ Minutes to Create</h4>
                            </div>
-                           <div>
-                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Form Creation</h4>
-                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Usually template-based or manual drag-and-drop that requires more time for setup and configuration</p>
-                           </div>
-                         </div>
-                         
-                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
-                           <div className="w-10 h-10 rounded-lg bg-red-100 dark:bg-red-900/30 flex items-center justify-center flex-shrink-0">
-                             <BarChart className="h-5 w-5 text-red-600 dark:text-red-400" />
-                           </div>
-                           <div>
-                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Data Analysis</h4>
-                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Basic summaries or advanced analytics as premium features with significant additional costs</p>
+                           <div className="space-y-2 ml-11">
+                             <p className="text-sm text-red-600 dark:text-red-400">• Drag-and-drop each field manually</p>
+                             <p className="text-sm text-red-600 dark:text-red-400">• Think of questions and structure</p>
+                             <p className="text-sm text-red-600 dark:text-red-400">• Configure validation rules</p>
+                             <p className="text-sm text-red-600 dark:text-red-400">• Set up conditional logic</p>
+                             <p className="text-sm text-red-600 dark:text-red-400">• Test and iterate repeatedly</p>
                            </div>
                          </div>
                          
-                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
-                            <div className="w-10 h-10 rounded-lg bg-yellow-100 dark:bg-yellow-900/30 flex items-center justify-center flex-shrink-0">
-                              <LinkIcon className="h-5 w-5 text-yellow-600 dark:text-yellow-400" />
-                            </div>
-                            <div>
-                              <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">URL Customization</h4>
-                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">No custom URL support or available only on paid plans with premium pricing</p>
-                            </div>
-                          </div>
-                         
-                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
-                           <div className="w-10 h-10 rounded-lg bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center flex-shrink-0">
-                             <Users className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                         {/* Problem 2: Boring User Experience */}
+                         <div className="p-4 rounded-lg bg-orange-50/50 dark:bg-orange-900/20 border border-orange-100 dark:border-orange-800/50">
+                           <div className="flex items-start gap-3 mb-3">
+                             <div className="w-8 h-8 rounded-lg bg-orange-100 dark:bg-orange-900/30 flex items-center justify-center flex-shrink-0">
+                               <X className="h-4 w-4 text-orange-600 dark:text-orange-400" />
+                             </div>
+                             <h4 className="font-semibold text-orange-700 dark:text-orange-300">Users Hate Boring Forms</h4>
                            </div>
-                           <div>
-                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">User Experience</h4>
-                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">Forms are usually static with more traditional and less interactive experiences</p>
+                           <div className="space-y-2 ml-11">
+                             <p className="text-sm text-orange-600 dark:text-orange-400">• 70% abandonment rate</p>
+                             <p className="text-sm text-orange-600 dark:text-orange-400">• Overwhelming long forms</p>
+                             <p className="text-sm text-orange-600 dark:text-orange-400">• Poor mobile experience</p>
+                             <p className="text-sm text-orange-600 dark:text-orange-400">• Users think "I'll do this later"</p>
                            </div>
                          </div>
                          
-                         <div className="flex items-start gap-4 p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
-                           <div className="w-10 h-10 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
-                             <Target className="h-5 w-5 text-gray-600 dark:text-gray-400" />
+                         {/* Result */}
+                         <div className="p-4 rounded-lg bg-gray-50/50 dark:bg-gray-800/30 border border-gray-100 dark:border-gray-700/50">
+                           <div className="flex items-start gap-3 mb-3">
+                             <div className="w-8 h-8 rounded-lg bg-gray-100 dark:bg-gray-700 flex items-center justify-center flex-shrink-0">
+                               <Target className="h-4 w-4 text-gray-600 dark:text-gray-400" />
+                             </div>
+                             <h4 className="font-semibold text-gray-700 dark:text-gray-300">Result: Wasted Time & Lost Users</h4>
                            </div>
-                           <div>
-                             <h4 className="font-semibold text-gray-700 dark:text-gray-300 mb-2">Common Usage</h4>
-                             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">More often used for general surveys, simple questionnaires, or basic registrations</p>
+                           <div className="space-y-2 ml-11">
+                             <p className="text-sm text-gray-600 dark:text-gray-400">• Hours spent creating forms</p>
+                             <p className="text-sm text-gray-600 dark:text-gray-400">• Most users never complete them</p>
+                             <p className="text-sm text-gray-600 dark:text-gray-400">• Poor conversion rates</p>
+                             <p className="text-sm text-gray-600 dark:text-gray-400">• Frustrating experience for everyone</p>
                            </div>
                          </div>
                        </div>
@@ -340,20 +547,20 @@ export default function LandingPage() {
 
               {/* Bottom CTA */}
               <div className="text-center mt-12">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-green-500/10 to-emerald-500/10 border border-green-200/50 dark:border-green-800/50 mb-4">
-                  <Sparkles className="h-4 w-4 text-green-500" />
-                  <span className="text-sm font-medium text-green-700 dark:text-green-300">The Clear Winner</span>
+                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-200/50 dark:border-blue-800/50 mb-4">
+                  <Zap className="h-4 w-4 text-blue-500" />
+                  <span className="text-sm font-medium text-blue-700 dark:text-blue-300">Ready for Lightning Speed?</span>
                 </div>
                 <h3 className="text-2xl md:text-3xl font-bold mb-4 text-foreground">
-                  Experience the Future of Form Building
+                  Stop Wasting 30+ Minutes on Each Form
                 </h3>
                 <p className="text-muted-foreground mb-6 max-w-2xl mx-auto">
-                  Join thousands of businesses who've already made the switch to AI-powered forms
+                  Join thousands of users who create forms in 30 seconds with AI and get 3x higher completion rates with chat-like interfaces.
                 </p>
-                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700" asChild>
+                <Button size="lg" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700" asChild>
                   <Link href="/create">
-                    <Sparkles className="mr-2 h-5 w-5" />
-                    Start Building with AI
+                    <Zap className="mr-2 h-5 w-5" />
+                    Create Form in 30 Seconds
                   </Link>
                 </Button>
               </div>
@@ -371,36 +578,36 @@ export default function LandingPage() {
           <div className="relative container mx-auto px-4 md:px-6">
             <div className="text-center mb-12">
               <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
-                What Makes AlurAI Different?
+                The Numbers Don't Lie
               </h2>
               <p className="max-w-2xl mx-auto text-muted-foreground">
-                Simple AI-powered form creation that just works
+                See why thousands of businesses are switching from traditional forms to conversational forms.
               </p>
             </div>
             
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
               <Card className="text-center p-6 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Bot className="h-6 w-6 text-blue-600 dark:text-blue-400" />
+                <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <X className="h-6 w-6 text-red-600 dark:text-red-400" />
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">AI-Powered</h3>
-                <p className="text-sm text-muted-foreground">Describe your form in plain language and let AI build it</p>
+                <h3 className="font-semibold text-foreground mb-2">70% Form Abandonment</h3>
+                <p className="text-sm text-muted-foreground">Traditional forms lose 7 out of 10 users before completion</p>
               </Card>
               
               <Card className="text-center p-6 hover:shadow-lg transition-shadow">
                 <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <Zap className="h-6 w-6 text-green-600 dark:text-green-400" />
+                  <Check className="h-6 w-6 text-green-600 dark:text-green-400" />
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">Instant Setup</h3>
-                <p className="text-sm text-muted-foreground">No complex configuration or technical knowledge required</p>
+                <h3 className="font-semibold text-foreground mb-2">3x Higher Completion</h3>
+                <p className="text-sm text-muted-foreground">Conversational forms achieve 3x better completion rates</p>
               </Card>
               
               <Card className="text-center p-6 hover:shadow-lg transition-shadow">
-                <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <BarChart className="h-6 w-6 text-purple-600 dark:text-purple-400" />
+                <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mx-auto mb-4">
+                  <Zap className="h-6 w-6 text-blue-600 dark:text-blue-400" />
                 </div>
-                <h3 className="font-semibold text-foreground mb-2">Smart Analytics</h3>
-                <p className="text-sm text-muted-foreground">Get insights that help you improve your forms</p>
+                <h3 className="font-semibold text-foreground mb-2">30 Minutes → 30 Seconds</h3>
+                <p className="text-sm text-muted-foreground">Create forms in seconds instead of spending 30+ minutes manually</p>
               </Card>
             </div>
           </div>
@@ -409,7 +616,7 @@ export default function LandingPage() {
         {/* CTA Section */}
         <section className="relative w-full py-20 md:py-32 overflow-hidden">
           {/* Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-green-600 via-blue-600 to-indigo-700"></div>
           
           {/* Animated background elements */}
           <div className="absolute inset-0">
@@ -420,44 +627,54 @@ export default function LandingPage() {
           <div className="relative container mx-auto px-4 md:px-6 text-center">
             <div className="max-w-4xl mx-auto">
               <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 mb-6">
-                <Zap className="h-4 w-4 text-yellow-300" />
-                <span className="text-sm font-medium text-white/90">Get Started</span>
+                <Bot className="h-4 w-4 text-yellow-300" />
+                <span className="text-sm font-medium text-white/90">Start Chatting</span>
               </div>
               
               <h2 className="text-4xl md:text-6xl font-bold font-headline mb-6 text-white leading-tight">
-                Ready to Create Your 
+                Ready to Create Forms 
                 <span className="block bg-gradient-to-r from-yellow-300 to-orange-300 bg-clip-text text-transparent">
-                  First AI Form?
+                  Like Lightning? ⚡
                 </span>
               </h2>
               
               <p className="text-xl md:text-2xl mb-10 max-w-3xl mx-auto text-white/90 leading-relaxed">
-                Experience the future of form creation with <span className="font-semibold text-yellow-300">AlurAI</span> - now in early access
+                Stop spending 30+ minutes on each form. Our AI creates perfect forms in seconds, and users fill them out like a chat conversation. 
+                <span className="font-semibold text-yellow-300">3x higher completion rates guaranteed.</span>
               </p>
               
               <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-                <Button size="lg" variant="secondary" className="text-lg px-8 py-4 bg-white text-gray-900 hover:bg-gray-100 shadow-2xl hover:shadow-white/25 transition-all duration-300 hover:scale-105">
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Start Free Now
+                <Button asChild size="lg" variant="secondary" className="text-lg px-8 py-4 bg-white text-gray-900 hover:bg-gray-100 shadow-2xl hover:shadow-white/25 transition-all duration-300 hover:scale-105">
+                  <Link href="/create">
+                    <Zap className="mr-2 h-5 w-5" />
+                    Create Form in 30 Seconds
+                  </Link>
                 </Button>
-                <Button size="lg" variant="outline" className="text-lg px-8 py-4 border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm bg-transparent">
-                  View Demo
+                <Button asChild size="lg" variant="outline" className="text-lg px-8 py-4 border-white/30 text-white hover:bg-white/10 hover:text-white backdrop-blur-sm bg-transparent">
+                  <Link href="/login">
+                    <Bot className="mr-2 h-5 w-5" />
+                    See Chat Interface
+                  </Link>
                 </Button>
               </div>
               
               {/* Trust indicators */}
               <div className="flex flex-wrap justify-center items-center gap-8 text-white/70 text-sm">
                 <div className="flex items-center gap-2">
+                  <Zap className="h-4 w-4" />
+                  <span>Create forms in 30 seconds</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Bot className="h-4 w-4" />
+                  <span>Chat-like user experience</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Check className="h-4 w-4" />
+                  <span>3x higher completion rates</span>
+                </div>
+                <div className="flex items-center gap-2">
                   <Shield className="h-4 w-4" />
                   <span>100% Free to start</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  <span>Setup in 2 minutes</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4" />
-                  <span>No credit card required</span>
                 </div>
               </div>
             </div>
@@ -485,6 +702,12 @@ export default function LandingPage() {
       <StructuredData data={websiteStructuredData} />
       <StructuredData data={softwareApplicationStructuredData} />
       <StructuredData data={organizationStructuredData} />
+      <StructuredData data={faqStructuredData} />
+      <StructuredData data={breadcrumbStructuredData} />
+      <StructuredData data={productStructuredData} />
+      <StructuredData data={howToStructuredData} />
+      <StructuredData data={articleStructuredData} />
+      <StructuredData data={videoStructuredData} />
     </div>
   );
 }

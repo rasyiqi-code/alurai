@@ -427,7 +427,7 @@ export function ConversationalForm({ formFlowData }: Props) {
             {messages.map((msg, index) => (
             <div key={index} className={cn('flex items-end gap-2 text-sm', msg.type === 'user' ? 'justify-end' : 'justify-start')}>
                 {msg.type === 'bot' && <Avatar className='h-8 w-8'><AvatarFallback className='bg-primary text-primary-foreground'><Bot size={20}/></AvatarFallback></Avatar>}
-                <div className={cn('max-w-[75%] rounded-lg px-4 py-2', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted', msg.isThinking ? 'p-3' : '')}>
+                <div className={cn('max-w-[75%] rounded-lg px-4 py-2', msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted', msg.isThinking ? 'p-3' : undefined)}>
                 {msg.content}
                 </div>
                 {msg.type === 'user' && <Avatar className='h-8 w-8'><AvatarFallback>U</AvatarFallback></Avatar>}

@@ -3,7 +3,7 @@
 import { Logo } from '@/components/icons/logo';
 import { Button } from './ui/button';
 import Link from 'next/link';
-import { List, Link as LinkIcon, BarChart, Palette, LogIn, LogOut, User as UserIcon, Menu, Database } from 'lucide-react';
+import { List, Link as LinkIcon, BarChart, Palette, LogIn, LogOut, User as UserIcon, Menu, Database, LayoutDashboard } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +13,7 @@ import {
 } from './ui/dropdown-menu';
 import { useUser, useStackApp } from '@stackframe/stack';
 import { ThemeToggle } from './theme-toggle';
+import { SubscriptionStatus } from './subscription-status';
 
 export function Header() {
   const user = useUser();
@@ -43,6 +44,12 @@ export function Header() {
           {isLoggedIn ? (
             <>
               <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
+                <Link href="/dashboard">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
                 <Link href="/forms">
                   <List className="mr-2 h-4 w-4" />
                   Forms
@@ -66,13 +73,9 @@ export function Header() {
                   Custom URL
                 </Link>
               </Button>
-              <Button asChild variant="ghost" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground py-2 px-3">
-                <Link href="/templates">
-                  <Palette className="mr-2 h-4 w-4" />
-                  Templates
-                </Link>
-              </Button>
 
+              {/* Subscription Status Badge */}
+              <SubscriptionStatus variant="header" />
               
               {/* Account Dropdown Menu */}
               <DropdownMenu>
@@ -90,7 +93,7 @@ export function Header() {
                         }}
                       />
                     ) : null}
-                     <div className={`h-8 w-8 rounded-full bg-white/20 flex items-center justify-center ${user?.profileImageUrl ? 'hidden' : ''}`}>
+                     <div className={`h-8 w-8 rounded-full bg-white/20 flex items-center justify-center ${user?.profileImageUrl ? 'hidden' : 'block'}`}>
                        <UserIcon className="h-4 w-4" />
                      </div>
                   </Button>
@@ -127,6 +130,11 @@ export function Header() {
           ) : (
             <>
               <ThemeToggle />
+              <Button asChild className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0">
+                <Link href="/sign-up">
+                    <Palette className="mr-2 h-4 w-4" /> Get Started Free
+                </Link>
+              </Button>
               <Button asChild variant="outline" className="bg-white/10 border-white/20 hover:bg-white/20 text-primary-foreground">
                 <Link href="/login">
                     <LogIn className="mr-2 h-4 w-4" /> Login
@@ -140,6 +148,9 @@ export function Header() {
         <div className="md:hidden flex items-center gap-1">
           {isLoggedIn ? (
             <>
+              {/* Subscription Status for mobile */}
+              <SubscriptionStatus variant="header" />
+              
               {/* Account Dropdown for mobile */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -188,35 +199,35 @@ export function Header() {
       {isLoggedIn && (
         <div className="md:hidden border-t border-white/20 bg-primary/95 backdrop-blur-sm">
           <div className="container mx-auto px-4">
-            <div className="flex items-center gap-0.5 overflow-x-auto scrollbar-hide py-2">
-              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+             <div className="flex items-center justify-center gap-0.5 overflow-x-auto scrollbar-hide pb-1 min-h-[20px]">
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-1 px-2 h-6">
+                <Link href="/dashboard">
+                  <LayoutDashboard className="mr-1 h-3 w-3" />
+                  Dashboard
+                </Link>
+              </Button>
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-1 px-2 h-6">
                 <Link href="/forms">
-                  <List className="mr-1 h-4 w-4" />
+                  <List className="mr-1 h-3 w-3" />
                   Forms
                 </Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-1 px-2 h-6">
                 <Link href="/analytics">
-                  <BarChart className="mr-1 h-4 w-4" />
+                  <BarChart className="mr-1 h-3 w-3" />
                   Analytics
                 </Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-1 px-2 h-6">
                 <Link href="/submissions">
-                  <Database className="mr-1 h-4 w-4" />
+                  <Database className="mr-1 h-3 w-3" />
                   Submissions
                 </Link>
               </Button>
-              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
+              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-1 px-2 h-6">
                 <Link href="/custom-url-domain">
-                  <LinkIcon className="mr-1 h-4 w-4" />
+                  <LinkIcon className="mr-1 h-3 w-3" />
                   Custom URL
-                </Link>
-              </Button>
-              <Button asChild variant="ghost" size="sm" className="text-primary-foreground hover:bg-white/20 hover:text-primary-foreground whitespace-nowrap flex-shrink-0 py-2 px-2">
-                <Link href="/templates">
-                  <Palette className="mr-1 h-4 w-4" />
-                  Templates
                 </Link>
               </Button>
             </div>

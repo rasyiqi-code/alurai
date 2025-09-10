@@ -1,0 +1,27 @@
+{
+  "name": "AlurAI - AI-Powered Form Builder",
+  "short_name": "AlurAI",
+  "description": "Create beautiful, intelligent conversational forms powered by AI. Build engaging surveys, feedback forms, and data collection tools with advanced analytics.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1E3A8A",
+  "theme_color": "#1E3A8A",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "categories": ["productivity", "business", "utilities"],
+  "lang": "en",
+  "dir": "ltr"
+}
