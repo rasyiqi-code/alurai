@@ -13,7 +13,7 @@ import { AccessibilityEnhancer, HighContrastMode, ReducedMotionSupport } from '@
 
 export const metadata: Metadata = {
   title: {
-    default: 'AlurAI - Create Conversational Forms with AI',
+    default: 'AlurAI - AI-Powered Form Builder',
     template: '%s | AlurAI'
   },
   description: 'Create beautiful, intelligent conversational forms powered by AI. Build engaging surveys, feedback forms, and data collection tools with advanced analytics and seamless user experience.',
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'en_US',
     url: 'https://alurai.com',
-    title: 'AlurAI - Create Conversational Forms with AI',
+    title: 'AlurAI - AI-Powered Form Builder',
     description: 'Create beautiful, intelligent conversational forms powered by AI. Build engaging surveys, feedback forms, and data collection tools with advanced analytics.',
     siteName: 'AlurAI',
     images: [
@@ -49,7 +49,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'AlurAI - Create Conversational Forms with AI',
+    title: 'AlurAI - AI-Powered Form Builder',
     description: 'Create beautiful, intelligent conversational forms powered by AI. Build engaging surveys and feedback forms with advanced analytics.',
     images: ['/twitter-image.png'],
     creator: '@alurai',

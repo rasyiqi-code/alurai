@@ -10,6 +10,7 @@ import { db } from '@/lib/firebase';
 import { doc, setDoc, addDoc, collection, getDocs, getDoc, Timestamp, orderBy, query, where, limit, collectionGroup,getCountFromServer } from 'firebase/firestore';
 import { stackServerApp } from '@/stack';
 import { SubscriptionService } from '@/lib/subscription-service';
+import { generatePresignedUploadUrl } from '@/lib/minio';
 
 
 export async function generateFormAction(description: string): Promise<string | { error: string }> {
@@ -283,24 +284,69 @@ export async function saveSubmissionAction(formId: string, answers: FormAnswers)
     const formData = formDoc.data();
     const formOwnerId = formData.userId;
     
-    // Check if form owner can receive a response
+    // Check if form owner can receive a response (with atomic check)
     const canReceive = await SubscriptionService.canPerformAction(formOwnerId, 'receive_response', 1);
     if (!canReceive.allowed) {
       return { error: canReceive.reason || 'Response limit exceeded' };
     }
 
     const sanitizedAnswers: Record<string, any> = {};
+    
+    // Process answers with proper file handling
     for (const key in answers) {
       const value = answers[key];
       
       if (value instanceof File) {
-        // In a real app, you would upload the file to a storage service (like MinIO or Vercel Blob)
-        // and save the URL. For now, we'll just save the file name as a placeholder.
-        sanitizedAnswers[key] = `placeholder/for/${value.name}`;
+        // Upload file to MinIO and get the URL
+        try {
+          const { uploadUrl, fileKey } = await generatePresignedUploadUrl(
+            value.name,
+            value.type,
+            formId
+          );
+          
+          // Upload file to MinIO
+          const uploadResponse = await fetch(uploadUrl, {
+            method: 'PUT',
+            body: value,
+            headers: {
+              'Content-Type': value.type,
+            },
+          });
+          
+          if (!uploadResponse.ok) {
+            throw new Error('Failed to upload file');
+          }
+          
+          // Store file metadata instead of placeholder
+          sanitizedAnswers[key] = {
+            fileName: value.name,
+            fileSize: value.size,
+            fileType: value.type,
+            fileKey: fileKey,
+            uploadedAt: new Date().toISOString()
+          };
+        } catch (fileError) {
+          console.error('File upload error:', fileError);
+          return { error: `Failed to upload file: ${value.name}. Please try again.` };
+        }
         continue;
       }
       
-      if (value === null) {
+      // Handle MinIO file data (JSON string from file uploads)
+      if (typeof value === 'string' && value.startsWith('[') && value.includes('fileKey')) {
+        try {
+          const fileData = JSON.parse(value);
+          sanitizedAnswers[key] = fileData;
+          continue;
+        } catch (parseError) {
+          console.warn('Failed to parse file data:', parseError);
+          sanitizedAnswers[key] = value;
+          continue;
+        }
+      }
+      
+      if (value === null || value === undefined) {
         // Firestore doesn't like `undefined`, so we store `null` for empty fields.
         sanitizedAnswers[key] = null;
       } else {
@@ -379,16 +425,42 @@ export async function validateAnswerAction(
   answer: string
 ): Promise<{ isValid: boolean; feedback: string } | { error: string }> {
   try {
+    // Basic client-side validation first
+    if (!answer || answer.trim().length === 0) {
+      return { isValid: false, feedback: 'Please provide an answer.' };
+    }
+
+    // Check field-specific validation rules
+    if (field.inputType === 'email' && answer.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(answer.trim())) {
+        return { isValid: false, feedback: 'Please enter a valid email address.' };
+      }
+    }
+
+    if (field.inputType === 'number' && answer.trim()) {
+      const num = parseFloat(answer.trim());
+      if (isNaN(num)) {
+        return { isValid: false, feedback: 'Please enter a valid number.' };
+      }
+    }
+
+    // Call AI validation service
     const result = await validateAnswer({
       question: field.question,
       answer: answer,
       validationRules: field.validationRules,
     });
+    
     return result;
   } catch (error) {
     console.error('Error validating answer:', error);
-    // Fallback to prevent blocking the user
-    return { isValid: true, feedback: 'Thank you!' };
+    
+    // More conservative fallback - don't auto-approve
+    return { 
+      isValid: false, 
+      feedback: 'Validation service is temporarily unavailable. Please check your answer and try again.' 
+    };
   }
 }
 

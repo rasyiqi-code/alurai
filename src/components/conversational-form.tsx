@@ -37,9 +37,14 @@ export function ConversationalForm({ formFlowData }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [suggestedAnswers, setSuggestedAnswers] = useState<ExtractedPair[] | null>(null);
+  const [submissionAttempts, setSubmissionAttempts] = useState(0);
+  const [lastSubmissionTime, setLastSubmissionTime] = useState<number>(0);
+  const [isOnline, setIsOnline] = useState(true);
+  const [pendingSubmission, setPendingSubmission] = useState<FormAnswers | null>(null);
 
   const [minioFiles, setMinioFiles] = useState<MinioUploadedFile[]>([]);
   const [isStateLoaded, setIsStateLoaded] = useState(false);
+  const inputRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
   
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -53,17 +58,32 @@ export function ConversationalForm({ formFlowData }: Props) {
   const saveFormState = () => {
     if (!formId || !isStateLoaded) return;
     
+    // Serialize messages properly, preserving important information
+    const serializedMessages = messages.map(msg => {
+      if (typeof msg.content === 'string') {
+        return { ...msg, content: msg.content };
+      } else if (React.isValidElement(msg.content)) {
+        // Extract text content from React elements
+        const element = msg.content as React.ReactElement;
+        if (element.props?.children) {
+          return { ...msg, content: String(element.props.children) };
+        }
+        return { ...msg, content: '[Bot Message]' };
+      } else {
+        return { ...msg, content: '[Complex Content]' };
+      }
+    });
+    
     const stateToSave = {
       currentStep,
       answers,
-      messages: messages.map(msg => ({
-        ...msg,
-        content: typeof msg.content === 'string' ? msg.content : '[Complex Content]'
-      })),
+      messages: serializedMessages,
       isCompleted,
       isSubmitted,
       suggestedAnswers,
       minioFiles,
+      submissionAttempts,
+      lastSubmissionTime,
       timestamp: Date.now()
     };
     
@@ -71,6 +91,21 @@ export function ConversationalForm({ formFlowData }: Props) {
       localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave));
     } catch (error) {
       console.warn('Failed to save form state:', error);
+      // If localStorage is full, try to clear old entries
+      try {
+        const keys = Object.keys(localStorage);
+        const formStateKeys = keys.filter(key => key.startsWith('form_state_'));
+        if (formStateKeys.length > 10) {
+          // Remove oldest entries
+          formStateKeys.sort().slice(0, 5).forEach(key => {
+            localStorage.removeItem(key);
+          });
+          // Retry saving
+          localStorage.setItem(getStorageKey(), JSON.stringify(stateToSave));
+        }
+      } catch (retryError) {
+        console.error('Failed to save form state even after cleanup:', retryError);
+      }
     }
   };
 
@@ -91,19 +126,36 @@ export function ConversationalForm({ formFlowData }: Props) {
         return false;
       }
       
-      setCurrentStep(parsedState.currentStep || 0);
+      // Validate and restore state with fallbacks
+      setCurrentStep(Math.max(0, parsedState.currentStep || 0));
       setAnswers(parsedState.answers || {});
-      setMessages(parsedState.messages || []);
-      setIsCompleted(parsedState.isCompleted || false);
-      setIsSubmitted(parsedState.isSubmitted || false);
-      setSuggestedAnswers(parsedState.suggestedAnswers || null);
-      setMinioFiles(parsedState.minioFiles || []);
-
       
+      // Restore messages with proper validation
+      const restoredMessages = Array.isArray(parsedState.messages) 
+        ? parsedState.messages.map((msg: any) => ({
+            type: msg.type === 'bot' || msg.type === 'user' ? msg.type : 'bot',
+            content: typeof msg.content === 'string' ? msg.content : '[Restored Message]',
+            isThinking: Boolean(msg.isThinking)
+          }))
+        : [];
+      
+      setMessages(restoredMessages);
+      setIsCompleted(Boolean(parsedState.isCompleted));
+      setIsSubmitted(Boolean(parsedState.isSubmitted));
+      setSuggestedAnswers(parsedState.suggestedAnswers || null);
+      setMinioFiles(Array.isArray(parsedState.minioFiles) ? parsedState.minioFiles : []);
+      setSubmissionAttempts(Math.max(0, parsedState.submissionAttempts || 0));
+      setLastSubmissionTime(parsedState.lastSubmissionTime || 0);
+
       return true;
     } catch (error) {
       console.warn('Failed to load form state:', error);
-      localStorage.removeItem(getStorageKey());
+      // Clear corrupted state
+      try {
+        localStorage.removeItem(getStorageKey());
+      } catch (clearError) {
+        console.error('Failed to clear corrupted state:', clearError);
+      }
       return false;
     }
   };
@@ -158,10 +210,60 @@ export function ConversationalForm({ formFlowData }: Props) {
     return () => clearTimeout(timeoutId);
   }, [messages]);
 
+  // Network status monitoring
+  useEffect(() => {
+    const handleOnline = () => {
+      setIsOnline(true);
+      // If we have a pending submission and we're back online, try to submit it
+      if (pendingSubmission && !isSubmitting) {
+        toast({ 
+          title: 'Back Online', 
+          description: 'Connection restored. Retrying submission...' 
+        });
+        setTimeout(() => {
+          handleSubmission();
+        }, 1000);
+      }
+    };
+
+    const handleOffline = () => {
+      setIsOnline(false);
+      toast({ 
+        variant: 'destructive', 
+        title: 'Connection Lost', 
+        description: 'You are offline. Your progress will be saved locally.' 
+      });
+    };
+
+    window.addEventListener('online', handleOnline);
+    window.addEventListener('offline', handleOffline);
+
+    // Check initial online status
+    setIsOnline(navigator.onLine);
+
+    return () => {
+      window.removeEventListener('online', handleOnline);
+      window.removeEventListener('offline', handleOffline);
+    };
+  }, [pendingSubmission, isSubmitting]);
+
   // Save state whenever important state changes
   useEffect(() => {
     saveFormState();
   }, [currentStep, answers, messages, isCompleted, isSubmitted, suggestedAnswers, minioFiles, isStateLoaded]);
+
+  // Auto-focus input when step changes
+  useEffect(() => {
+    if (isStateLoaded && inputRef.current && !isSubmitted && !isCompleted) {
+      // Small delay to ensure DOM is updated
+      setTimeout(() => {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          console.log('Auto-focused input for step:', currentStep);
+        }
+      }, 100);
+    }
+  }, [currentStep, isStateLoaded, isSubmitted, isCompleted]);
 
   const startForm = (isRestart = false) => {
     setCurrentStep(0);
@@ -205,22 +307,105 @@ export function ConversationalForm({ formFlowData }: Props) {
       toast({ variant: 'destructive', title: 'Cannot Submit', description: 'This form has not been saved yet.' });
       return;
     }
-    setIsSubmitting(true);
-    
-    const result = await saveSubmissionAction(formId, answers);
-    setIsSubmitting(false);
 
-    if ('error' in result) {
-      toast({ variant: 'destructive', title: 'Submission Failed', description: result.error });
-      setMessages(prev => [...prev, { type: 'bot', content: 'Sorry, there was an error submitting your form. Please try again.'}]);
-    } else {
-      setIsSubmitted(true);
-      setMessages(prev => [...prev, { type: 'user', content: 'Submit Form' }, { type: 'bot', content: 'Thank you for completing the form! Your submission has been received.'}]);
+    // Check if offline
+    if (!isOnline) {
+      setPendingSubmission(answers);
+      toast({ 
+        variant: 'destructive', 
+        title: 'Offline Mode', 
+        description: 'You are offline. Your submission will be sent when connection is restored.' 
+      });
+      setMessages(prev => [...prev, { type: 'bot', content: 'You are currently offline. Your submission will be automatically sent when you are back online.'}]);
+      return;
+    }
+
+    // Prevent multiple submissions
+    const now = Date.now();
+    const timeSinceLastSubmission = now - lastSubmissionTime;
+    const SUBMISSION_COOLDOWN = 2000; // 2 seconds cooldown
+    
+    if (isSubmitting) {
+      toast({ variant: 'destructive', title: 'Already Submitting', description: 'Please wait for the current submission to complete.' });
+      return;
+    }
+
+    if (timeSinceLastSubmission < SUBMISSION_COOLDOWN) {
+      toast({ variant: 'destructive', title: 'Too Soon', description: 'Please wait a moment before submitting again.' });
+      return;
+    }
+
+    if (submissionAttempts >= 3) {
+      toast({ variant: 'destructive', title: 'Too Many Attempts', description: 'Maximum submission attempts reached. Please refresh the page and try again.' });
+      return;
+    }
+
+    setIsSubmitting(true);
+    setLastSubmissionTime(now);
+    setSubmissionAttempts(prev => prev + 1);
+    setPendingSubmission(answers);
+    
+    try {
+      const result = await saveSubmissionAction(formId, answers);
+
+      if ('error' in result) {
+        // Check if it's a retryable error
+        const isRetryableError = result.error.includes('network') || 
+                                result.error.includes('timeout') || 
+                                result.error.includes('temporarily unavailable');
+        
+        if (isRetryableError && submissionAttempts < 3) {
+          toast({ 
+            variant: 'destructive', 
+            title: 'Submission Failed', 
+            description: `${result.error} Retrying... (${submissionAttempts}/3)` 
+          });
+          setMessages(prev => [...prev, { type: 'bot', content: 'Network error detected. Retrying submission...'}]);
+          
+          // Retry after a delay
+          setTimeout(() => {
+            handleSubmission();
+          }, 2000);
+          return;
+        }
+        
+        toast({ variant: 'destructive', title: 'Submission Failed', description: result.error });
+        setMessages(prev => [...prev, { type: 'bot', content: 'Sorry, there was an error submitting your form. Please try again.'}]);
+      } else {
+        setIsSubmitted(true);
+        setPendingSubmission(null); // Clear pending submission on success
+        setMessages(prev => [...prev, { type: 'user', content: 'Submit Form' }, { type: 'bot', content: 'Thank you for completing the form! Your submission has been received.'}]);
+        
+        // Clear saved state after successful submission
+        setTimeout(() => {
+          clearFormState();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Submission error:', error);
       
-      // Clear saved state after successful submission
-      setTimeout(() => {
-        clearFormState();
-      }, 1000);
+      // Check if it's a network error that can be retried
+      const isNetworkError = error instanceof TypeError && error.message.includes('fetch');
+      
+      if (isNetworkError && submissionAttempts < 3) {
+        toast({ 
+          variant: 'destructive', 
+          title: 'Network Error', 
+          description: `Connection lost. Retrying... (${submissionAttempts}/3)` 
+        });
+        setMessages(prev => [...prev, { type: 'bot', content: 'Network connection lost. Retrying submission...'}]);
+        
+        // Retry after a delay
+        setTimeout(() => {
+          handleSubmission();
+        }, 3000);
+        return;
+      }
+      
+      toast({ variant: 'destructive', title: 'Submission Error', description: 'An unexpected error occurred. Please try again.' });
+      setMessages(prev => [...prev, { type: 'bot', content: 'Sorry, there was an unexpected error. Please try again.'}]);
+    } finally {
+      setIsSubmitting(false);
     }
   };
   
@@ -309,6 +494,13 @@ export function ConversationalForm({ formFlowData }: Props) {
     validateAndProceed(field, value, { [field.key]: value });
   }
 
+  const handleKeyDownSelect = (e: React.KeyboardEvent, field: FormField, value: string) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleRadioSelect(field, value);
+    }
+  }
+
   const renderSuggestions = () => {
     if (!suggestedAnswers || suggestedAnswers.length === 0) {
       return null;
@@ -324,6 +516,13 @@ export function ConversationalForm({ formFlowData }: Props) {
                         variant="outline"
                         className="h-auto py-1 px-3 text-xs"
                         onClick={() => handleSuggestionClick(suggestion.value)}
+                        onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ' ') {
+                                e.preventDefault();
+                                handleSuggestionClick(suggestion.value);
+                            }
+                        }}
+                        tabIndex={0}
                     >
                         {suggestion.value}
                     </Button>
@@ -340,14 +539,48 @@ export function ConversationalForm({ formFlowData }: Props) {
     // Ensure value is always a string to prevent controlled/uncontrolled error for text-based inputs
     const value = (answers[field.key] as string) || '';
 
+    console.log('Rendering input for field:', field.key, 'type:', field.inputType, 'value:', value, 'isValidating:', isValidating, 'isSubmitting:', isSubmitting);
+
     // 'select' type is handled in renderFooterContent, so we don't render it here.
     if (field.inputType === 'select') {
       return null;
     }
     
+    // Handle Enter key press for form submission
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (!isValidating && !isSubmitting) {
+          handleNextStep(e as any);
+        }
+      }
+    };
+
+    // Handle focus events for debugging
+    const handleFocus = () => {
+      console.log('Input focused:', field.key, field.inputType);
+    };
+
+    const handleClick = () => {
+      console.log('Input clicked:', field.key, field.inputType);
+    };
+    
     switch (field.inputType) {
       case 'textarea':
-        return <Textarea value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
+        return (
+          <Textarea 
+            ref={inputRef as React.RefObject<HTMLTextAreaElement>}
+            value={value} 
+            onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} 
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            onClick={handleClick}
+            placeholder="Type your answer here... (Press Enter to submit, Shift+Enter for new line)" 
+            autoFocus={true}
+            tabIndex={0}
+            className="pointer-events-auto"
+          />
+        );
       case 'file':
         return (
           <MinioUpload 
@@ -358,7 +591,22 @@ export function ConversationalForm({ formFlowData }: Props) {
           />
         );
       default:
-        return <Input type={field.inputType} value={value} onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} placeholder="Type your answer here..." />;
+        return (
+          <Input 
+            ref={inputRef as React.RefObject<HTMLInputElement>}
+            type={field.inputType} 
+            value={value} 
+            onChange={(e) => setAnswers({ ...answers, [field.key]: e.target.value })} 
+            onKeyDown={handleKeyDown}
+            onFocus={handleFocus}
+            onClick={handleClick}
+            placeholder="Type your answer here... (Press Enter to submit)" 
+            autoFocus={true}
+            tabIndex={0}
+            disabled={isValidating || isSubmitting}
+            className="pointer-events-auto"
+          />
+        );
     }
   };
 
@@ -390,6 +638,8 @@ export function ConversationalForm({ formFlowData }: Props) {
                 size="sm"
                 disabled={isValidating}
                 onClick={() => handleRadioSelect(currentField, opt)}
+                onKeyDown={(e) => handleKeyDownSelect(e, currentField, opt)}
+                tabIndex={0}
               >
                 {opt}
               </Button>
@@ -401,17 +651,22 @@ export function ConversationalForm({ formFlowData }: Props) {
     }
 
     return (
-      <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2">
-        <div>
+      <form onSubmit={handleNextStep} className="w-full flex flex-col gap-2 pointer-events-auto">
+        <div className="pointer-events-auto">
           {renderSuggestions()}
           {renderInput(currentField)}
         </div>
-        <div className='flex items-center justify-between'>
+        <div className='flex items-center justify-between pointer-events-auto'>
           <DataParser formFlow={formFlow} onDataParsed={handleDataParsed} />
           {currentField.inputType !== 'file' && (
-            <Button type="submit" size="sm" disabled={isValidating}>
+            <Button 
+              type="submit" 
+              size="sm" 
+              disabled={isValidating || isSubmitting}
+              className="min-w-[80px]"
+            >
               {isValidating ? <Spinner /> : <Send className="h-4 w-4 mr-2" />}
-              {isValidating ? '' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
+              {isValidating ? 'Validating...' : (currentStep === formFlow.length - 1 ? 'Finish' : 'Next')}
             </Button>
           )}
         </div>
@@ -421,6 +676,24 @@ export function ConversationalForm({ formFlowData }: Props) {
 
   return (
     <Card className="h-full w-full flex flex-col shadow-none bg-card rounded-none md:rounded-xl border-0">
+      {/* Status Bar */}
+      <div className="flex items-center justify-between px-4 py-2 bg-muted/50 border-b">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{title}</span>
+          <span className="text-xs text-muted-foreground">
+            {currentStep + 1} of {formFlow.length}
+          </span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className={`w-2 h-2 rounded-full ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
+          {!isOnline && (
+            <span className="text-xs text-red-500 font-medium">Offline</span>
+          )}
+          {pendingSubmission && (
+            <span className="text-xs text-yellow-500 font-medium">Pending</span>
+          )}
+        </div>
+      </div>
 
       <ScrollArea ref={scrollRef} className="flex-1" type="auto">
         <CardContent className="p-4 space-y-4">
@@ -450,7 +723,7 @@ export function ConversationalForm({ formFlowData }: Props) {
         </CardContent>
       </ScrollArea>
       {!isSubmitted && (
-        <CardFooter className="border-t p-4 bg-background/95 backdrop-blur-sm">
+        <CardFooter className="border-t p-4 bg-background/95 backdrop-blur-sm relative z-10">
           {renderFooterContent()}
         </CardFooter>
       )}
